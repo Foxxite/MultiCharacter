@@ -1,0 +1,10 @@
+#
+# DON'T TOUCH THIS
+#
+file-version: 0
+
+#
+# Plugin Messages
+#
+prefix: "&8[&dKWARK&8]"
+key-missing: "{prefix} &cMessage for &e`{key}` &cis missing!"

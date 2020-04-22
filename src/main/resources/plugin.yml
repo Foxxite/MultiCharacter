@@ -1,0 +1,13 @@
+main: com.foxxite.emptyplugin.EmptyPlugin
+name: EmptyPlugin
+
+author: Foxxite
+description: Empty plugin
+website: https://foxxite.com
+
+version: "1.0.0"
+api-version: "1.15"
+
+softdepend: [PlaceholderAPI]
+
+

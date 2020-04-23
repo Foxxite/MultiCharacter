@@ -5,7 +5,11 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.TimerTask;
@@ -20,8 +24,9 @@ public class CharacterCreator extends TimerTask implements Listener {
     public CharacterCreator(final MultiCharacter plugin) {
         this.plugin = plugin;
         this.language = plugin.getLanguage();
-    }
 
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
 
     public void run() {
         final String creatorTitle = this.language.getMessage("character-creator.title");
@@ -41,16 +46,16 @@ public class CharacterCreator extends TimerTask implements Listener {
                         player.sendTitle(creatorTitle, this.language.getMessage("character-creator.name"), 0, 20, 0);
                         break;
                     case BIRTHDAY:
-                        player.sendTitle(this.language.getMessage("character-creator.title"), this.language.getMessage("character-creator.birthday"), 0, 200, 0);
+                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.birthday"), 0, 200, 0);
                         break;
                     case SEX:
-                        player.sendTitle(this.language.getMessage("character-creator.title"), this.language.getMessage("character-creator.sex"), 0, 200, 0);
+                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.sex"), 0, 200, 0);
                         break;
                     case NATIONALITY:
-                        player.sendTitle(this.language.getMessage("character-creator.title"), this.language.getMessage("character-creator.nationality"), 0, 200, 0);
+                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.nationality"), 0, 200, 0);
                         break;
                     case SKIN:
-                        player.sendTitle(this.language.getMessage("character-creator.skin"), this.language.getMessage("character-creator.name"), 0, 200, 0);
+                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.name"), 0, 200, 0);
                         break;
                     case COMPLETE:
                         break;
@@ -63,5 +68,43 @@ public class CharacterCreator extends TimerTask implements Listener {
 
         }, 1L);
     }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    void onPlayerLogout(final PlayerQuitEvent event) {
+
+        final Player player = event.getPlayer();
+
+        if (this.playerState.containsKey(player.getUniqueId())) {
+            this.plugin.getPlayersInCreation().remove(player.getUniqueId());
+        }
+    }
+
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    void onPlayerChat(final AsyncPlayerChatEvent event) {
+        final Player player = event.getPlayer();
+        final UUID playerUUID = player.getUniqueId();
+
+        if (this.playerState.containsKey(player.getUniqueId())) {
+            event.setCancelled(true);
+
+            switch (this.playerState.get(playerUUID)) {
+                case NAME:
+                    break;
+                case BIRTHDAY:
+                    break;
+                case SEX:
+                    break;
+                case NATIONALITY:
+                    break;
+                case SKIN:
+                    break;
+                case COMPLETE:
+                    break;
+            }
+
+        }
+    }
+
 }
 

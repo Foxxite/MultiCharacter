@@ -182,7 +182,6 @@ public class CharacterSelector implements InventoryHolder, Listener {
         if (event.getPlayer() == this.player) {
             if (this.player.getLocation().equals(this.menuLocation)) {
                 this.teleportToSpawnLocation(this.playerLoginLocation);
-                this.plugin.getPlayersInCreation().remove(this.player.getUniqueId());
             }
         }
     }

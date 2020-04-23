@@ -1,4 +1,66 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 0
+file-version: -1
+
+menu-location:
+  x: 0
+  y: 255
+  z: 0
+  world: world_the_end
+
+spawn-locations:
+  1:
+    icon: COMMAND_BLOCK
+    name: "Debug Beach"
+    x: -249
+    y: 64
+    z: -5
+    yaw: 45
+    pitch: 0
+    world: world
+  2:
+    icon: OAK_DOOR
+    name: "Lockpick Doors"
+    x: -296
+    y: 70
+    z: 6
+    yaw: 60
+    pitch: 0
+    world: world
+  3:
+    icon: FLINT_AND_STEEL
+    name: "Nether Portal"
+    x: -216
+    y: 64
+    z: -14
+    yaw: 141
+    pitch: 0
+    world: world
+  4:
+    icon: GOLD_BLOCK
+    name: "Bank"
+    x: 697
+    y: 67
+    z: -814
+    yaw: -90
+    pitch: 0
+    world: world
+  5:
+    icon: POTION
+    name: "Herberg"
+    x: 556
+    y: 72
+    z: -807
+    yaw: 80
+    pitch: 0
+    world: world
+  6:
+    icon: IRON_HOE
+    name: "Farm"
+    x: 647
+    y: 68
+    z: -958
+    yaw: -180
+    pitch: 0
+    world: world

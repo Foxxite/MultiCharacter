@@ -1,6 +1,5 @@
 package com.foxxite.emptyplugin.configs;
 
-import com.foxxite.kwark.utility.Common;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

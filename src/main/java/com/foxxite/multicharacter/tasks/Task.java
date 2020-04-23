@@ -1,4 +1,4 @@
-package com.foxxite.emptyplugin.tasks;
+package com.foxxite.multicharacter.tasks;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -16,7 +16,7 @@ public class Task extends TimerTask {
     @Override
     public void run() {
 
-		Bukkit.getScheduler().runTask(this.plugin, () -> {
+        Bukkit.getScheduler().runTask(this.plugin, () -> {
 
         });
 

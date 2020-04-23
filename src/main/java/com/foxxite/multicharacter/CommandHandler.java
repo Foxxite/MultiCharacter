@@ -1,4 +1,4 @@
-package com.foxxite.emptyplugin;
+package com.foxxite.multicharacter;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

@@ -1,10 +1,27 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 0
+file-version: -1
 
 #
 # Plugin Messages
 #
 prefix: "&8[&dKWARK&8]"
 key-missing: "{prefix} &cMessage for &e`{key}` &cis missing!"
+
+character-selection:
+  title: "Character Selection"
+  staff-mode: "&cSTAFF MODE"
+  character:
+    name: "&6{name}"
+    lore:
+      - "&7Birthday: {birthday}"
+      - "&7Nationality: {nationality}"
+      - "&7Sex: {sex}"
+      - ""
+      - "&7Right Click To Play"
+      - "&4Left Click To Delete"
+  new-character:
+    name: "&aCreate New Character"
+    lore: []
+

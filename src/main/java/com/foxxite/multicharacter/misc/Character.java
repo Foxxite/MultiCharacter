@@ -48,6 +48,7 @@ public class Character {
         tableLayout.put("Skin", "string");
         tableLayout.put("Birthday", "string");
         tableLayout.put("Nationality", "string");
+        tableLayout.put("Sex", "string");
 
         final HashMap<Integer, HashMap<String, Object>> queryResult = this.sqlHandler.executeQuery("SELECT * FROM Characters WHERE UUID = '" + characterUUID.toString() + "'", tableLayout);
 

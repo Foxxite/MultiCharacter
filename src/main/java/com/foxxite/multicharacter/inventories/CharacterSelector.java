@@ -71,7 +71,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
         this.player.openInventory(this.getInventory());
     }
 
-    private ItemStack getCharacterSelector(final UUID skin, final Character character) {
+    private ItemStack getCharacterSkull(final UUID skin, final Character character) {
         final ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         final SkullMeta meta = (SkullMeta) skull.getItemMeta();
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(skin));
@@ -83,6 +83,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
         final HashMap<String, String> placeholdersLore = new HashMap<>();
         placeholdersLore.put("{birthday}", "");
         placeholdersLore.put("{nationality}", "");
+        placeholdersLore.put("{sex}", "");
         meta.setLore(this.language.getMultiLineMessageCustom("character-selection.character.lore", placeholdersLore));
 
         return skull;

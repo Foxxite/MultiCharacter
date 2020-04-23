@@ -78,7 +78,7 @@ public class MultiCharacter extends JavaPlugin {
         this.getCommand("multicharacter").setExecutor(this.commandHandler);
 
         //Register Timers
-        this.timer.schedule(new AnimateToPosition(this), 0, 1000);
+        this.timer.schedule(new AnimateToPosition(this), 0, 100);
         this.timer.schedule(this.characterCreator, 0, 500);
 
         //Register event listeners

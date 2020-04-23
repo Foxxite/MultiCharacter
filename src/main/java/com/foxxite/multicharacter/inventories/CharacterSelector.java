@@ -165,11 +165,11 @@ public class CharacterSelector implements InventoryHolder, Listener {
     void teleportToSpawnLocation(final Location spawnLocation) {
         this.canClose = true;
         this.player.closeInventory();
-        this.player.setGameMode(GameMode.CREATIVE);
-        this.player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         this.player.getInventory().setContents(this.currPlayerInventory);
         this.player.updateInventory();
-        this.player.setFlying(false);
+
+        this.plugin.getAnimateToLocation().put(this.player.getUniqueId(), spawnLocation);
+
     }
 
     @Override

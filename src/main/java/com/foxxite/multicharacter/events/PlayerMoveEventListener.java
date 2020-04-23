@@ -32,6 +32,7 @@ public class PlayerMoveEventListener implements Listener {
         if (this.plugin.getPlayersInCreation().contains(player.getUniqueId())) {
             event.setCancelled(true);
         }
+
     }
 
 }

@@ -11,7 +11,14 @@ key-missing: "{prefix} &cMessage for &e`{key}` &cis missing!"
 
 character-selection:
   title: "Character Selection"
-  staff-mode: "&cSTAFF MODE"
+
+  staff-mode:
+    name:  "&4&lSTAFF MODE"
+    lore:
+      - "&7Spawn you at your logout location"
+      - "&7with the items you had in"
+      - "&7your inventory upon logout."
+
   character:
     name: "&6{name}"
     lore:
@@ -24,4 +31,13 @@ character-selection:
   new-character:
     name: "&aCreate New Character"
     lore: []
+
+character-creator:
+  title: "&aCharacter Creator"
+  guide: "&aWelcome in the character creator, type &7`cancel` &ain chat to cancel."
+  name: "&bPlease type the name of your character in chat"
+  birthday: "&bPlease type the birthday of your character in chat"
+  nationality: "&bPlease type the nationality of your character in chat"
+  sex: "&bPlease type the sex of your character in chat"
+  skin: "&bPlease type UUID of the Minecraft account you want to use as skin"
 

@@ -28,6 +28,9 @@ public class PlayerLoginEventListener implements Listener {
 
         final Player player = event.getPlayer();
 
+        if (player.isDead())
+            player.spigot().respawn();
+
         final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
 
     }

@@ -7,7 +7,7 @@ menu-location:
   x: 0
   y: 255
   z: 0
-  world: world_the_end
+  world: world
 
 spawn-locations:
   1:

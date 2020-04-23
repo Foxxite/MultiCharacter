@@ -1,5 +1,6 @@
-package com.foxxite.emptyplugin.configs;
+package com.foxxite.multicharacter.configs;
 
+import com.foxxite.multicharacter.misc.Common;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -1,15 +1,16 @@
 package com.foxxite.multicharacter.tasks;
 
+import com.foxxite.multicharacter.MultiCharacter;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.event.Listener;
 
 import java.util.TimerTask;
 
-public class Task extends TimerTask {
+public class AnimateToPosition extends TimerTask implements Listener {
 
-    Plugin plugin;
+    MultiCharacter plugin;
 
-    public Task(final Plugin plugin) {
+    public AnimateToPosition(final MultiCharacter plugin) {
         this.plugin = plugin;
     }
 
@@ -19,7 +20,6 @@ public class Task extends TimerTask {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
 
         });
-
 
     }
 

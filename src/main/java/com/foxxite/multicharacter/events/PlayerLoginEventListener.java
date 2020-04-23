@@ -1,7 +1,7 @@
 package com.foxxite.multicharacter.events;
 
 import com.foxxite.multicharacter.MultiCharacter;
-import com.foxxite.multicharacter.configs.Language;
+import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;

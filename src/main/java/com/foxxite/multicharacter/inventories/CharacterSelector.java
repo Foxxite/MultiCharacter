@@ -1,7 +1,7 @@
 package com.foxxite.multicharacter.inventories;
 
 import com.foxxite.multicharacter.MultiCharacter;
-import com.foxxite.multicharacter.configs.Language;
+import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Character;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import org.bukkit.*;
@@ -73,8 +73,8 @@ public class CharacterSelector implements InventoryHolder, Listener {
     private void openGuiForPlayer() {
         this.playerLoginLocation = this.player.getLocation();
 
-
         this.player.teleport(this.menuLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        this.player.setAllowFlight(true);
         this.player.setFlying(true);
         this.player.setGameMode(GameMode.SPECTATOR);
 

@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.configs;
+package com.foxxite.multicharacter.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

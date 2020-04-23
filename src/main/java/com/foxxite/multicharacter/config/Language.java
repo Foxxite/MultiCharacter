@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.configs;
+package com.foxxite.multicharacter.config;
 
 import com.foxxite.multicharacter.misc.Common;
 import me.clip.placeholderapi.PlaceholderAPI;

@@ -1,12 +1,15 @@
 package com.foxxite.multicharacter;
 
-import com.foxxite.multicharacter.configs.Config;
-import com.foxxite.multicharacter.configs.Language;
+import com.foxxite.multicharacter.config.Config;
+import com.foxxite.multicharacter.config.Language;
+import com.foxxite.multicharacter.creator.CharacterCreator;
+import com.foxxite.multicharacter.events.ItemPickupEventListener;
 import com.foxxite.multicharacter.events.PlayerLoginEventListener;
 import com.foxxite.multicharacter.events.PlayerMoveEventListener;
 import com.foxxite.multicharacter.sql.SQLHandler;
-import com.foxxite.multicharacter.tasks.Task;
+import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import lombok.Getter;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,6 +27,8 @@ public class MultiCharacter extends JavaPlugin {
     private final ArrayList<UUID> playersInCreation = new ArrayList<>();
     @Getter
     private final HashMap<UUID, Character> activeCharacters = new HashMap<>();
+    @Getter
+    private final HashMap<UUID, Location> animateToLocation = new HashMap<>();
 
     @Getter
     private SQLHandler sqlHandler;
@@ -39,6 +44,10 @@ public class MultiCharacter extends JavaPlugin {
     private Timer timer = new Timer();
     private PlayerLoginEventListener playerLoginEventListener;
     private PlayerMoveEventListener playerMoveEventListener;
+    private ItemPickupEventListener itemPickupEventListener;
+
+    private CharacterCreator characterCreator;
+
     private CommandHandler commandHandler;
 
 
@@ -53,27 +62,33 @@ public class MultiCharacter extends JavaPlugin {
             return;
         }
 
-        //Register SQL handler
-        this.sqlHandler = new SQLHandler(this);
-
         //Register config files
         this.language = new Language(this);
         this.configRaw = new Config(this);
         this.configuration = this.configRaw.getConfig();
+
+        //Register SQL handler
+        this.sqlHandler = new SQLHandler(this);
+
+        //Register other
+        this.characterCreator = new CharacterCreator(this);
 
         //Register commands
         this.commandHandler = new CommandHandler(this);
         this.getCommand("multicharacter").setExecutor(this.commandHandler);
 
         //Register Timers
-        this.timer.schedule(new Task(this), 0, 1000);
+        this.timer.schedule(new AnimateToPosition(this), 0, 1000);
+        this.timer.schedule(this.characterCreator, 0, 500);
 
         //Register event listeners
         this.playerLoginEventListener = new PlayerLoginEventListener(this);
         this.playerMoveEventListener = new PlayerMoveEventListener(this);
+        this.itemPickupEventListener = new ItemPickupEventListener(this);
 
         this.getServer().getPluginManager().registerEvents(this.playerLoginEventListener, this);
         this.getServer().getPluginManager().registerEvents(this.playerMoveEventListener, this);
+        this.getServer().getPluginManager().registerEvents(this.itemPickupEventListener, this);
 
         this.pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin enabled"));
     }
@@ -81,6 +96,8 @@ public class MultiCharacter extends JavaPlugin {
     @Override
     public void onDisable() {
         this.playerLoginEventListener = null;
+        this.playerMoveEventListener = null;
+        this.itemPickupEventListener = null;
 
         this.timer.cancel();
         this.timer = null;

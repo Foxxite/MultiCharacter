@@ -33,17 +33,29 @@ public class CommandHandler implements TabExecutor {
                 if (args.length > 0) {
                     switch (args[0]) {
                         case "reload":
-                            this.config.reloadConfig();
-                            this.language.reloadLanguage();
-                            player.sendMessage(this.language.getMessage("prefix") + " Config and Lang reloaded");
+                            if (player.hasPermission("multicharacter.admin")) {
+                                this.config.reloadConfig();
+                                this.language.reloadLanguage();
+                                player.sendMessage(this.language.getMessage("prefix") + " Config and Lang reloaded");
+                            } else {
+                                player.sendMessage(this.language.getMessage("prefix") + " You don't have permission for this command.");
+                            }
                             break;
                         case "logout":
                         case "switch":
-                            this.saveData(player);
-                            final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+                            if (player.hasPermission("multicharacter.switch")) {
+                                this.saveData(player);
+                                final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+                            } else {
+                                player.sendMessage(this.language.getMessage("prefix") + " You don't have permission for this command.");
+                            }
                             break;
                         case "save":
-                            this.saveData(player);
+                            if (player.hasPermission("multicharacter.save")) {
+                                this.saveData(player);
+                            } else {
+                                player.sendMessage(this.language.getMessage("prefix") + " You don't have permission for this command.");
+                            }
                             break;
                         default:
                             player.sendMessage(this.language.getMessage("prefix") + " Unknown Sub Command");

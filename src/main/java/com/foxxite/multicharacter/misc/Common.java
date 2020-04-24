@@ -5,16 +5,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.libs.org.apache.commons.io.IOUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
-import java.net.URL;
 import java.util.UUID;
 
 public class Common {
@@ -95,21 +90,6 @@ public class Common {
             if (p.getUniqueId().equals(uuid))
                 return p;
 
-        return null;
-    }
-
-    public static String getNameFromUUID(final String uuid) {
-        final String url = "https://api.mojang.com/user/profiles/" + uuid.replace("-", "") + "/names";
-        try {
-            @SuppressWarnings("deprecation") final String nameJson = IOUtils.toString(new URL(url));
-            final JSONArray nameValue = (JSONArray) JSONValue.parseWithException(nameJson);
-            final String playerSlot = nameValue.get(nameValue.size() - 1).toString();
-            final JSONObject nameObject = (JSONObject) JSONValue.parseWithException(playerSlot);
-            return nameObject.get("name").toString();
-        } catch (final Exception e) {
-            System.out.println(e.getMessage() + " " + e.getCause());
-            e.printStackTrace();
-        }
         return null;
     }
 

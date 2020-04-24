@@ -49,7 +49,7 @@ public class SkinChanger {
             }
         });
 
-        this.adapter = new PacketAdapter(this, PacketType.Play.Server.PLAYER_INFO) {
+        this.adapter = new PacketAdapter(plugin, PacketType.Play.Server.PLAYER_INFO) {
             @Override
             public void onPacketSending(final PacketEvent event) {
                 if (SkinChanger.this.properties == null) {

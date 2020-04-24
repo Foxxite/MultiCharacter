@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -126,7 +127,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
         tableLayout.put("UUID", "string");
         tableLayout.put("OwnerUUID", "string");
 
-        final String selectQuery = "SELECT UUID, OwnerUUID FROM Characters WHERE OwnerUUID = '" + this.player.getUniqueId().toString() + "'";
+        final String selectQuery = "SELECT UUID, OwnerUUID FROM Characters WHERE Deleted = 0 AND OwnerUUID = '" + this.player.getUniqueId().toString() + "'";
 
         final HashMap<Integer, HashMap<String, Object>> queryResult = this.sqlHandler.executeQuery(selectQuery, tableLayout);
 
@@ -145,11 +146,8 @@ public class CharacterSelector implements InventoryHolder, Listener {
                         this.selectorGui.setItem(7, this.getCharacterSkull(UUID.fromString((String) queryResult.get(i).get("UUID"))));
                         break;
                 }
-
             }
-
         }
-
 
         if (this.player.hasPermission("multicharacter.admin")) {
             final ItemStack staffMode = new ItemStack(Material.CREEPER_HEAD, 1);
@@ -165,13 +163,13 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
     }
 
-    void teleportToSpawnLocation(final Location spawnLocation) {
+    void teleportToStaffLocation(final Location staffLocation) {
         this.canClose = true;
         this.player.closeInventory();
         this.player.getInventory().setContents(this.currPlayerInventory);
         this.player.updateInventory();
 
-        this.plugin.getAnimateToLocation().put(this.player.getUniqueId(), spawnLocation);
+        this.plugin.getAnimateToLocation().put(this.player.getUniqueId(), staffLocation);
 
     }
 
@@ -184,7 +182,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
     void onPlayerLogout(final PlayerQuitEvent event) {
         if (event.getPlayer() == this.player) {
             if (this.player.getLocation().equals(this.menuLocation)) {
-                this.teleportToSpawnLocation(this.playerLoginLocation);
+                this.teleportToStaffLocation(this.playerLoginLocation);
             }
         }
     }
@@ -211,7 +209,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
             event.setCancelled(true);
 
             if (event.getSlot() == 8) {
-                this.teleportToSpawnLocation(this.playerLoginLocation);
+                this.teleportToStaffLocation(this.playerLoginLocation);
             } else {
                 if (clickedItem.getType() == Material.LIME_CONCRETE) {
 
@@ -221,6 +219,44 @@ public class CharacterSelector implements InventoryHolder, Listener {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
 
                 } else if (clickedItem.getType() == Material.PLAYER_HEAD) {
+
+                    final ItemMeta meta = clickedItem.getItemMeta();
+
+                    final PersistentDataContainer container = meta.getPersistentDataContainer();
+                    final UUID characterUUID = UUID.fromString(container.get(this.namespacedKey, PersistentDataType.STRING));
+
+                    final ClickType clickType = event.getClick();
+
+                    //Delete Character
+                    if (clickType == ClickType.DOUBLE_CLICK) {
+                        this.sqlHandler.executeUpdateQuery("UPDATE Characters SET Deleted = 1 WHERE UUID = '" + characterUUID + "';");
+                        player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1f, 1f);
+                        this.populateGUI();
+                    }
+
+                    //Select Character
+                    else if (clickType == ClickType.RIGHT) {
+
+                        final Character character = new Character(this.plugin, characterUUID);
+
+                        this.canClose = true;
+                        player.closeInventory();
+
+                        if (character.getInventoryContent() != null) {
+                            player.getInventory().setContents(character.getInventoryContent());
+                            player.updateInventory();
+                        }
+
+                        player.setHealth(character.getHealth());
+                        player.setFoodLevel(character.getHunger());
+
+                        player.setDisplayName(character.getName());
+
+                        this.plugin.getActiveCharacters().put(player.getUniqueId(), character);
+                        this.plugin.getAnimateToLocation().put(player.getUniqueId(), character.getLogoutLocation());
+
+
+                    }
 
                 }
             }

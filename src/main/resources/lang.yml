@@ -27,7 +27,7 @@ character-selection:
       - "&7Sex: {sex}"
       - ""
       - "&7Right Click To Play"
-      - "&4Left Click To Delete"
+      - "&4Double Left Click To Delete"
   new-character:
     name: "&aCreate New Character"
     lore: []

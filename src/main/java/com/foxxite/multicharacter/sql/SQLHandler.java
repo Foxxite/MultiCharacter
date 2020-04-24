@@ -80,6 +80,7 @@ public class SQLHandler {
                         "\t\"Birthday\"\tTEXT,\n" +
                         "\t\"Nationality\"\tTEXT,\n" +
                         "\t\"Sex\"\tTEXT,\n" +
+                        "\t\"Deleted\"\tINTEGER DEFAULT 0,\n" +
                         "\tPRIMARY KEY(\"UUID\")\n" +
                         ");";
 
@@ -87,8 +88,8 @@ public class SQLHandler {
                 "CREATE TABLE IF NOT EXISTS \"Inventories\" (\n" +
                         "\t\"CharacterUUID\"\tTEXT UNIQUE,\n" +
                         "\t\"Contents\"\tTEXT,\n" +
-                        "\t\"Health\"\tNUMERIC,\n" +
-                        "\t\"Hunger\"\tNUMERIC,\n" +
+                        "\t\"Health\"\tREAL,\n" +
+                        "\t\"Hunger\"\tINTEGER,\n" +
                         "\tPRIMARY KEY(\"CharacterUUID\")\n" +
                         ");";
 
@@ -97,11 +98,11 @@ public class SQLHandler {
                         "\t\"ID\"\tINTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,\n" +
                         "\t\"CharacterUUID\"\tTEXT,\n" +
                         "\t\"World\"\tTEXT,\n" +
-                        "\t\"X\"\tNUMERIC,\n" +
-                        "\t\"Y\"\tNUMERIC,\n" +
-                        "\t\"Z\"\tNUMERIC,\n" +
-                        "\t\"Yaw\"\tNUMERIC,\n" +
-                        "\t\"Pitch\"\tNUMERIC\n" +
+                        "\t\"X\"\tREAL,\n" +
+                        "\t\"Y\"\tREAL,\n" +
+                        "\t\"Z\"\tREAL,\n" +
+                        "\t\"Yaw\"\tREAL,\n" +
+                        "\t\"Pitch\"\tREAL\n" +
                         ");";
 
         try {

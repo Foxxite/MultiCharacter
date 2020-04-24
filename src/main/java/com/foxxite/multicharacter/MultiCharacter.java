@@ -3,14 +3,15 @@ package com.foxxite.multicharacter;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.creator.CharacterCreator;
-import com.foxxite.multicharacter.events.ItemPickupEventListener;
-import com.foxxite.multicharacter.events.PlayerLoginEventListener;
-import com.foxxite.multicharacter.events.PlayerMoveEventListener;
+import com.foxxite.multicharacter.events.*;
+import com.foxxite.multicharacter.misc.Character;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -45,6 +46,8 @@ public class MultiCharacter extends JavaPlugin {
     private PlayerLoginEventListener playerLoginEventListener;
     private PlayerMoveEventListener playerMoveEventListener;
     private ItemPickupEventListener itemPickupEventListener;
+    private PlayerQuitEventListener playerQuitEventListener;
+    private WorldSaveEventListener worldSaveEventListener;
 
     private CharacterCreator characterCreator;
 
@@ -85,19 +88,31 @@ public class MultiCharacter extends JavaPlugin {
         this.playerLoginEventListener = new PlayerLoginEventListener(this);
         this.playerMoveEventListener = new PlayerMoveEventListener(this);
         this.itemPickupEventListener = new ItemPickupEventListener(this);
+        this.playerQuitEventListener = new PlayerQuitEventListener(this);
+        this.worldSaveEventListener = new WorldSaveEventListener(this);
 
         this.getServer().getPluginManager().registerEvents(this.playerLoginEventListener, this);
         this.getServer().getPluginManager().registerEvents(this.playerMoveEventListener, this);
         this.getServer().getPluginManager().registerEvents(this.itemPickupEventListener, this);
+        this.getServer().getPluginManager().registerEvents(this.playerQuitEventListener, this);
+        this.getServer().getPluginManager().registerEvents(this.worldSaveEventListener, this);
 
         this.pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin enabled"));
     }
 
     @Override
     public void onDisable() {
+
+        for (final Player player : Bukkit.getOnlinePlayers()) {
+            player.kickPlayer("Fatal plugin unloaded, kicking to prevent data corruption.");
+        }
+
+
         this.playerLoginEventListener = null;
         this.playerMoveEventListener = null;
         this.itemPickupEventListener = null;
+        this.playerQuitEventListener = null;
+        this.worldSaveEventListener = null;
 
         this.timer.cancel();
         this.timer = null;
@@ -118,8 +133,8 @@ public class MultiCharacter extends JavaPlugin {
             this.pluginLogger.log(new LogRecord(Level.SEVERE, "ProtocolLib is not enabled! Multi Character disabled"));
             shouldNotDisable = false;
         }
-        if (!this.getServer().getPluginManager().isPluginEnabled("LibsDisguises")) {
-            this.pluginLogger.log(new LogRecord(Level.SEVERE, "LibsDisguises is not enabled! Multi Character disabled"));
+        if (!this.getServer().getPluginManager().isPluginEnabled("CustomSkinsManager")) {
+            this.pluginLogger.log(new LogRecord(Level.SEVERE, "CustomSkinsManager is not enabled! Multi Character disabled"));
             shouldNotDisable = false;
         }
 

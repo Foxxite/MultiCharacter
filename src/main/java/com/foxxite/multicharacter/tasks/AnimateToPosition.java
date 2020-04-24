@@ -13,13 +13,16 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.UUID;
 
 public class AnimateToPosition extends TimerTask implements Listener {
 
-    MultiCharacter plugin;
+    private final MultiCharacter plugin;
+    HashMap<UUID, Long> flyingPlayer = new HashMap<>();
+
 
     public AnimateToPosition(final MultiCharacter plugin) {
         this.plugin = plugin;
@@ -43,6 +46,11 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                 if (player == null) {
                     return;
+                }
+
+                if (!this.flyingPlayer.containsKey(uuid)) {
+                    this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
+                    player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
                 }
 
                 if (player.getGameMode() != GameMode.SPECTATOR) {
@@ -81,6 +89,11 @@ public class AnimateToPosition extends TimerTask implements Listener {
                 player.teleport(startLocation);
                 player.setVelocity(direction);
 
+                if (this.flyingPlayer.get(uuid) < Instant.now().getEpochSecond() - 10) {
+                    player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
+                }
+
+
                 if (distance < 0.5) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
                     player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
@@ -91,12 +104,16 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     player.setVelocity(new Vector(0, 0, 0));
                     player.setGameMode(GameMode.SURVIVAL);
                     player.setFlying(false);
+                    player.stopSound(Sound.ITEM_ELYTRA_FLYING);
 
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
                     player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
                     player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
 
                     player.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
+
+                    this.flyingPlayer.remove(uuid);
                 }
 
             });

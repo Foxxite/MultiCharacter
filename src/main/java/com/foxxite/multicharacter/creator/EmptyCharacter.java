@@ -52,7 +52,7 @@ public class EmptyCharacter {
                 "VALUES ('" + this.characterID + "', '" + this.owningPlayer + "', '" + this.name + "', '" + this.skinUUID + "', '" + this.birthday + "', '" + this.nationality + "', '" + this.sex + "' ); ";
 
         final String insertIntoInventories = "INSERT INTO Inventories (CharacterUUID, Contents, Health, Hunger)\n" +
-                "VALUES ('" + this.characterID + "', '[]', '20.0', '20.0'); ";
+                "VALUES ('" + this.characterID + "', '', '20.0', '20'); ";
 
         final String insertIntoLogout = "INSERT INTO LogoutLocations (CharacterUUID, World, X, Y, Z, Yaw, Pitch)\n" +
                 "VALUES ('" + this.characterID + "', 'World', '0', '0', '0', '0', '0'); ";

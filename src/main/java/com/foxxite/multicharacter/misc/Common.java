@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 public class Common {
@@ -63,6 +62,9 @@ public class Common {
     public static ItemStack[] stringToInventory(final String yamlInventory) {
         final YamlConfiguration inventoryConfig = new YamlConfiguration();
 
+        if (yamlInventory.isEmpty() || yamlInventory.equalsIgnoreCase(""))
+            return null;
+
         try {
             inventoryConfig.loadFromString(yamlInventory);
         } catch (final Exception e) {
@@ -70,12 +72,14 @@ public class Common {
             return null;
         }
 
-        final ArrayList<ItemStack> inventory = new ArrayList<>();
+        final ItemStack[] inventory = new ItemStack[inventoryConfig.getKeys(false).size()];
+        int counter = 0;
         for (final String configKey : inventoryConfig.getKeys(false)) {
-            inventory.add(inventoryConfig.getItemStack(configKey, null));
+            inventory[counter] = (inventoryConfig.getItemStack(configKey, null));
+            counter++;
         }
 
-        return (ItemStack[]) inventory.toArray();
+        return inventory;
     }
 
     /**

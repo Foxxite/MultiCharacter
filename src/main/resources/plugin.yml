@@ -8,7 +8,7 @@ website: https://foxxite.com
 version: "1.0.0"
 api-version: "1.15"
 
-depend: [ProtocolLib, LibsDisguises]
+depend: [ProtocolLib, CustomSkinsManager]
 
 softdepend: [PlaceholderAPI]
 

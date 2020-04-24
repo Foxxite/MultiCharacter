@@ -15,8 +15,17 @@ softdepend: [PlaceholderAPI]
 commands:
   multicharacter:
     usage: /<command>
+    aliases:
+      - mc
+      - character
 
 permissions:
+  multicharacter.switch:
+    default: true
+    description: Gives access to the logout / switch command.
+  multicharacter.save:
+    default: op
+    description: Gives access to the save command.
   multicharacter.admin:
     default: op
-    description: Gives access to admin mode.
+    description: Gives access to admin mode amd save and reload commands.

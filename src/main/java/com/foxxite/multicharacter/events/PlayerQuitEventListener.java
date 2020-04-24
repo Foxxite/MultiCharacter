@@ -25,8 +25,6 @@ public class PlayerQuitEventListener implements Listener {
             final Character character = this.plugin.getActiveCharacters().get(player.getUniqueId());
 
             Bukkit.getScheduler().runTask(this.plugin, () -> {
-                Bukkit.broadcastMessage("Player Quit Event");
-
                 character.saveData(player);
                 this.plugin.getActiveCharacters().remove(player.getUniqueId());
             });

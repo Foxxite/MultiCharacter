@@ -29,8 +29,6 @@ public class ItemPickupEventListener implements Listener {
             }, 1L);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
-                Bukkit.broadcastMessage("Player Item Pickup Event");
-
                 if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
                     this.plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
                     this.plugin.getActiveCharacters().remove(player.getUniqueId());

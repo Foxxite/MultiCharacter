@@ -71,14 +71,16 @@ public class CharacterSelector implements InventoryHolder, Listener {
     }
 
     private void openGuiForPlayer() {
-        this.playerLoginLocation = this.player.getLocation();
+        Bukkit.getScheduler().runTask(this.plugin, () -> {
+            this.playerLoginLocation = this.player.getLocation();
 
-        this.player.teleport(this.menuLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-        this.player.setAllowFlight(true);
-        this.player.setFlying(true);
-        this.player.setGameMode(GameMode.SPECTATOR);
+            this.player.teleport(this.menuLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            this.player.setAllowFlight(true);
+            this.player.setFlying(true);
+            this.player.setGameMode(GameMode.SPECTATOR);
 
-        this.player.openInventory(this.getInventory());
+            this.player.openInventory(this.getInventory());
+        });
     }
 
     private ItemStack getCharacterSkull(final UUID characterUUID) {
@@ -90,7 +92,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(character.getSkinUUID())));
         skull.setItemMeta(meta);
 
-        final String characterName = character.getName();
+        final String characterName = ChatColor.GOLD + character.getName();
         meta.setDisplayName(characterName);
 
         final HashMap<String, String> placeholdersLore = new HashMap<>();
@@ -120,12 +122,13 @@ public class CharacterSelector implements InventoryHolder, Listener {
         this.selectorGui.setItem(4, newCharacter);
         this.selectorGui.setItem(7, newCharacter);
 
-
         final HashMap<String, String> tableLayout = new HashMap<>();
         tableLayout.put("UUID", "string");
         tableLayout.put("OwnerUUID", "string");
 
-        final HashMap<Integer, HashMap<String, Object>> queryResult = this.sqlHandler.executeQuery("SELECT UUID FROM Characters WHERE OwnerUUID = '" + this.player.getUniqueId().toString() + "'", tableLayout);
+        final String selectQuery = "SELECT UUID, OwnerUUID FROM Characters WHERE OwnerUUID = '" + this.player.getUniqueId().toString() + "'";
+
+        final HashMap<Integer, HashMap<String, Object>> queryResult = this.sqlHandler.executeQuery(selectQuery, tableLayout);
 
         //Overwrite new character with excising characters
         if (queryResult != null && queryResult.size() > 0) {
@@ -215,6 +218,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
                     this.canClose = true;
                     player.closeInventory();
                     this.plugin.getPlayersInCreation().add(player.getUniqueId());
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
 
                 } else if (clickedItem.getType() == Material.PLAYER_HEAD) {
 

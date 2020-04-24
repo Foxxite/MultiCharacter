@@ -13,7 +13,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
 import java.util.TimerTask;
+import java.util.UUID;
 
 public class AnimateToPosition extends TimerTask implements Listener {
 
@@ -33,9 +35,15 @@ public class AnimateToPosition extends TimerTask implements Listener {
             if (this.plugin.getAnimateToLocation().size() == 0)
                 return;
 
-            this.plugin.getAnimateToLocation().forEach((uuid, destination) -> {
+            final HashMap<UUID, Location> localAnimateToLocation = (HashMap<UUID, Location>) this.plugin.getAnimateToLocation().clone();
+
+            localAnimateToLocation.forEach((uuid, destination) -> {
 
                 final Player player = Common.getPlayerByUuid(uuid);
+
+                if (player == null) {
+                    return;
+                }
 
                 if (player.getGameMode() != GameMode.SPECTATOR) {
                     player.setGameMode(GameMode.SPECTATOR);

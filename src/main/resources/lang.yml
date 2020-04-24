@@ -6,7 +6,7 @@ file-version: -1
 #
 # Plugin Messages
 #
-prefix: "&8[&dKWARK&8]"
+prefix: "&8[&aMulti&bCharacter&8]"
 key-missing: "{prefix} &cMessage for &e`{key}` &cis missing!"
 
 character-selection:
@@ -34,10 +34,12 @@ character-selection:
 
 character-creator:
   title: "&aCharacter Creator"
-  guide: "&aWelcome in the character creator, type &7`cancel` &ain chat to cancel."
+  guide: "{prefix} &aWelcome in the character creator, type &7`cancel` &ain chat to cancel."
   name: "&bPlease type the name of your character in chat"
   birthday: "&bPlease type the birthday of your character in chat"
+  birthday-format-incorrect: "{prefix} &cDate format incorrect, use the DD-MM-YYYY format!"
   nationality: "&bPlease type the nationality of your character in chat"
   sex: "&bPlease type the sex of your character in chat"
   skin: "&bPlease type UUID of the Minecraft account you want to use as skin"
+  skin-format-incorrect: "{prefix} &cThis is not a valid UUID, please enter a valid UUID. You can find valid UUID's by going to&b&n https://namemc.com &cfind a profile with the skin you like and copying the 36 character long code (You can use your own UUID as well)."
 

@@ -5,6 +5,15 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.Common;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -22,10 +31,8 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.List;
+import java.util.*;
 
 public class CharacterCreator extends TimerTask implements Listener {
 
@@ -154,9 +161,15 @@ public class CharacterCreator extends TimerTask implements Listener {
                     break;
                 case SKIN:
                     if (this.isValidImage(message)) {
+
+                        this.getMineskinData(message);
+
+                        /*
                         this.playerCharacter.get(playerUUID).setSkinUrl(StringEscapeUtils.escapeSql(message));
                         this.updateCreatorState(playerUUID, CreatorSate.COMPLETE);
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
+
+                         */
                     } else {
                         player.sendMessage(this.language.getMessage("character-creator.skin-format-incorrect"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);
@@ -194,6 +207,35 @@ public class CharacterCreator extends TimerTask implements Listener {
             return true;
         } catch (final IOException e) {
             return false;
+        }
+    }
+
+    private void getMineskinData(final String imageURL) {
+
+        try {
+            final String url = ("https://api.mineskin.org/generate/url");
+
+            final HttpClient httpclient = new DefaultHttpClient();
+            final HttpPost httppost = new HttpPost(url);
+
+            // Request parameters and other properties.
+            final List<NameValuePair> params = new ArrayList<>(1);
+            params.add(new BasicNameValuePair("url", imageURL));
+            httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+
+            //Execute and get the response.
+            final HttpResponse response = httpclient.execute(httppost);
+            final HttpEntity entity = response.getEntity();
+
+            if (entity != null) {
+                final String responseString = EntityUtils.toString(entity, "UTF-8");
+                System.out.println(responseString);
+                Bukkit.broadcastMessage(responseString);
+            }
+
+        } catch (final Exception ex) {
+            this.plugin.getPluginLogger().severe(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

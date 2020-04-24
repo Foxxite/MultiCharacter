@@ -43,6 +43,10 @@ public class Character {
     private int hunger;
     @Getter
     private double health;
+    @Getter
+    private double exp;
+    @Getter
+    private int expLevel;
 
     public Character(final MultiCharacter plugin, final UUID characterUUID) {
         this.plugin = plugin;
@@ -75,6 +79,8 @@ public class Character {
         tableLayout.put("Contents", "string");
         tableLayout.put("Health", "double");
         tableLayout.put("Hunger", "int");
+        tableLayout.put("EXP", "double");
+        tableLayout.put("EXPLevel", "int");
         queryResult = this.sqlHandler.executeQuery("SELECT * FROM Inventories WHERE CharacterUUID = '" + characterUUID.toString() + "'", tableLayout);
 
         if (queryResult != null && queryResult.size() > 0) {
@@ -88,7 +94,11 @@ public class Character {
                 this.inventoryContent = Common.stringToInventory((String) queryResultRow.get("Contents"));
 
             this.hunger = (int) queryResultRow.get("Hunger");
-            this.health = (double) queryResultRow.get("Health") / 1;
+            this.health = (double) queryResultRow.get("Health");
+
+            this.exp = (double) queryResultRow.get("EXP");
+            this.expLevel = (int) queryResultRow.get("EXPLevel");
+
         }
 
         tableLayout.clear();
@@ -137,7 +147,7 @@ public class Character {
 
         final String playerInventory = Common.inventoryToString(player.getInventory().getContents());
 
-        final String updateInventory = "UPDATE Inventories SET Contents = '" + StringEscapeUtils.escapeSql(playerInventory) + "', Health = " + player.getHealth() + ", Hunger = " + player.getFoodLevel() + " WHERE CharacterUUID = '" + this.characterID.toString() + "'";
+        final String updateInventory = "UPDATE Inventories SET Contents = '" + StringEscapeUtils.escapeSql(playerInventory) + "', Health = " + player.getHealth() + ", Hunger = " + player.getFoodLevel() + ", EXP = " + player.getExp() + ", EXPLevel = " + player.getLevel() + " WHERE CharacterUUID = '" + this.characterID.toString() + "'";
 
         this.sqlHandler.executeUpdateQuery(updateInventory);
 

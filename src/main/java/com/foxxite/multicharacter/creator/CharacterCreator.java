@@ -70,6 +70,7 @@ public class CharacterCreator extends TimerTask implements Listener {
                         player.sendTitle(creatorTitle, this.language.getMessage("character-creator.skin"), 0, 200, 0);
                         break;
                     case COMPLETE:
+                        player.sendTitle("", "", 0, 200, 0);
                         this.playerCharacter.get(playerUUID).saveToDatabase();
                         this.playerCharacter.remove(playerUUID);
                         this.playerState.remove(playerUUID);

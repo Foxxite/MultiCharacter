@@ -88,8 +88,10 @@ public class SQLHandler {
                 "CREATE TABLE IF NOT EXISTS \"Inventories\" (\n" +
                         "\t\"CharacterUUID\"\tTEXT UNIQUE,\n" +
                         "\t\"Contents\"\tTEXT,\n" +
-                        "\t\"Health\"\tREAL,\n" +
-                        "\t\"Hunger\"\tINTEGER,\n" +
+                        "\t\"Health\"\tREAL DEFAULT 20,\n" +
+                        "\t\"Hunger\"\tINTEGER DEFAULT 20,\n" +
+                        "\t\"EXP\"\tREAL DEFAULT 0,\n" +
+                        "\t\"EXPLevel\"\tINTEGER DEFAULT 0,\n" +
                         "\tPRIMARY KEY(\"CharacterUUID\")\n" +
                         ");";
 

@@ -51,6 +51,10 @@ public class AnimateToPosition extends TimerTask implements Listener {
                 if (!this.flyingPlayer.containsKey(uuid)) {
                     this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
                     player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
+                    //Clear player chat
+                    for (int i = 0; i < 500; i++) {
+                        player.sendMessage("");
+                    }
                 }
 
                 if (player.getGameMode() != GameMode.SPECTATOR) {
@@ -114,6 +118,11 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
 
                     this.flyingPlayer.remove(uuid);
+
+                    //Clear player chat
+                    for (int i = 0; i < 500; i++) {
+                        player.sendMessage("");
+                    }
                 }
 
             });

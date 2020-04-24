@@ -3,8 +3,10 @@ package com.foxxite.multicharacter.inventories;
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Character;
+import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import org.bukkit.*;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -249,12 +251,22 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
                         player.setHealth(character.getHealth());
                         player.setFoodLevel(character.getHunger());
+                        player.setExp((float) character.getExp());
+                        player.setLevel(character.getExpLevel());
 
                         player.setDisplayName(character.getName());
 
                         this.plugin.getActiveCharacters().put(player.getUniqueId(), character);
                         this.plugin.getAnimateToLocation().put(player.getUniqueId(), character.getLogoutLocation());
 
+                        final String offlinePlayerName = Common.getNameFromUUID(character.getSkinUUID());
+
+                        if (offlinePlayerName != null) {
+                            //Set skin
+                            final ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+                            final String command = "skins to " + player.getName() + " from " + offlinePlayerName;
+                            Bukkit.dispatchCommand(console, command);
+                        }
 
                     }
 

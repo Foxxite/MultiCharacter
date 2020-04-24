@@ -3,6 +3,8 @@ package com.foxxite.multicharacter;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
+import com.foxxite.multicharacter.misc.Common;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -38,45 +40,59 @@ public class CommandHandler implements TabExecutor {
                                 this.language.reloadLanguage();
                                 player.sendMessage(this.language.getMessage("prefix") + " Config and Lang reloaded");
                             } else {
-                                player.sendMessage(this.language.getMessage("prefix") + " You don't have permission for this command.");
+                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&c You don't have permission for this command."));
                             }
                             break;
                         case "logout":
                         case "switch":
                             if (player.hasPermission("multicharacter.switch")) {
-                                this.saveData(player);
-                                final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+                                Bukkit.getScheduler().runTask(this.plugin, () -> {
+
+                                    if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
+                                        this.plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
+                                    }
+
+                                    final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+                                    this.plugin.getActiveCharacters().remove(player.getUniqueId());
+                                });
+
+
                             } else {
-                                player.sendMessage(this.language.getMessage("prefix") + " You don't have permission for this command.");
+                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&c You don't have permission for this command."));
                             }
                             break;
                         case "save":
                             if (player.hasPermission("multicharacter.save")) {
-                                this.saveData(player);
+                                Bukkit.getScheduler().runTask(this.plugin, () -> {
+                                    this.saveData(player);
+                                    player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&a Character data saved to the database."));
+                                });
                             } else {
-                                player.sendMessage(this.language.getMessage("prefix") + " You don't have permission for this command.");
+                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&c You don't have permission for this command."));
                             }
                             break;
                         default:
-                            player.sendMessage(this.language.getMessage("prefix") + " Unknown Sub Command");
+                            player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&7 Unknown Sub Command"));
                             break;
                     }
                     return true;
                 }
             }
-
+        sender.sendMessage(this.language.getMessage("prefix") + Common.colorize("&7 Unknown Sub Command"));
         return false;
     }
 
     @Override
     public List<String> onTabComplete(final CommandSender sender, final Command command, final String label, final String[] agrs) {
 
-        if (agrs.length == 1) {
+        if (agrs.length > 0) {
             final ArrayList<String> returns = new ArrayList<>();
             returns.add("logout");
             returns.add("switch");
             returns.add("save");
             returns.add("reload");
+
+            return returns;
         }
 
         return null;

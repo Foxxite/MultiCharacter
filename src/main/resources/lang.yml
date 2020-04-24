@@ -41,5 +41,5 @@ character-creator:
   nationality: "&bPlease type the nationality of your character in chat"
   sex: "&bPlease type the sex of your character in chat"
   skin: "&bPlease type UUID of the Minecraft account you want to use as skin"
-  skin-format-incorrect: "{prefix} &cThis is not a valid UUID, please enter a valid UUID. You can find valid UUID's by going to&b&n https://namemc.com &cfind a profile with the skin you like and copying the 36 character long code (You can use your own UUID as well)."
+  skin-format-incorrect: "{prefix} &cThis is not a valid UUID, please enter a valid UUID. You can find valid UUID's by going to &b&nhttps://namemc.com&c find a profile with the skin you like and copying the 36 character long code (You can use your own UUID as well)."
 

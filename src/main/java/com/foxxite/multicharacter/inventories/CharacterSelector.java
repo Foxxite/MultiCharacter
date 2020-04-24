@@ -3,7 +3,6 @@ package com.foxxite.multicharacter.inventories;
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Character;
-import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import org.bukkit.*;
 import org.bukkit.command.ConsoleCommandSender;
@@ -92,7 +91,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
         final ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         final SkullMeta meta = (SkullMeta) skull.getItemMeta();
-        meta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(character.getSkinUUID())));
+        //meta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(character.getSkinUrl())));
         skull.setItemMeta(meta);
 
         final String characterName = ChatColor.GOLD + character.getName();
@@ -263,13 +262,15 @@ public class CharacterSelector implements InventoryHolder, Listener {
                         this.plugin.getActiveCharacters().put(player.getUniqueId(), character);
                         this.plugin.getAnimateToLocation().put(player.getUniqueId(), character.getLogoutLocation());
 
-                        final String offlinePlayerName = Common.getNameFromUUID(character.getSkinUUID());
+                        final String skinURL = character.getSkinUrl();
 
-                        if (offlinePlayerName != null) {
+                        if (skinURL != null) {
                             //Set skin
                             final ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                            final String command = "skins to " + player.getName() + " from " + offlinePlayerName;
+                            final String command = "skins to " + player.getName() + " url " + skinURL;
                             Bukkit.dispatchCommand(console, command);
+
+                            System.out.println(command);
                         }
 
                     }

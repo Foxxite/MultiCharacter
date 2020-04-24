@@ -81,6 +81,8 @@ public class SQLHandler {
                         "\t\"Nationality\"\tTEXT,\n" +
                         "\t\"Sex\"\tTEXT,\n" +
                         "\t\"Deleted\"\tINTEGER DEFAULT 0,\n" +
+                        "\t\"Texture\"\tTEXT,\n" +
+                        "\t\"Signature\"\tTEXT,\n" +
                         "\tPRIMARY KEY(\"UUID\")\n" +
                         ");";
 

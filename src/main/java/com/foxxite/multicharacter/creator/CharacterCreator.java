@@ -4,6 +4,7 @@ import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.Common;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -14,6 +15,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.IOException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -123,13 +128,13 @@ public class CharacterCreator extends TimerTask implements Listener {
                         return;
                     }
 
-                    this.playerCharacter.get(playerUUID).setName(message);
+                    this.playerCharacter.get(playerUUID).setName(StringEscapeUtils.escapeSql(message));
                     this.updateCreatorState(playerUUID, CreatorSate.BIRTHDAY);
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     break;
                 case BIRTHDAY:
                     if (this.isDateValid(message)) {
-                        this.playerCharacter.get(playerUUID).setBirthday(message);
+                        this.playerCharacter.get(playerUUID).setBirthday(StringEscapeUtils.escapeSql(message));
                         this.updateCreatorState(playerUUID, CreatorSate.SEX);
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     } else {
@@ -138,18 +143,18 @@ public class CharacterCreator extends TimerTask implements Listener {
                     }
                     break;
                 case SEX:
-                    this.playerCharacter.get(playerUUID).setSex(message);
+                    this.playerCharacter.get(playerUUID).setSex(StringEscapeUtils.escapeSql(message));
                     this.updateCreatorState(playerUUID, CreatorSate.NATIONALITY);
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     break;
                 case NATIONALITY:
-                    this.playerCharacter.get(playerUUID).setNationality(message);
+                    this.playerCharacter.get(playerUUID).setNationality(StringEscapeUtils.escapeSql(message));
                     this.updateCreatorState(playerUUID, CreatorSate.SKIN);
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     break;
                 case SKIN:
-                    if (this.isUUIDValid(message)) {
-                        this.playerCharacter.get(playerUUID).setSkinUUID(message);
+                    if (this.isValidImage(message)) {
+                        this.playerCharacter.get(playerUUID).setSkinUrl(StringEscapeUtils.escapeSql(message));
                         this.updateCreatorState(playerUUID, CreatorSate.COMPLETE);
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     } else {
@@ -181,11 +186,13 @@ public class CharacterCreator extends TimerTask implements Listener {
         }
     }
 
-    private boolean isUUIDValid(final String someUUID) {
+    private boolean isValidImage(final String imgUrl) {
+        Image image = null;
         try {
-            final UUID uuid = UUID.fromString(someUUID);
+            final URL url = new URL(imgUrl);
+            image = ImageIO.read(url);
             return true;
-        } catch (final IllegalArgumentException exception) {
+        } catch (final IOException e) {
             return false;
         }
     }

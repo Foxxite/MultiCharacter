@@ -28,7 +28,7 @@ public class Character {
     @Getter
     private String name;
     @Getter
-    private String skinUUID;
+    private String skinUrl;
     @Getter
     private String birthday;
     @Getter
@@ -68,7 +68,7 @@ public class Character {
             this.owningPlayerUUID = UUID.fromString((String) queryResultRow.get("OwnerUUID"));
             this.owningPlayer = Common.getPlayerByUuid(this.owningPlayerUUID);
             this.name = (String) queryResultRow.get("Name");
-            this.skinUUID = (String) queryResultRow.get("Skin");
+            this.skinUrl = (String) queryResultRow.get("Skin");
             this.birthday = (String) queryResultRow.get("Birthday");
             this.nationality = (String) queryResultRow.get("Nationality");
             this.sex = (String) queryResultRow.get("Sex");

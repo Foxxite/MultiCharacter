@@ -6,5 +6,6 @@ public enum CreatorSate {
     NATIONALITY,
     SEX,
     SKIN,
+    CREATING,
     COMPLETE
 }

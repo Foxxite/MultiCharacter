@@ -4,16 +4,8 @@ import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.Common;
+import okhttp3.*;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -31,8 +23,10 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.TimerTask;
+import java.util.UUID;
 
 public class CharacterCreator extends TimerTask implements Listener {
 
@@ -80,6 +74,9 @@ public class CharacterCreator extends TimerTask implements Listener {
                         break;
                     case SKIN:
                         player.sendTitle(creatorTitle, this.language.getMessage("character-creator.skin"), 0, 200, 0);
+                        break;
+                    case CREATING:
+                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.creating"), 0, 200, 0);
                         break;
                     case COMPLETE:
                         player.sendTitle("", "", 0, 200, 0);
@@ -160,16 +157,12 @@ public class CharacterCreator extends TimerTask implements Listener {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     break;
                 case SKIN:
+
+                    player.sendMessage(this.language.getMessage("character-creator.skin-skin-download"));
                     if (this.isValidImage(message)) {
-
+                        player.sendMessage(this.language.getMessage("character-creator.skin-generate"));
+                        this.updateCreatorState(playerUUID, CreatorSate.CREATING);
                         this.getMineskinData(message);
-
-                        /*
-                        this.playerCharacter.get(playerUUID).setSkinUrl(StringEscapeUtils.escapeSql(message));
-                        this.updateCreatorState(playerUUID, CreatorSate.COMPLETE);
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
-
-                         */
                     } else {
                         player.sendMessage(this.language.getMessage("character-creator.skin-format-incorrect"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);
@@ -214,23 +207,29 @@ public class CharacterCreator extends TimerTask implements Listener {
 
         try {
             final String url = ("https://api.mineskin.org/generate/url");
+            final OkHttpClient httpClient = new OkHttpClient();
 
-            final HttpClient httpclient = new DefaultHttpClient();
-            final HttpPost httppost = new HttpPost(url);
+            // form parameters
+            final RequestBody formBody = new FormBody.Builder()
+                    .add("url", imageURL)
+                    .build();
 
-            // Request parameters and other properties.
-            final List<NameValuePair> params = new ArrayList<>(1);
-            params.add(new BasicNameValuePair("url", imageURL));
-            httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            final Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("User-Agent", "OkHttp Bot")
+                    .post(formBody)
+                    .build();
 
-            //Execute and get the response.
-            final HttpResponse response = httpclient.execute(httppost);
-            final HttpEntity entity = response.getEntity();
+            try (Response response = httpClient.newCall(request).execute()) {
 
-            if (entity != null) {
-                final String responseString = EntityUtils.toString(entity, "UTF-8");
-                System.out.println(responseString);
-                Bukkit.broadcastMessage(responseString);
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                // Get response body
+                final String responseStr = response.body().string();
+                System.out.println(responseStr);
+                Bukkit.broadcastMessage(responseStr);
+
+
             }
 
         } catch (final Exception ex) {

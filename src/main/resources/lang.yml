@@ -41,5 +41,7 @@ character-creator:
   nationality: "&bPlease type the nationality of your character in chat"
   sex: "&bPlease type the sex of your character in chat"
   skin: "&bPlease type the direct IMGUR of the skin you want to use in chat"
+  skin-download: "&bDownloading skin, please wait..."
+  skin-generate: "&bGenerating skin data, please wait..."
   skin-format-incorrect: "{prefix} &cThis is not a valid IMGUR image url, please enter a valid IMGUR image url. Upload the skin you want tot use to IMGUR, wait a few seconds, then right click an choose `copy image url`."
-
+  creating: "You character is being created, please wait..."

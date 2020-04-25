@@ -28,6 +28,14 @@ public class EmptyCharacter {
 
     @Getter
     @Setter
+    private String skinValue;
+
+    @Getter
+    @Setter
+    private String skinSignature;
+
+    @Getter
+    @Setter
     private String birthday;
 
     @Getter
@@ -48,8 +56,7 @@ public class EmptyCharacter {
 
     public void saveToDatabase() {
 
-        final String insertIntoCharacter = "INSERT INTO Characters (UUID, OwnerUUID, Name, Skin, Birthday, Nationality, Sex)\n" +
-                "VALUES ('" + this.characterID + "', '" + this.owningPlayer + "', '" + this.name + "', '" + this.skinUrl + "', '" + this.birthday + "', '" + this.nationality + "', '" + this.sex + "' ); ";
+        final String insertIntoCharacter = "INSERT INTO Characters (UUID, OwnerUUID, Name, Skin, Texture, Signature, Birthday, Nationality, Sex) VALUES ('" + this.characterID + "', '" + this.owningPlayer + "', '" + this.name + "', '" + this.skinUrl + "', '" + this.skinValue + "', '" + this.skinSignature + "', '" + this.birthday + "', '" + this.nationality + "', '" + this.sex + "' ); ";
 
         final String insertIntoInventories = "INSERT INTO Inventories (CharacterUUID, Contents, Health, Hunger)\n" +
                 "VALUES ('" + this.characterID + "', '', '20.0', '20'); ";

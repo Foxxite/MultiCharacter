@@ -71,6 +71,8 @@ public class AnimateToPosition extends TimerTask implements Listener {
                 final Location realDestination = destination.clone();
                 realDestination.setY(255);
 
+                if (!startLocation.getWorld().equals(realDestination.getWorld())) return;
+
                 final double distance = startLocation.distance(realDestination);
 
                 if (distance > 500) {

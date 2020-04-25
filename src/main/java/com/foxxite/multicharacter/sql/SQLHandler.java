@@ -76,13 +76,13 @@ public class SQLHandler {
                         "\t\"UUID\"\tTEXT UNIQUE,\n" +
                         "\t\"OwnerUUID\"\tTEXT,\n" +
                         "\t\"Name\"\tTEXT,\n" +
-                        "\t\"Skin\"\tTEXT,\n" +
                         "\t\"Birthday\"\tTEXT,\n" +
-                        "\t\"Nationality\"\tTEXT,\n" +
+                        "\t\"Nationality\"\tREAL,\n" +
                         "\t\"Sex\"\tTEXT,\n" +
-                        "\t\"Deleted\"\tINTEGER DEFAULT 0,\n" +
+                        "\t\"Skin\"\tTEXT,\n" +
                         "\t\"Texture\"\tTEXT,\n" +
                         "\t\"Signature\"\tTEXT,\n" +
+                        "\t\"Deleted\"\tINTEGER DEFAULT 0,\n" +
                         "\tPRIMARY KEY(\"UUID\")\n" +
                         ");";
 

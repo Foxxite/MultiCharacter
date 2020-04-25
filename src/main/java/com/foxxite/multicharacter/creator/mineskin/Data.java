@@ -1,7 +1,7 @@
 package com.foxxite.multicharacter.creator.mineskin;
 
 public class Data {
-    Texture TextureObject;
+    Texture texture;
     private String uuid;
 
 
@@ -18,10 +18,10 @@ public class Data {
     // Setter Methods
 
     public Texture getTexture() {
-        return this.TextureObject;
+        return this.texture;
     }
 
-    public void setTexture(final Texture textureObject) {
-        this.TextureObject = textureObject;
+    public void setTexture(final Texture texture) {
+        this.texture = texture;
     }
 }

@@ -3,6 +3,7 @@ package com.foxxite.multicharacter.inventories;
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Character;
+import com.foxxite.multicharacter.misc.NMSSkinChanger;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import org.bukkit.*;
 import org.bukkit.command.ConsoleCommandSender;
@@ -259,22 +260,14 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
                         player.setDisplayName(character.getName());
 
+
+                        final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, character.getSkinTexture(), character.getSkinSignature());
+
                         this.plugin.getActiveCharacters().put(player.getUniqueId(), character);
                         this.plugin.getAnimateToLocation().put(player.getUniqueId(), character.getLogoutLocation());
 
-                        final String skinURL = character.getSkinUrl();
-
-                        if (skinURL != null) {
-                            //Set skin
-                            final ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                            final String command = "skins to " + player.getName() + " url " + skinURL;
-                            Bukkit.dispatchCommand(console, command);
-
-                            System.out.println(command);
-                        }
 
                     }
-
                 }
             }
         }

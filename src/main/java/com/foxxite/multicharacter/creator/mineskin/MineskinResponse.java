@@ -2,7 +2,7 @@ package com.foxxite.multicharacter.creator.mineskin;
 
 public class MineskinResponse {
 
-    Data DataObject;
+    Data data;
     private float id;
     private String idStr;
     private String name;
@@ -50,11 +50,11 @@ public class MineskinResponse {
     }
 
     public Data getData() {
-        return this.DataObject;
+        return this.data;
     }
 
-    public void setData(final Data dataObject) {
-        this.DataObject = dataObject;
+    public void setData(final Data data) {
+        this.data = data;
     }
 
     public float getTimestamp() {

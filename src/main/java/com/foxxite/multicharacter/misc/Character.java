@@ -30,6 +30,10 @@ public class Character {
     @Getter
     private String skinUrl;
     @Getter
+    private String skinTexture;
+    @Getter
+    private String skinSignature;
+    @Getter
     private String birthday;
     @Getter
     private String nationality;
@@ -57,6 +61,8 @@ public class Character {
         tableLayout.put("OwnerUUID", "string");
         tableLayout.put("Name", "string");
         tableLayout.put("Skin", "string");
+        tableLayout.put("Texture", "string");
+        tableLayout.put("Signature", "string");
         tableLayout.put("Birthday", "string");
         tableLayout.put("Nationality", "string");
         tableLayout.put("Sex", "string");
@@ -69,6 +75,8 @@ public class Character {
             this.owningPlayer = Common.getPlayerByUuid(this.owningPlayerUUID);
             this.name = (String) queryResultRow.get("Name");
             this.skinUrl = (String) queryResultRow.get("Skin");
+            this.skinTexture = (String) queryResultRow.get("Texture");
+            this.skinSignature = (String) queryResultRow.get("Signature");
             this.birthday = (String) queryResultRow.get("Birthday");
             this.nationality = (String) queryResultRow.get("Nationality");
             this.sex = (String) queryResultRow.get("Sex");

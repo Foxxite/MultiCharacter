@@ -44,4 +44,4 @@ character-creator:
   skin-download: "&bDownloading skin, please wait..."
   skin-generate: "&bGenerating skin data, please wait..."
   skin-format-incorrect: "{prefix} &cThis is not a valid IMGUR image url, please enter a valid IMGUR image url. Upload the skin you want tot use to IMGUR, wait a few seconds, then right click an choose `copy image url`."
-  creating: "You character is being created, please wait..."
+  creating: "&e&lYou character is being created, please wait..."

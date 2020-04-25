@@ -75,6 +75,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>net.minecraft</groupId>
+            <artifactId>server</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>F:/IntelliJ/TestServer/cache/patched_1.15.2.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
     <properties>

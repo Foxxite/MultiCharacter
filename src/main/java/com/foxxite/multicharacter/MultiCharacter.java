@@ -53,7 +53,6 @@ public class MultiCharacter extends JavaPlugin {
 
     private CommandHandler commandHandler;
 
-
     @Override
     public void onEnable() {
 
@@ -107,7 +106,6 @@ public class MultiCharacter extends JavaPlugin {
             player.kickPlayer("Fatal plugin unloaded, kicking to prevent data corruption.");
         }
 
-
         this.playerLoginEventListener = null;
         this.playerMoveEventListener = null;
         this.itemPickupEventListener = null;
@@ -131,10 +129,6 @@ public class MultiCharacter extends JavaPlugin {
 
         if (!this.getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
             this.pluginLogger.log(new LogRecord(Level.SEVERE, "ProtocolLib is not enabled! Multi Character disabled"));
-            shouldNotDisable = false;
-        }
-        if (!this.getServer().getPluginManager().isPluginEnabled("CustomSkinsManager")) {
-            this.pluginLogger.log(new LogRecord(Level.SEVERE, "CustomSkinsManager is not enabled! Multi Character disabled"));
             shouldNotDisable = false;
         }
 

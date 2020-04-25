@@ -2,8 +2,10 @@ package com.foxxite.multicharacter.creator;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
+import com.foxxite.multicharacter.creator.mineskin.MineskinResponse;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.Common;
+import com.google.gson.Gson;
 import okhttp3.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
@@ -158,11 +160,23 @@ public class CharacterCreator extends TimerTask implements Listener {
                     break;
                 case SKIN:
 
-                    player.sendMessage(this.language.getMessage("character-creator.skin-skin-download"));
+                    player.sendMessage(this.language.getMessage("character-creator.skin-download"));
                     if (this.isValidImage(message)) {
+
+                        this.playerCharacter.get(playerUUID).setSkinUrl(StringEscapeUtils.escapeSql(message));
+
                         player.sendMessage(this.language.getMessage("character-creator.skin-generate"));
                         this.updateCreatorState(playerUUID, CreatorSate.CREATING);
-                        this.getMineskinData(message);
+                        final String skinData = this.getMineskinData(message);
+                        if (skinData == null) {
+                            player.kickPlayer("An error occurred while creating your character, please try again later.");
+                            return;
+                        }
+
+                        this.deserializeMineskin(skinData, playerUUID);
+
+                        this.playerCharacter.get(playerUUID).saveToDatabase();
+                        this.updateCreatorState(playerUUID, CreatorSate.COMPLETE);
                     } else {
                         player.sendMessage(this.language.getMessage("character-creator.skin-format-incorrect"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);
@@ -203,7 +217,7 @@ public class CharacterCreator extends TimerTask implements Listener {
         }
     }
 
-    private void getMineskinData(final String imageURL) {
+    private String getMineskinData(final String imageURL) {
 
         try {
             final String url = ("https://api.mineskin.org/generate/url");
@@ -226,16 +240,23 @@ public class CharacterCreator extends TimerTask implements Listener {
 
                 // Get response body
                 final String responseStr = response.body().string();
-                System.out.println(responseStr);
-                Bukkit.broadcastMessage(responseStr);
-
-
+                return responseStr;
             }
 
         } catch (final Exception ex) {
             this.plugin.getPluginLogger().severe(ex.getMessage());
             ex.printStackTrace();
         }
+
+        return null;
+    }
+
+    private void deserializeMineskin(final String json, final UUID playerUUID) {
+        final Gson gson = new Gson();
+        final MineskinResponse response = gson.fromJson(json, MineskinResponse.class);
+
+        this.playerCharacter.get(playerUUID).setSkinValue(response.getData().getTexture().getValue());
+        this.playerCharacter.get(playerUUID).setSkinSignature(response.getData().getTexture().getSignature());
     }
 
 }

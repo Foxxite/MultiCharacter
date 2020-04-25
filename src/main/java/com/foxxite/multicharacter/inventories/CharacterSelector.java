@@ -5,9 +5,14 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Character;
 import com.foxxite.multicharacter.misc.NMSSkinChanger;
 import com.foxxite.multicharacter.sql.SQLHandler;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
 import org.bukkit.*;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -25,6 +30,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -92,11 +99,33 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
         final ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         final SkullMeta meta = (SkullMeta) skull.getItemMeta();
-        //meta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(character.getSkinUrl())));
-        skull.setItemMeta(meta);
 
         final String characterName = ChatColor.GOLD + character.getName();
         meta.setDisplayName(characterName);
+
+
+        final EntityPlayer ep = ((CraftPlayer) this.player).getHandle();
+        final GameProfile profile = ep.getProfile();
+
+        final PropertyMap pm = profile.getProperties();
+        final Collection<Property> properties = pm.get("textures");
+        final Property property = pm.get("textures").iterator().next();
+
+        final String textureValue = character.getSkinTexture();
+        final String textureSignature = character.getSkinSignature();
+
+        pm.remove("textures", property);
+        pm.put("textures", new Property("textures", textureValue, textureSignature));
+
+        Field profileField = null;
+        try {
+            profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+            e1.printStackTrace();
+        }
+
 
         final HashMap<String, String> placeholdersLore = new HashMap<>();
         placeholdersLore.put("{birthday}", character.getBirthday());
@@ -260,13 +289,15 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
                         player.setDisplayName(character.getName());
 
-
                         final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, character.getSkinTexture(), character.getSkinSignature());
 
-                        this.plugin.getActiveCharacters().put(player.getUniqueId(), character);
-                        this.plugin.getAnimateToLocation().put(player.getUniqueId(), character.getLogoutLocation());
+                        this.plugin.getActiveCharacters().put(this.player.getUniqueId(), character);
 
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
 
+                            final SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(this.plugin, player, character);
+
+                        }, 5L);
                     }
                 }
             }

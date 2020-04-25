@@ -140,24 +140,31 @@ public class Character {
         this.saveData();
     }
 
-    public void saveData() {
+    public boolean saveData() {
+        try {
+            final Player player = this.owningPlayer;
 
-        final Player player = this.owningPlayer;
+            this.plugin.getPluginLogger().log(new LogRecord(Level.INFO, "Saving data for " + player.getName() + " for character " + this.name));
 
-        this.plugin.getPluginLogger().log(new LogRecord(Level.INFO, "Saving data for " + player.getName() + " for character " + this.name));
+            final Location lastLocation = player.getLocation();
+            this.logoutLocation = lastLocation;
 
-        final Location lastLocation = player.getLocation();
-        this.logoutLocation = lastLocation;
+            final String updateLogoutLocation = "UPDATE LogoutLocations SET World = '" + this.logoutLocation.getWorld().getName() + "', X = " + this.logoutLocation.getX() + ", Y = " + this.logoutLocation.getY() + ", Z = " + this.logoutLocation.getZ() + ", Yaw = " + this.logoutLocation.getYaw() + ", Pitch = " + this.logoutLocation.getPitch() + " WHERE CharacterUUID = '" + this.characterID.toString() + "';";
 
-        final String updateLogoutLocation = "UPDATE LogoutLocations SET World = '" + this.logoutLocation.getWorld().getName() + "', X = " + this.logoutLocation.getX() + ", Y = " + this.logoutLocation.getY() + ", Z = " + this.logoutLocation.getZ() + ", Yaw = " + this.logoutLocation.getYaw() + ", Pitch = " + this.logoutLocation.getPitch() + " WHERE CharacterUUID = '" + this.characterID.toString() + "';";
+            this.sqlHandler.executeUpdateQuery(updateLogoutLocation);
 
-        this.sqlHandler.executeUpdateQuery(updateLogoutLocation);
+            final String playerInventory = Common.inventoryToString(player.getInventory().getContents());
 
-        final String playerInventory = Common.inventoryToString(player.getInventory().getContents());
+            final String updateInventory = "UPDATE Inventories SET Contents = '" + StringEscapeUtils.escapeSql(playerInventory) + "', Health = " + player.getHealth() + ", Hunger = " + player.getFoodLevel() + ", EXP = " + player.getExp() + ", EXPLevel = " + player.getLevel() + " WHERE CharacterUUID = '" + this.characterID.toString() + "'";
 
-        final String updateInventory = "UPDATE Inventories SET Contents = '" + StringEscapeUtils.escapeSql(playerInventory) + "', Health = " + player.getHealth() + ", Hunger = " + player.getFoodLevel() + ", EXP = " + player.getExp() + ", EXPLevel = " + player.getLevel() + " WHERE CharacterUUID = '" + this.characterID.toString() + "'";
+            this.sqlHandler.executeUpdateQuery(updateInventory);
+            return true;
+        } catch (final Exception ex) {
+            this.plugin.getPluginLogger().severe(ex.getMessage());
+            ex.printStackTrace();
+            return false;
+        }
 
-        this.sqlHandler.executeUpdateQuery(updateInventory);
 
     }
 }

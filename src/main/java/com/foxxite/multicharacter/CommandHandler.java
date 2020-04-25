@@ -5,6 +5,7 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.Common;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -49,11 +50,17 @@ public class CommandHandler implements TabExecutor {
                                 Bukkit.getScheduler().runTask(this.plugin, () -> {
 
                                     if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
-                                        this.plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
+                                        if (!this.saveData(player)) {
+                                            player.sendMessage(ChatColor.RED + "Error occurred while switching characters, please try again later.");
+                                            return;
+                                        }
+                                        player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&a Character data saved to the database."));
                                     }
 
-                                    final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
-                                    this.plugin.getActiveCharacters().remove(player.getUniqueId());
+                                    Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
+                                        final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+                                        this.plugin.getActiveCharacters().remove(player.getUniqueId());
+                                    }, 10L);
                                 });
 
 
@@ -64,7 +71,12 @@ public class CommandHandler implements TabExecutor {
                         case "save":
                             if (player.hasPermission("multicharacter.save")) {
                                 Bukkit.getScheduler().runTask(this.plugin, () -> {
-                                    this.saveData(player);
+
+                                    if (!this.saveData(player)) {
+                                        player.sendMessage(ChatColor.RED + "Error occurred while switching characters, please try again later.");
+                                        return;
+                                    }
+
                                     player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&a Character data saved to the database."));
                                 });
                             } else {
@@ -100,7 +112,9 @@ public class CommandHandler implements TabExecutor {
 
     private boolean saveData(final Player player) {
         if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
-            this.plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
+            if (!this.plugin.getActiveCharacters().get(player.getUniqueId()).saveData())
+                return false;
+            return true;
         }
         return false;
     }

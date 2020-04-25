@@ -7,6 +7,7 @@ import com.foxxite.multicharacter.events.*;
 import com.foxxite.multicharacter.misc.Character;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
+import com.foxxite.multicharacter.tasks.SaveCharacterTask;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,6 +44,7 @@ public class MultiCharacter extends JavaPlugin {
     private PluginLogger pluginLogger;
 
     private Timer timer = new Timer();
+
     private PlayerLoginEventListener playerLoginEventListener;
     private PlayerMoveEventListener playerMoveEventListener;
     private ItemPickupEventListener itemPickupEventListener;
@@ -81,6 +83,7 @@ public class MultiCharacter extends JavaPlugin {
 
         //Register Timers
         this.timer.schedule(new AnimateToPosition(this), 0, 100);
+        this.timer.schedule(new SaveCharacterTask(this), 0, 30 * 1000);
         this.timer.schedule(this.characterCreator, 0, 500);
 
         //Register event listeners

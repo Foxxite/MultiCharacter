@@ -2,6 +2,7 @@ package com.foxxite.multicharacter.misc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -80,6 +81,23 @@ public class Common {
         }
 
         return inventory;
+    }
+
+    public static String getLocationAsString(final Location location) {
+        final String output =
+                location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " +
+                        location.getWorld().getName();
+        return output;
+    }
+
+    public static Location getLocationFromString(final String location) {
+        final String[] locationString = location.split(",");
+
+        final Location output = new Location(Bukkit.getServer().getWorld(locationString[3].trim()),
+                Double.parseDouble(locationString[0]), Double.parseDouble(locationString[1]),
+                Double.parseDouble(locationString[2]));
+
+        return output;
     }
 
     /**

@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerQuitEventListener implements Listener {
@@ -18,6 +19,18 @@ public class PlayerQuitEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerQuit(final PlayerQuitEvent event) {
+        final Player player = event.getPlayer();
+
+        if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
+            final Character character = this.plugin.getActiveCharacters().get(player.getUniqueId());
+            character.saveData(player);
+            this.plugin.getActiveCharacters().remove(player.getUniqueId());
+        }
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerKick(final PlayerKickEvent event) {
         final Player player = event.getPlayer();
 
         if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {

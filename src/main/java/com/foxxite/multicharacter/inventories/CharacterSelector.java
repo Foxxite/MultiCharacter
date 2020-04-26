@@ -3,6 +3,7 @@ package com.foxxite.multicharacter.inventories;
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Character;
+import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.misc.NMSSkinChanger;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.mojang.authlib.GameProfile;
@@ -92,66 +93,13 @@ public class CharacterSelector implements InventoryHolder, Listener {
         }, 5l);
     }
 
-    private ItemStack getCharacterSkull(final UUID characterUUID) {
-
-        final Character character = new Character(this.plugin, characterUUID);
-
-        final ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
-        final SkullMeta meta = (SkullMeta) skull.getItemMeta();
-
-        final String characterName = ChatColor.GOLD + character.getName();
-        meta.setDisplayName(characterName);
-
-
-        final EntityPlayer ep = ((CraftPlayer) this.player).getHandle();
-        final GameProfile profile = ep.getProfile();
-
-        final PropertyMap pm = profile.getProperties();
-        final Collection<Property> properties = pm.get("textures");
-        final Property property = pm.get("textures").iterator().next();
-
-        final String textureValue = character.getSkinTexture();
-        final String textureSignature = character.getSkinSignature();
-
-        pm.remove("textures", property);
-        pm.put("textures", new Property("textures", textureValue, textureSignature));
-
-        Field profileField = null;
-        try {
-            profileField = meta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(meta, profile);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
-            e1.printStackTrace();
-        }
-
-
-        final HashMap<String, String> placeholdersLore = new HashMap<>();
-        placeholdersLore.put("{birthday}", character.getBirthday());
-        placeholdersLore.put("{nationality}", character.getNationality());
-        placeholdersLore.put("{sex}", character.getSex());
-        meta.setLore(this.language.getMultiLineMessageCustom("character-selection.character.lore", placeholdersLore));
-
-        final PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(this.namespacedKey, PersistentDataType.STRING, characterUUID.toString());
-
-        skull.setItemMeta(meta);
-
-        return skull;
-    }
-
     private void populateGUI() {
 
-        final ItemStack newCharacter = new ItemStack(Material.LIME_CONCRETE, 1);
-        final ItemMeta newCharacterMeta = newCharacter.getItemMeta();
+        this.selectorGui.setItem(0, this.getLogoutItem());
 
-        newCharacterMeta.setDisplayName(this.language.getMessage("character-selection.new-character.name"));
-        newCharacterMeta.setLore(this.language.getMultiLineMessage("character-selection.new-character.lore"));
-        newCharacter.setItemMeta(newCharacterMeta);
-
-        this.selectorGui.setItem(1, newCharacter);
-        this.selectorGui.setItem(4, newCharacter);
-        this.selectorGui.setItem(7, newCharacter);
+        this.selectorGui.setItem(1, this.getNewCharacterSkull());
+        this.selectorGui.setItem(4, this.getNewCharacterSkull());
+        this.selectorGui.setItem(7, this.getNewCharacterSkull());
 
         final HashMap<String, String> tableLayout = new HashMap<>();
         tableLayout.put("UUID", "string");
@@ -180,20 +128,137 @@ public class CharacterSelector implements InventoryHolder, Listener {
         }
 
         if (this.player.hasPermission("multicharacter.admin")) {
-            final ItemStack staffMode = new ItemStack(Material.CREEPER_HEAD, 1);
-            final ItemMeta staffModeMeta = staffMode.getItemMeta();
-
-            staffModeMeta.setDisplayName(this.language.getMessage("character-selection.staff-mode.name"));
-            staffModeMeta.setLore(this.language.getMultiLineMessage("character-selection.staff-mode.lore"));
-            staffMode.setItemMeta(staffModeMeta);
-
-            this.selectorGui.setItem(8, staffMode);
+            this.selectorGui.setItem(8, this.getStaffItem());
         }
-
 
     }
 
-    void teleportToStaffLocation(final Location staffLocation) {
+    private ItemStack getLogoutItem() {
+        final ItemStack logoutItem = new ItemStack(Material.BARRIER, 1);
+        final ItemMeta logoutItemMeta = logoutItem.getItemMeta();
+        logoutItemMeta.setDisplayName(Common.colorize("&4&lLOGOUT"));
+        logoutItem.setItemMeta(logoutItemMeta);
+
+        return logoutItem;
+    }
+
+    private ItemStack getNewCharacterSkull() {
+
+        final ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+        final SkullMeta meta = (SkullMeta) skull.getItemMeta();
+
+        meta.setDisplayName(this.language.getMessage("character-selection.new-character.name"));
+        meta.setLore(this.language.getMultiLineMessage("character-selection.new-character.lore"));
+
+        final EntityPlayer ep = ((CraftPlayer) this.player).getHandle();
+        final GameProfile profile = ep.getProfile();
+
+        final PropertyMap pm = profile.getProperties();
+        final Collection<Property> properties = pm.get("textures");
+        final Property property = pm.get("textures").iterator().next();
+
+        final String textureValue = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGM5MjY5NDQ4YWZmZmY0NDQ1MTc3NTJmNzI1YWJiNDliOTFlZjM4MGU5YmQ3M2Y5YmY5ZDgzNzA0ZWYzZDZiNSJ9fX0=";
+        final String textureSignature = "";
+
+        pm.remove("textures", property);
+        pm.put("textures", new Property("textures", textureValue, textureSignature));
+
+        Field profileField = null;
+        try {
+            profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+            e1.printStackTrace();
+        }
+
+        skull.setItemMeta(meta);
+
+        return skull;
+    }
+
+    private ItemStack getCharacterSkull(final UUID characterUUID) {
+
+        final Character character = new Character(this.plugin, characterUUID);
+
+        final ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+        final SkullMeta meta = (SkullMeta) skull.getItemMeta();
+
+        final String characterName = ChatColor.GOLD + character.getName();
+        meta.setDisplayName(characterName);
+
+        final EntityPlayer ep = ((CraftPlayer) this.player).getHandle();
+        final GameProfile profile = ep.getProfile();
+
+        final PropertyMap pm = profile.getProperties();
+        final Collection<Property> properties = pm.get("textures");
+        final Property property = pm.get("textures").iterator().next();
+
+        final String textureValue = character.getSkinTexture();
+        final String textureSignature = character.getSkinSignature();
+
+        pm.remove("textures", property);
+        pm.put("textures", new Property("textures", textureValue, textureSignature));
+
+        Field profileField = null;
+        try {
+            profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+            e1.printStackTrace();
+        }
+
+        final HashMap<String, String> placeholdersLore = new HashMap<>();
+        placeholdersLore.put("{birthday}", character.getBirthday());
+        placeholdersLore.put("{nationality}", character.getNationality());
+        placeholdersLore.put("{sex}", character.getSex());
+        meta.setLore(this.language.getMultiLineMessageCustom("character-selection.character.lore", placeholdersLore));
+
+        final PersistentDataContainer container = meta.getPersistentDataContainer();
+        container.set(this.namespacedKey, PersistentDataType.STRING, characterUUID.toString());
+
+        skull.setItemMeta(meta);
+
+        return skull;
+    }
+
+    private ItemStack getStaffItem() {
+
+        final ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+        final SkullMeta meta = (SkullMeta) skull.getItemMeta();
+
+        meta.setDisplayName(this.language.getMessage("character-selection.staff-mode.name"));
+        meta.setLore(this.language.getMultiLineMessage("character-selection.staff-mode.lore"));
+
+        final EntityPlayer ep = ((CraftPlayer) this.player).getHandle();
+        final GameProfile profile = ep.getProfile();
+
+        final PropertyMap pm = profile.getProperties();
+        final Collection<Property> properties = pm.get("textures");
+        final Property property = pm.get("textures").iterator().next();
+
+        final String textureValue = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGQxOWM2ODQ2MTY2NmFhY2Q3NjI4ZTM0YTFlMmFkMzlmZTRmMmJkZTMyZTIzMTk2M2VmM2IzNTUzMyJ9fX0=";
+        final String textureSignature = "";
+
+        pm.remove("textures", property);
+        pm.put("textures", new Property("textures", textureValue, textureSignature));
+
+        Field profileField = null;
+        try {
+            profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+            e1.printStackTrace();
+        }
+
+        skull.setItemMeta(meta);
+
+        return skull;
+    }
+
+    private void teleportToStaffLocation(final Location staffLocation) {
         this.canClose = true;
         this.player.closeInventory();
         this.player.getInventory().setContents(this.currPlayerInventory);
@@ -209,7 +274,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onPlayerLogout(final PlayerQuitEvent event) {
+    private void onPlayerLogout(final PlayerQuitEvent event) {
         if (event.getPlayer() == this.player) {
             if (this.player.getLocation().equals(this.menuLocation)) {
                 this.teleportToStaffLocation(this.playerLoginLocation);
@@ -218,19 +283,19 @@ public class CharacterSelector implements InventoryHolder, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onInventoryClose(final InventoryCloseEvent event) {
+    private void onInventoryClose(final InventoryCloseEvent event) {
         final Inventory inventory = event.getInventory();
         final Player player = (Player) event.getPlayer();
 
         if (inventory == this.selectorGui && !this.canClose) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
                 player.openInventory(this.selectorGui);
-            }, 5L);
+            }, 1L);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onInventoryClick(final InventoryClickEvent event) {
+    private void onInventoryClick(final InventoryClickEvent event) {
         final Inventory inventory = event.getClickedInventory();
         final ItemStack clickedItem = event.getCurrentItem();
         final Player player = (Player) event.getWhoClicked();
@@ -238,14 +303,15 @@ public class CharacterSelector implements InventoryHolder, Listener {
         if (inventory == this.selectorGui) {
             event.setCancelled(true);
 
-            if (event.getSlot() == 8) {
+            if (event.getSlot() == 8 && clickedItem != null) {
                 this.teleportToStaffLocation(this.playerLoginLocation);
                 player.setDisplayName(player.getName());
 
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     p.showPlayer(player);
                 }
-
+            } else if (event.getSlot() == 0) {
+                player.kickPlayer("Disconnected");
             } else {
                 if (clickedItem.getType() == Material.LIME_CONCRETE) {
 

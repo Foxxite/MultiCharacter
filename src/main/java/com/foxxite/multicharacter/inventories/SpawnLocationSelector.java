@@ -117,7 +117,7 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
         if (inventory == this.guiInventory && !this.canClose) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
                 player.openInventory(this.guiInventory);
-            }, 5L);
+            }, 1L);
         }
     }
 

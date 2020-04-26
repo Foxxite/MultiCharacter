@@ -34,7 +34,6 @@ public class AnimateToPosition extends TimerTask implements Listener {
     @Override
     public void run() {
 
-
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -101,6 +100,8 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                     if (AnimateToPosition.this.flyingPlayer.get(uuid) < Instant.now().getEpochSecond() - 10) {
                         player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
+                        AnimateToPosition.this.flyingPlayer.remove(uuid);
+                        AnimateToPosition.this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
                     }
 
 

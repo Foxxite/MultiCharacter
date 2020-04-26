@@ -10,7 +10,6 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import org.bukkit.*;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -242,9 +241,11 @@ public class CharacterSelector implements InventoryHolder, Listener {
             if (event.getSlot() == 8) {
                 this.teleportToStaffLocation(this.playerLoginLocation);
                 player.setDisplayName(player.getName());
-                final ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                final String command = "skins to " + player.getName() + " from " + player.getName();
-                Bukkit.dispatchCommand(console, command);
+
+                for (final Player p : Bukkit.getOnlinePlayers()) {
+                    p.showPlayer(player);
+                }
+
             } else {
                 if (clickedItem.getType() == Material.LIME_CONCRETE) {
 

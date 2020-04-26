@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -33,8 +34,8 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
     private final FileConfiguration config;
     private final Language language;
     private final Inventory guiInventory;
-
     private final NamespacedKey namespacedKey;
+    private boolean canClose = false;
 
     public SpawnLocationSelector(final MultiCharacter plugin, final Player player, final Character character) {
 
@@ -109,6 +110,18 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
+    void onInventoryClose(final InventoryCloseEvent event) {
+        final Inventory inventory = event.getInventory();
+        final Player player = (Player) event.getPlayer();
+
+        if (inventory == this.guiInventory && !this.canClose) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
+                player.openInventory(this.guiInventory);
+            }, 5L);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     void onInventoryClick(final InventoryClickEvent event) {
 
         final Player player = (Player) event.getWhoClicked();
@@ -125,10 +138,17 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
 
             final Location spawnLocation = Common.getLocationFromString(locationString);
 
+            this.canClose = true;
+            player.closeInventory();
+
             if (!player.getLocation().getWorld().equals(spawnLocation.getWorld()))
                 player.teleport(spawnLocation);
 
             this.plugin.getAnimateToLocation().put(this.player.getUniqueId(), spawnLocation);
+
+            for (final Player p : Bukkit.getOnlinePlayers()) {
+                p.showPlayer(player);
+            }
         }
 
     }

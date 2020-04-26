@@ -25,8 +25,8 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.TimerTask;
 import java.util.UUID;
 
@@ -47,57 +47,52 @@ public class CharacterCreator extends TimerTask implements Listener {
     public void run() {
         final String creatorTitle = this.language.getMessage("character-creator.title");
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
+        final ArrayList<UUID> localPlayersInCreation = this.plugin.getPlayersInCreation();
+        for (final UUID playerUUID : localPlayersInCreation) {
+            final Player player = Common.getPlayerByUuid(playerUUID);
 
-            final Iterator<UUID> iterator = this.plugin.getPlayersInCreation().iterator();
-            while (iterator.hasNext()) {
-                final UUID playerUUID = iterator.next();
-                final Player player = Common.getPlayerByUuid(playerUUID);
-
-                if (!this.playerState.containsKey(playerUUID)) {
-                    this.playerState.put(playerUUID, CreatorSate.NAME);
-                    this.playerCharacter.put(playerUUID, new EmptyCharacter(this.plugin, playerUUID));
-                    player.sendMessage(this.language.getMessagePAPI("character-creator.guide", player));
-                    return;
-                }
-
-                switch (this.playerState.get(playerUUID)) {
-                    case NAME:
-                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.name"), 0, 20, 0);
-                        break;
-                    case BIRTHDAY:
-                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.birthday"), 0, 200, 0);
-                        break;
-                    case SEX:
-                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.sex"), 0, 200, 0);
-                        break;
-                    case NATIONALITY:
-                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.nationality"), 0, 200, 0);
-                        break;
-                    case SKIN:
-                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.skin"), 0, 200, 0);
-                        break;
-                    case CREATING:
-                        player.sendTitle(creatorTitle, this.language.getMessage("character-creator.creating"), 0, 200, 0);
-                        break;
-                    case COMPLETE:
-                        player.sendTitle("", "", 0, 200, 0);
-                        this.playerCharacter.get(playerUUID).saveToDatabase();
-                        this.playerCharacter.remove(playerUUID);
-                        this.playerState.remove(playerUUID);
-                        this.plugin.getPlayersInCreation().remove(player.getUniqueId());
-
-                        final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
-
-                        break;
-                    default:
-                        this.playerState.put(playerUUID, CreatorSate.NAME);
-                        break;
-                }
-
+            if (!this.playerState.containsKey(playerUUID)) {
+                this.playerState.put(playerUUID, CreatorSate.NAME);
+                this.playerCharacter.put(playerUUID, new EmptyCharacter(this.plugin, playerUUID));
+                player.sendMessage(this.language.getMessagePAPI("character-creator.guide", player));
+                return;
             }
 
-        }, 1L);
+            switch (this.playerState.get(playerUUID)) {
+                case NAME:
+                    player.sendTitle(creatorTitle, this.language.getMessage("character-creator.name"), 0, 20, 0);
+                    break;
+                case BIRTHDAY:
+                    player.sendTitle(creatorTitle, this.language.getMessage("character-creator.birthday"), 0, 200, 0);
+                    break;
+                case SEX:
+                    player.sendTitle(creatorTitle, this.language.getMessage("character-creator.sex"), 0, 200, 0);
+                    break;
+                case NATIONALITY:
+                    player.sendTitle(creatorTitle, this.language.getMessage("character-creator.nationality"), 0, 200, 0);
+                    break;
+                case SKIN:
+                    player.sendTitle(creatorTitle, this.language.getMessage("character-creator.skin"), 0, 200, 0);
+                    break;
+                case CREATING:
+                    player.sendTitle(creatorTitle, this.language.getMessage("character-creator.creating"), 0, 200, 0);
+                    break;
+                case COMPLETE:
+                    player.sendTitle("", "", 0, 200, 0);
+                    this.playerCharacter.get(playerUUID).saveToDatabase();
+                    this.playerCharacter.remove(playerUUID);
+                    this.playerState.remove(playerUUID);
+                    this.plugin.getPlayersInCreation().remove(player.getUniqueId());
+
+                    final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+
+                    break;
+                default:
+                    this.playerState.put(playerUUID, CreatorSate.NAME);
+                    break;
+            }
+
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

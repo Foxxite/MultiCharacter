@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.time.Instant;
@@ -33,103 +34,107 @@ public class AnimateToPosition extends TimerTask implements Listener {
     @Override
     public void run() {
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
 
-            if (this.plugin.getAnimateToLocation().size() == 0)
-                return;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
 
-            final HashMap<UUID, Location> localAnimateToLocation = (HashMap<UUID, Location>) this.plugin.getAnimateToLocation().clone();
-
-            localAnimateToLocation.forEach((uuid, destination) -> {
-
-                final Player player = Common.getPlayerByUuid(uuid);
-
-                if (player == null) {
+                if (AnimateToPosition.this.plugin.getAnimateToLocation().size() == 0)
                     return;
-                }
 
-                if (!this.flyingPlayer.containsKey(uuid)) {
-                    this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
-                    player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
-                    //Clear player chat
-                    for (int i = 0; i < 500; i++) {
-                        player.sendMessage("");
+                final HashMap<UUID, Location> localAnimateToLocation = (HashMap<UUID, Location>) AnimateToPosition.this.plugin.getAnimateToLocation().clone();
+
+                localAnimateToLocation.forEach((uuid, destination) -> {
+
+                    final Player player = Common.getPlayerByUuid(uuid);
+
+                    if (player == null) {
+                        return;
                     }
-                }
 
-                if (player.getGameMode() != GameMode.SPECTATOR) {
-                    player.setGameMode(GameMode.SPECTATOR);
-                    player.setAllowFlight(true);
-                    player.setFlying(true);
-                }
-
-                final Location startLocation = player.getLocation().clone();
-                startLocation.setY(255);
-                startLocation.setPitch(90);
-                startLocation.setYaw(0);
-
-                final Location realDestination = destination.clone();
-                realDestination.setY(255);
-
-                if (!startLocation.getWorld().equals(realDestination.getWorld())) return;
-
-                final double distance = startLocation.distance(realDestination);
-
-                if (distance > 500) {
-                    final Location shortStartLocation = realDestination.clone();
-                    shortStartLocation.setX(shortStartLocation.getX() - 350);
-                    shortStartLocation.setZ(shortStartLocation.getZ() - 350);
-                    shortStartLocation.setYaw(0);
-                    shortStartLocation.setPitch(90);
-
-                    player.teleport(shortStartLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-
-                    return;
-                }
-
-
-                final Vector direction = this.genVec(startLocation, realDestination);
-                direction.normalize();
-                direction.multiply(this.clamp((float) startLocation.distance(realDestination), 0, 5000));
-
-                player.teleport(startLocation);
-                player.setVelocity(direction);
-
-                if (this.flyingPlayer.get(uuid) < Instant.now().getEpochSecond() - 10) {
-                    player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
-                }
-
-
-                if (distance < 0.5) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
-                }
-
-                if (distance < 0.2f) {
-                    this.plugin.getAnimateToLocation().remove(uuid);
-                    player.setVelocity(new Vector(0, 0, 0));
-                    player.setGameMode(GameMode.SURVIVAL);
-                    player.setFlying(false);
-                    player.stopSound(Sound.ITEM_ELYTRA_FLYING);
-
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
-
-                    player.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
-
-                    this.flyingPlayer.remove(uuid);
-
-                    //Clear player chat
-                    for (int i = 0; i < 500; i++) {
-                        player.sendMessage("");
+                    if (!AnimateToPosition.this.flyingPlayer.containsKey(uuid)) {
+                        AnimateToPosition.this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
+                        player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
+                        //Clear player chat
+                        for (int i = 0; i < 500; i++) {
+                            player.sendMessage("");
+                        }
                     }
-                }
 
-            });
+                    if (player.getGameMode() != GameMode.SPECTATOR) {
+                        player.setGameMode(GameMode.SPECTATOR);
+                        player.setAllowFlight(true);
+                        player.setFlying(true);
+                    }
 
-        }, 1L);
+                    final Location startLocation = player.getLocation().clone();
+                    startLocation.setY(255);
+                    startLocation.setPitch(90);
+                    startLocation.setYaw(0);
+
+                    final Location realDestination = destination.clone();
+                    realDestination.setY(255);
+
+                    if (!startLocation.getWorld().equals(realDestination.getWorld())) return;
+
+                    final double distance = startLocation.distance(realDestination);
+
+                    if (distance > 500) {
+                        final Location shortStartLocation = realDestination.clone();
+                        shortStartLocation.setX(shortStartLocation.getX() - 350);
+                        shortStartLocation.setZ(shortStartLocation.getZ() - 350);
+                        shortStartLocation.setYaw(0);
+                        shortStartLocation.setPitch(90);
+
+                        player.teleport(shortStartLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+                        return;
+                    }
+
+
+                    final Vector direction = AnimateToPosition.this.genVec(startLocation, realDestination);
+                    direction.normalize();
+                    direction.multiply(AnimateToPosition.this.clamp((float) startLocation.distance(realDestination), 0, 5000));
+
+                    player.teleport(startLocation);
+                    player.setVelocity(direction);
+
+                    if (AnimateToPosition.this.flyingPlayer.get(uuid) < Instant.now().getEpochSecond() - 10) {
+                        player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
+                    }
+
+
+                    if (distance < 0.5) {
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
+                    }
+
+                    if (distance < 0.2f) {
+                        AnimateToPosition.this.plugin.getAnimateToLocation().remove(uuid);
+                        player.setVelocity(new Vector(0, 0, 0));
+                        player.setGameMode(GameMode.SURVIVAL);
+                        player.setFlying(false);
+                        player.stopSound(Sound.ITEM_ELYTRA_FLYING);
+
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
+
+                        player.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+                        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
+
+                        AnimateToPosition.this.flyingPlayer.remove(uuid);
+
+                        //Clear player chat
+                        for (int i = 0; i < 500; i++) {
+                            player.sendMessage("");
+                        }
+                    }
+
+                });
+
+            }
+        }.runTask(this.plugin);
 
     }
 

@@ -125,6 +125,9 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
 
             final Location spawnLocation = Common.getLocationFromString(locationString);
 
+            if (!player.getLocation().getWorld().equals(spawnLocation.getWorld()))
+                player.teleport(spawnLocation);
+
             this.plugin.getAnimateToLocation().put(this.player.getUniqueId(), spawnLocation);
         }
 

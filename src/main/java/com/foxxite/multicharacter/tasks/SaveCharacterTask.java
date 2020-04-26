@@ -3,6 +3,7 @@ package com.foxxite.multicharacter.tasks;
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.misc.Character;
 import com.foxxite.multicharacter.misc.Common;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -19,6 +20,9 @@ public class SaveCharacterTask extends TimerTask {
 
     @Override
     public void run() {
+
+        Bukkit.broadcastMessage(this.plugin.getLanguage().getMessage("saving.start"));
+
         final HashMap<UUID, Character> localActiveCharacters = (HashMap<UUID, Character>) this.plugin.getActiveCharacters().clone();
 
         localActiveCharacters.forEach((uuid, character) -> {
@@ -30,5 +34,7 @@ public class SaveCharacterTask extends TimerTask {
                 this.plugin.getActiveCharacters().remove(player.getUniqueId());
             }
         });
+
+        Bukkit.broadcastMessage(this.plugin.getLanguage().getMessage("saving.complete"));
     }
 }

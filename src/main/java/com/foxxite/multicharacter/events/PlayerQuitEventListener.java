@@ -21,12 +21,19 @@ public class PlayerQuitEventListener implements Listener {
     public void onPlayerQuit(final PlayerQuitEvent event) {
         final Player player = event.getPlayer();
 
+        this.plugin.getPluginLogger().info("Player quit event fired for: " + player.getName());
+
         if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
+            this.plugin.getPluginLogger().info("Data should be saved for: " + player.getName());
+
             final Character character = this.plugin.getActiveCharacters().get(player.getUniqueId());
             character.saveData(player);
             this.plugin.getActiveCharacters().remove(player.getUniqueId());
+
+            return;
         }
 
+        this.plugin.getPluginLogger().info("No active characters found for: " + player.getName());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

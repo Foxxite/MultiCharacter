@@ -1,13 +1,17 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 0
+file-version: 1
 
 #
 # Plugin Messages
 #
-prefix: "&8[&aMulti&bCharacter&8]"
+prefix: "&8[&aMulti&bCharacter&8]&r"
 key-missing: "{prefix} &cMessage for &e`{key}` &cis missing!"
+
+saving:
+  start: "{prefix} &aSaving player data..."
+  complete: "{prefix} &aPlayer data saved!"
 
 character-selection:
   title: "Character Selection"

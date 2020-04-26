@@ -12,8 +12,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 public class Character {
 
@@ -144,7 +142,7 @@ public class Character {
         try {
             final Player player = this.owningPlayer;
 
-            this.plugin.getPluginLogger().log(new LogRecord(Level.INFO, "Saving data for " + player.getName() + " for character " + this.name));
+            this.plugin.getPluginLogger().info("Saving data for " + player.getName() + " for character " + this.name);
 
             final Location lastLocation = player.getLocation();
             this.logoutLocation = lastLocation;

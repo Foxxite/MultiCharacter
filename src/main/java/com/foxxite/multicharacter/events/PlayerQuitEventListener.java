@@ -2,7 +2,6 @@ package com.foxxite.multicharacter.events;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.misc.Character;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,10 +23,7 @@ public class PlayerQuitEventListener implements Listener {
         if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
             final Character character = this.plugin.getActiveCharacters().get(player.getUniqueId());
             character.saveData(player);
-
-            Bukkit.getScheduler().runTask(this.plugin, () -> {
-                this.plugin.getActiveCharacters().remove(player.getUniqueId());
-            });
+            this.plugin.getActiveCharacters().remove(player.getUniqueId());
         }
 
     }

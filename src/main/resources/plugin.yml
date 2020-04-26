@@ -5,7 +5,7 @@ author: Foxxite
 description: Empty plugin
 website: https://foxxite.com
 
-version: "1.0.1"
+version: "1.0.2"
 api-version: "1.15"
 
 depend: [ProtocolLib]

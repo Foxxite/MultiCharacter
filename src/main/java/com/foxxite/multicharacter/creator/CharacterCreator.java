@@ -169,7 +169,10 @@ public class CharacterCreator extends TimerTask implements Listener {
                         this.updateCreatorState(playerUUID, CreatorSate.CREATING);
                         final String skinData = this.getMineskinData(message);
                         if (skinData == null) {
-                            player.kickPlayer("An error occurred while creating your character, please try again later.");
+                            this.playerState.remove(playerUUID);
+                            Bukkit.getScheduler().runTask(this.plugin, () -> {
+                                player.kickPlayer("An error occurred while creating your character, please try again later.");
+                            });
                             return;
                         }
 

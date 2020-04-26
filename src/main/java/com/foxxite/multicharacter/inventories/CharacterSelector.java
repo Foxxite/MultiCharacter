@@ -5,11 +5,16 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Character;
 import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.misc.NMSSkinChanger;
+import com.foxxite.multicharacter.mojangapi.MojangResponse;
 import com.foxxite.multicharacter.sql.SQLHandler;
+import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
@@ -30,6 +35,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
@@ -307,14 +313,24 @@ public class CharacterSelector implements InventoryHolder, Listener {
                 this.teleportToStaffLocation(this.playerLoginLocation);
                 player.setDisplayName(player.getName());
 
+                final String json = this.getMojangSkinData(player.getUniqueId().toString());
+
+                if (json == null) {
+                    player.kickPlayer("Could not get data from Mojang");
+                    return;
+                }
+
+                final String[] skinData = this.deserializeMojangData(json);
+
+                final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, skinData[0], skinData[1]);
+
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     p.showPlayer(player);
                 }
             } else if (event.getSlot() == 0) {
                 player.kickPlayer("Disconnected");
             } else {
-                if (clickedItem.getType() == Material.LIME_CONCRETE) {
-
+                if (clickedItem.getItemMeta().getDisplayName().equals(this.language.getMessage("character-selection.new-character.name"))) {
                     this.canClose = true;
                     player.closeInventory();
                     this.plugin.getPlayersInCreation().add(player.getUniqueId());
@@ -370,4 +386,45 @@ public class CharacterSelector implements InventoryHolder, Listener {
             }
         }
     }
+
+    private String getMojangSkinData(final String uuid) {
+
+        try {
+            final String url = ("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.replace("-", "") + "?unsigned=false");
+            final OkHttpClient httpClient = new OkHttpClient();
+
+            final Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("User-Agent", "OkHttp Bot")
+                    .build();
+
+            try (Response response = httpClient.newCall(request).execute()) {
+
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                // Get response body
+                final String responseStr = response.body().string();
+                return responseStr;
+            }
+
+        } catch (final Exception ex) {
+            this.plugin.getPluginLogger().severe(ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private String[] deserializeMojangData(final String json) {
+
+        final Gson gson = new Gson();
+        final MojangResponse response = gson.fromJson(json, MojangResponse.class);
+
+        final String[] output = new String[2];
+        output[0] = response.getProperties().get(0).getValue();
+        output[1] = response.getProperties().get(0).getSignature();
+
+        return output;
+    }
+
 }

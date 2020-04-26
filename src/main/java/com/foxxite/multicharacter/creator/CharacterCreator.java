@@ -2,8 +2,8 @@ package com.foxxite.multicharacter.creator;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
-import com.foxxite.multicharacter.creator.mineskin.MineskinResponse;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
+import com.foxxite.multicharacter.mineskin.MineskinResponse;
 import com.foxxite.multicharacter.misc.Common;
 import com.google.gson.Gson;
 import okhttp3.*;

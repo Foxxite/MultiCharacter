@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.creator.mineskin;
+package com.foxxite.multicharacter.mineskin;
 
 public class Data {
     Texture texture;

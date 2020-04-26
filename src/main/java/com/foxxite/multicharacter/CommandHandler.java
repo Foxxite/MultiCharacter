@@ -28,7 +28,6 @@ public class CommandHandler implements TabExecutor {
 
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-
         if (command.getName().equalsIgnoreCase("multicharacter"))
             if (sender instanceof Player) {
                 final Player player = (Player) sender;
@@ -39,9 +38,9 @@ public class CommandHandler implements TabExecutor {
                             if (player.hasPermission("multicharacter.admin")) {
                                 this.config.reloadConfig();
                                 this.language.reloadLanguage();
-                                player.sendMessage(this.language.getMessage("prefix") + " Config and Lang reloaded");
+                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize(" &aConfig and Lang reloaded"));
                             } else {
-                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&c You don't have permission for this command."));
+                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize(" &c You don't have permission for this command."));
                             }
                             break;
                         case "logout":
@@ -72,15 +71,12 @@ public class CommandHandler implements TabExecutor {
                             break;
                         case "save":
                             if (player.hasPermission("multicharacter.save")) {
-                                Bukkit.getScheduler().runTask(this.plugin, () -> {
+                                if (!this.saveData(player)) {
+                                    player.sendMessage(ChatColor.RED + "Error occurred while switching characters, please try again later.");
+                                    return true;
+                                }
 
-                                    if (!this.saveData(player)) {
-                                        player.sendMessage(ChatColor.RED + "Error occurred while switching characters, please try again later.");
-                                        return;
-                                    }
-
-                                    player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&a Character data saved to the database."));
-                                });
+                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&a Character data saved to the database."));
                             } else {
                                 player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&c You don't have permission for this command."));
                             }

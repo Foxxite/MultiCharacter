@@ -23,9 +23,9 @@ public class PlayerQuitEventListener implements Listener {
 
         if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
             final Character character = this.plugin.getActiveCharacters().get(player.getUniqueId());
+            character.saveData(player);
 
             Bukkit.getScheduler().runTask(this.plugin, () -> {
-                character.saveData(player);
                 this.plugin.getActiveCharacters().remove(player.getUniqueId());
             });
         }

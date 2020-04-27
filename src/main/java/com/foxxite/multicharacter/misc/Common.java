@@ -1,5 +1,7 @@
 package com.foxxite.multicharacter.misc;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -98,6 +100,12 @@ public class Common {
                 Double.parseDouble(locationString[2]));
 
         return output;
+    }
+
+    public static void broadcastActionBar(final String message) {
+        for (final Player player : Bukkit.getOnlinePlayers()) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+        }
     }
 
     /**

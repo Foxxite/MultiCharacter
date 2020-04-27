@@ -31,7 +31,6 @@ public class ItemPickupEventListener implements Listener {
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
                 if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
                     this.plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
-                    this.plugin.getActiveCharacters().remove(player.getUniqueId());
                 }
             }, 1l);
 

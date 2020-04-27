@@ -25,7 +25,7 @@ public class PlayerLoginEventListener implements Listener {
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEvent(final PlayerJoinEvent event) {
+    public void onPlayerLogin(final PlayerJoinEvent event) {
 
         final Player player = event.getPlayer();
 

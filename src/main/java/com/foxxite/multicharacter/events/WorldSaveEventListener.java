@@ -23,16 +23,12 @@ public class WorldSaveEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     void onWorldSave(final WorldSaveEvent event) {
 
-        Bukkit.broadcastMessage(this.plugin.getLanguage().getMessage("saving.start"));
-
         for (final Player player : Bukkit.getOnlinePlayers()) {
             final HashMap<UUID, Character> localActiveCharacters = (HashMap<UUID, Character>) this.plugin.getActiveCharacters().clone();
             if (localActiveCharacters.containsKey(player.getUniqueId())) {
                 localActiveCharacters.get(player.getUniqueId()).saveData();
             }
         }
-
-        Bukkit.broadcastMessage(this.plugin.getLanguage().getMessage("saving.complete"));
 
     }
 

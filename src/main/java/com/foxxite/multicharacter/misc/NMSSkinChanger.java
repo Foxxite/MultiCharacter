@@ -71,13 +71,17 @@ public class NMSSkinChanger {
         ep.playerConnection.sendPacket(removeInfo);
         ep.playerConnection.sendPacket(addInfo);
 
-        final World endWorld = Bukkit.getWorld("world_the_end");
+        World skinWorld = Bukkit.getWorld(this.plugin.getConfiguration().getString("skin-dimension-location.world"));
+
+        if (skinWorld == null) {
+            skinWorld = player.getWorld();
+            player.sendMessage(this.plugin.getConfiguration().getString("prefix") + Common.colorize(" &cCould not find a dimension to update your skin, your skin might not be visible to you."));
+        }
+
+
         final Location tpLoc;
 
-        if (endWorld != null)
-            tpLoc = new Location(endWorld, 0, 0, 0, 0, 0);
-        else
-            tpLoc = new Location(player.getWorld(), 10000, 256, 10000, 0, 0);
+        tpLoc = new Location(skinWorld, 0, 256, 0, 0, 0);
 
         tpLoc.getChunk().load();
 

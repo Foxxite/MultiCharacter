@@ -72,11 +72,16 @@ public class NMSSkinChanger {
         ep.playerConnection.sendPacket(addInfo);
 
         final World endWorld = Bukkit.getWorld("world_the_end");
+        final Location tpLoc;
 
         if (endWorld != null)
-            player.teleport(new Location(endWorld, 0, 0, 0, 0, 0));
+            tpLoc = new Location(endWorld, 0, 0, 0, 0, 0);
         else
-            player.teleport(new Location(player.getWorld(), 10000, 256, 10000, 0, 0));
+            tpLoc = new Location(player.getWorld(), 10000, 256, 10000, 0, 0);
+
+        tpLoc.getChunk().load();
+
+        player.teleport(tpLoc);
 
         new BukkitRunnable() {
             @Override

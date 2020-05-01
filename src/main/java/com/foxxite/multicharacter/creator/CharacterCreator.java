@@ -103,6 +103,7 @@ public class CharacterCreator extends TimerTask implements Listener {
 
         if (this.playerState.containsKey(player.getUniqueId())) {
             this.plugin.getPlayersInCreation().remove(player.getUniqueId());
+            this.playerState.remove(player.getUniqueId());
         }
     }
 
@@ -130,17 +131,17 @@ public class CharacterCreator extends TimerTask implements Listener {
             if (message.isEmpty())
                 return;
 
+            if (message.equalsIgnoreCase("cancel")) {
+                this.playerCharacter.remove(playerUUID);
+                this.playerState.remove(playerUUID);
+                this.plugin.getPlayersInCreation().remove(player.getUniqueId());
+
+                final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+                return;
+            }
+
             switch (this.playerState.get(playerUUID)) {
                 case NAME:
-                    if (message.equalsIgnoreCase("cancel")) {
-                        this.playerCharacter.remove(playerUUID);
-                        this.playerState.remove(playerUUID);
-                        this.plugin.getPlayersInCreation().remove(player.getUniqueId());
-
-                        final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
-                        return;
-                    }
-
                     this.playerCharacter.get(playerUUID).setName(StringEscapeUtils.escapeSql(message));
                     this.updateCreatorState(playerUUID, CreatorSate.BIRTHDAY);
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);

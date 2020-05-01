@@ -9,6 +9,7 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_15_R1.PacketPlayOutRespawn;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -64,7 +65,14 @@ public class NMSSkinChanger {
         final Location loc = player.getLocation().clone();
         ep.playerConnection.sendPacket(removeInfo);
         ep.playerConnection.sendPacket(addInfo);
-        player.teleport(new Location(Bukkit.getWorld("world_the_end"), 0, 0, 0, 0, 0));
+
+        final World endWorld = Bukkit.getWorld("world_the_end");
+
+        if (endWorld != null)
+            player.teleport(new Location(endWorld, 0, 0, 0, 0, 0));
+        else
+            player.teleport(new Location(player.getWorld(), 10000, 256, 10000, 0, 0));
+
         new BukkitRunnable() {
             @Override
             public void run() {

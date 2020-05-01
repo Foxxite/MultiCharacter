@@ -53,9 +53,14 @@ public class NMSSkinChanger {
         this.reloadSkinForSelf(player);
 
         //Set OP after skin change, or OP access will be lost
-        if (wasOP) {
-            player.setOp(true);
-        }
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (wasOP) {
+                    player.setOp(true);
+                }
+            }
+        }.runTaskLater(plugin, 20L);
     }
 
     public void reloadSkinForSelf(final Player player) {

@@ -21,9 +21,15 @@ public class NMSSkinChanger {
 
     public NMSSkinChanger(final MultiCharacter plugin, final Player player, final String skinTexture, final String skinSignature) {
         this.plugin = plugin;
+        final boolean wasOP = player.isOp();
 
         final EntityPlayer ep = ((CraftPlayer) player).getHandle();
         final GameProfile gp = ep.getProfile();
+
+        //Reset OP before skin change, or OP access will be lost
+        if (wasOP) {
+            player.setOp(false);
+        }
 
         final PropertyMap pm = gp.getProperties();
 
@@ -45,6 +51,10 @@ public class NMSSkinChanger {
 
         this.reloadSkinForSelf(player);
 
+        //Set OP after skin change, or OP access will be lost
+        if (wasOP) {
+            player.setOp(true);
+        }
     }
 
     public void reloadSkinForSelf(final Player player) {

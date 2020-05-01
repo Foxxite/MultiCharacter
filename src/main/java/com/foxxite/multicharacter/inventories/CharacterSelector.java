@@ -310,6 +310,9 @@ public class CharacterSelector implements InventoryHolder, Listener {
             event.setCancelled(true);
 
             if (event.getSlot() == 8 && clickedItem != null) {
+
+
+                //Disconnect Staff Mode
                 this.teleportToStaffLocation(this.playerLoginLocation);
                 player.setDisplayName(player.getName());
 
@@ -322,12 +325,16 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
                 final String[] skinData = this.deserializeMojangData(json);
 
+
                 final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, skinData[0], skinData[1]);
 
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     p.showPlayer(player);
                 }
-            } else if (event.getSlot() == 0) {
+
+
+            } else if (event.getSlot() == 0 && clickedItem != null) {
+                //Disconnect BTN
                 player.kickPlayer("Disconnected");
             } else {
                 if (clickedItem.getItemMeta().getDisplayName().equals(this.language.getMessage("character-selection.new-character.name"))) {

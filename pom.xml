@@ -54,13 +54,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.comphenix.protocol</groupId>
-            <artifactId>ProtocolLib</artifactId>
-            <version>4.5.0</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -68,12 +61,14 @@
             <version>4.5.0</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>4.1.48.Final</version>
             <scope>provided</scope>
         </dependency>
+        -->
 
         <dependency>
             <groupId>net.minecraft</groupId>

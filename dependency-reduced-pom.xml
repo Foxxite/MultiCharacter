@@ -118,28 +118,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.comphenix.protocol</groupId>
-      <artifactId>ProtocolLib</artifactId>
-      <version>4.5.0</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>cglib-nodep</artifactId>
-          <groupId>cglib</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>BukkitExecutors</artifactId>
-          <groupId>com.comphenix.executors</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-all</artifactId>
-      <version>4.1.48.Final</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>net.minecraft</groupId>
       <artifactId>server</artifactId>
       <version>1.0.0</version>

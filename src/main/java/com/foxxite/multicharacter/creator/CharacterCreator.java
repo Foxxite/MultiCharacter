@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import javax.imageio.ImageIO;
@@ -106,11 +107,22 @@ public class CharacterCreator extends TimerTask implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onPlayerChat(final AsyncPlayerChatEvent event) {
+    void onPlayerChat(final PlayerChatEvent event) {
         final Player player = event.getPlayer();
         final UUID playerUUID = player.getUniqueId();
 
-        if (this.playerState.containsKey(player.getUniqueId())) {
+        if (this.playerState.containsKey(playerUUID)) {
+            event.setCancelled(true);
+        }
+    }
+
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    void onPlayerChatAsync(final AsyncPlayerChatEvent event) {
+        final Player player = event.getPlayer();
+        final UUID playerUUID = player.getUniqueId();
+
+        if (this.playerState.containsKey(playerUUID)) {
             event.setCancelled(true);
 
             final String message = event.getMessage();

@@ -60,12 +60,6 @@ public class MultiCharacter extends JavaPlugin {
 
         this.pluginLogger = new PluginLogger(this);
 
-        //Check Dependencies
-        if (!this.checkDependencies()) {
-            this.getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
         //Register config files
         this.language = new Language(this);
         this.configRaw = new Config(this);
@@ -126,17 +120,4 @@ public class MultiCharacter extends JavaPlugin {
 
         this.pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin disabled"));
     }
-
-    private boolean checkDependencies() {
-        boolean shouldNotDisable = true;
-
-        if (!this.getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
-            this.pluginLogger.log(new LogRecord(Level.SEVERE, "ProtocolLib is not enabled! Multi Character disabled"));
-            shouldNotDisable = false;
-        }
-
-        return shouldNotDisable;
-    }
-
-
 }

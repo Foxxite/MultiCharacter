@@ -5,6 +5,8 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.creator.CharacterCreator;
 import com.foxxite.multicharacter.events.*;
 import com.foxxite.multicharacter.misc.Character;
+import com.foxxite.multicharacter.misc.CommandHandler;
+import com.foxxite.multicharacter.misc.PAPIPlaceholders;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import com.foxxite.multicharacter.tasks.SaveCharacterTask;
@@ -60,6 +62,12 @@ public class MultiCharacter extends JavaPlugin {
 
         this.pluginLogger = new PluginLogger(this);
 
+        if (this.getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            this.pluginLogger.severe("PlaceholderAPI not found, disabling...");
+            this.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         //Register config files
         this.language = new Language(this);
         this.configRaw = new Config(this);
@@ -92,6 +100,9 @@ public class MultiCharacter extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(this.itemPickupEventListener, this);
         this.getServer().getPluginManager().registerEvents(this.playerQuitEventListener, this);
         this.getServer().getPluginManager().registerEvents(this.worldSaveEventListener, this);
+
+        //Register PAPI placeholders
+        new PAPIPlaceholders(this).register();
 
         this.pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin enabled"));
     }

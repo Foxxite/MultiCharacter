@@ -1,10 +1,9 @@
-package com.foxxite.multicharacter;
+package com.foxxite.multicharacter.misc;
 
+import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
-import com.foxxite.multicharacter.misc.Common;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -55,16 +54,13 @@ public class CommandHandler implements TabExecutor {
 
                                     player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&a Character data saved to the database."));
 
-                                    Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
-                                        final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
-                                        this.plugin.getActiveCharacters().remove(player.getUniqueId());
-                                    }, 10L);
+                                    this.plugin.getActiveCharacters().remove(player.getUniqueId());
+
+                                    final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
                                 } else {
                                     player.sendMessage(ChatColor.RED + "No active character found.");
                                     final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
                                 }
-
-
                             } else {
                                 player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&c You don't have permission for this command."));
                             }

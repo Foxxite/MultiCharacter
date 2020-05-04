@@ -264,14 +264,13 @@ public class CharacterSelector implements InventoryHolder, Listener {
         return skull;
     }
 
-    private void teleportToStaffLocation(final Location staffLocation) {
+    private void teleportToLogoutLocation(final Location staffLocation) {
         this.canClose = true;
         this.player.closeInventory();
         this.player.getInventory().setContents(this.currPlayerInventory);
         this.player.updateInventory();
 
         this.plugin.getAnimateToLocation().put(this.player.getUniqueId(), staffLocation);
-
     }
 
     @Override
@@ -283,7 +282,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
     private void onPlayerLogout(final PlayerQuitEvent event) {
         if (event.getPlayer() == this.player) {
             if (this.player.getLocation().equals(this.menuLocation)) {
-                this.teleportToStaffLocation(this.playerLoginLocation);
+                this.teleportToLogoutLocation(this.playerLoginLocation);
             }
         }
     }
@@ -310,10 +309,8 @@ public class CharacterSelector implements InventoryHolder, Listener {
             event.setCancelled(true);
 
             if (event.getSlot() == 8 && clickedItem != null) {
-
-
-                //Disconnect Staff Mode
-                this.teleportToStaffLocation(this.playerLoginLocation);
+                //Staff Mode
+                this.teleportToLogoutLocation(this.playerLoginLocation);
                 player.setDisplayName(player.getName());
 
                 final String json = this.getMojangSkinData(player.getUniqueId().toString());
@@ -325,25 +322,24 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
                 final String[] skinData = this.deserializeMojangData(json);
 
-
                 final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, skinData[0], skinData[1]);
 
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     p.showPlayer(player);
                 }
-
-
             } else if (event.getSlot() == 0 && clickedItem != null) {
                 //Disconnect BTN
                 player.kickPlayer("Disconnected");
             } else {
                 if (clickedItem.getItemMeta().getDisplayName().equals(this.language.getMessage("character-selection.new-character.name"))) {
+                    //New Character
                     this.canClose = true;
                     player.closeInventory();
                     this.plugin.getPlayersInCreation().add(player.getUniqueId());
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
 
                 } else if (clickedItem.getType() == Material.PLAYER_HEAD) {
+                    //Character Selector Stuff
 
                     final ItemMeta meta = clickedItem.getItemMeta();
 

@@ -1,17 +1,21 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 1
+file-version: 2
 
 #
 # Plugin Messages
 #
 prefix: "&8[&aMulti&bCharacter&8]&r"
 key-missing: "{prefix} &cMessage for &e`{key}` &cis missing!"
+no-perm: "{prefix} &cYou don't have permissions for this command."
+reload: "{prefix} &aConfig and Lang reloaded"
+unknown-command: "{prefix} &7Unknown Sub Command"
 
 saving:
   start: "{prefix} &aSaving player data..."
   complete: "{prefix} &aPlayer data saved!"
+  error: "{prefix} &cError occurred while saving character data."
 
 character-selection:
   title: "Character Selection"

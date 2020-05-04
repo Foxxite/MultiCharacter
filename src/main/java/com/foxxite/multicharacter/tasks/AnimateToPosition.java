@@ -3,6 +3,7 @@ package com.foxxite.multicharacter.tasks;
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.misc.Common;
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,11 +23,13 @@ import java.util.UUID;
 public class AnimateToPosition extends TimerTask implements Listener {
 
     private final MultiCharacter plugin;
+    private final FileConfiguration config;
     HashMap<UUID, Long> flyingPlayer = new HashMap<>();
 
 
     public AnimateToPosition(final MultiCharacter plugin) {
         this.plugin = plugin;
+        this.config = plugin.getConfiguration();
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
@@ -54,9 +57,12 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     if (!AnimateToPosition.this.flyingPlayer.containsKey(uuid)) {
                         AnimateToPosition.this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
                         player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
+
                         //Clear player chat
-                        for (int i = 0; i < 500; i++) {
-                            player.sendMessage("");
+                        if (AnimateToPosition.this.config.getBoolean("clear-chat")) {
+                            for (int i = 0; i < 500; i++) {
+                                player.sendMessage("");
+                            }
                         }
                     }
 
@@ -127,8 +133,10 @@ public class AnimateToPosition extends TimerTask implements Listener {
                         AnimateToPosition.this.flyingPlayer.remove(uuid);
 
                         //Clear player chat
-                        for (int i = 0; i < 500; i++) {
-                            player.sendMessage("");
+                        if (AnimateToPosition.this.config.getBoolean("clear-chat")) {
+                            for (int i = 0; i < 500; i++) {
+                                player.sendMessage("");
+                            }
                         }
                     }
 

@@ -78,7 +78,6 @@ public class NMSSkinChanger {
             player.sendMessage(this.plugin.getConfiguration().getString("prefix") + Common.colorize(" &cCould not find a dimension to update your skin, your skin might not be visible to you."));
         }
 
-
         final Location tpLoc;
 
         tpLoc = new Location(skinWorld, 0, 256, 0, 0, 0);

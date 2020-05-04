@@ -5,7 +5,7 @@ author: Foxxite
 description: System for multiple characters with their own skins.
 website: https://foxxite.com
 
-version: "1.1.0"
+version: "1.1.1"
 api-version: "1.15"
 
 depend: [PlaceholderAPI]
@@ -21,9 +21,17 @@ permissions:
   multicharacter.switch:
     default: true
     description: Gives access to the logout / switch command.
+  multicharacter.id:
+    default: true
+    description: Gives access to the ID command, to get the ID of a character.
+  multicharacter.lookup:
+    default: op
+    description: Gives access to lookup command, to lookup info on a character.
   multicharacter.save:
     default: op
     description: Gives access to the save command.
   multicharacter.admin:
     default: op
-    description: Gives access to admin mode amd save and reload commands.
+    description: Gives access to admin mode and all admin commands.
+    children:
+      - multicharacter.*

@@ -4,7 +4,7 @@ import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -37,9 +37,9 @@ public class CommandHandler implements TabExecutor {
                             if (player.hasPermission("multicharacter.admin")) {
                                 this.config.reloadConfig();
                                 this.language.reloadLanguage();
-                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize(" &aConfig and Lang reloaded"));
+                                player.sendMessage(this.language.getMessage("reload"));
                             } else {
-                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize(" &c You don't have permission for this command."));
+                                player.sendMessage(this.language.getMessage("no-perms"));
                             }
                             break;
                         case "logout":
@@ -48,57 +48,81 @@ public class CommandHandler implements TabExecutor {
 
                                 if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
                                     if (!this.saveData(player)) {
-                                        player.sendMessage(ChatColor.RED + "Error occurred while switching characters, please try again later.");
+                                        player.sendMessage(this.language.getMessage("saving.error"));
                                         return true;
                                     }
 
-                                    player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&a Character data saved to the database."));
+                                    player.sendMessage(this.language.getMessage("saving.complete"));
 
                                     this.plugin.getActiveCharacters().remove(player.getUniqueId());
 
                                     final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
                                 } else {
-                                    player.sendMessage(ChatColor.RED + "No active character found.");
                                     final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
                                 }
                             } else {
-                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&c You don't have permission for this command."));
+                                player.sendMessage(this.language.getMessage("no-perms"));
                             }
                             break;
                         case "save":
                             if (player.hasPermission("multicharacter.save")) {
                                 if (!this.saveData(player)) {
-                                    player.sendMessage(ChatColor.RED + "Error occurred while switching characters, please try again later.");
+                                    player.sendMessage(this.language.getMessage("saving.error"));
                                     return true;
                                 }
 
-                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&a Character data saved to the database."));
+                                player.sendMessage(this.language.getMessage("saving.complete"));
                             } else {
-                                player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&c You don't have permission for this command."));
+                                player.sendMessage(this.language.getMessage("no-perms"));
                             }
                             break;
                         default:
-                            player.sendMessage(this.language.getMessage("prefix") + Common.colorize("&7 Unknown Sub Command"));
+                            player.sendMessage(this.language.getMessage("unknown-command"));
                             break;
                     }
                     return true;
                 }
             }
-        sender.sendMessage(this.language.getMessage("prefix") + Common.colorize("&7 Unknown Sub Command"));
+        sender.sendMessage(this.language.getMessage("unknown-command"));
         return false;
+    }
+
+
+    private List<String> getSubCommands() {
+        final ArrayList<String> returns = new ArrayList<>();
+        returns.add("logout");
+        returns.add("switch");
+        returns.add("save");
+        returns.add("reload");
+        returns.add("id");
+        returns.add("lookup");
+
+        returns.sort(String::compareToIgnoreCase);
+        return returns;
     }
 
     @Override
     public List<String> onTabComplete(final CommandSender sender, final Command command, final String label, final String[] agrs) {
 
         if (agrs.length > 0) {
-            final ArrayList<String> returns = new ArrayList<>();
-            returns.add("logout");
-            returns.add("switch");
-            returns.add("save");
-            returns.add("reload");
+            final ArrayList<String> autoComplete = new ArrayList<>();
+            if (agrs.length == 1) {
 
-            return returns;
+                if (agrs[0].length() == 0) return this.getSubCommands();
+
+                for (final String subCommand : this.getSubCommands()) {
+                    if (subCommand.startsWith(agrs[0]))
+                        autoComplete.add(subCommand);
+                }
+
+            } else if (agrs.length == 2 && agrs[0].equalsIgnoreCase("lookup")) {
+
+                for (final Player player : Bukkit.getOnlinePlayers()) {
+                    autoComplete.add(player.getDisplayName());
+                }
+
+            }
+            return autoComplete;
         }
 
         return null;

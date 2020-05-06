@@ -1,7 +1,7 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 2
+file-version: 0
 
 #
 # Plugin Messages
@@ -16,6 +16,22 @@ saving:
   start: "{prefix} &aSaving player data..."
   complete: "{prefix} &aPlayer data saved!"
   error: "{prefix} &cError occurred while saving character data."
+
+character-data:
+  non-active: "{prefix} &cNo active character found."
+  id: "{prefix} &7The ID of your active character &f{name} &7is &f{id}"
+  missing-param: "{prefix} &cPlease supply a player name or character ID."
+  data:
+    - "&8=========================================="
+    - ""
+    - "&7ID: &f{id}"
+    - "&7Name: &f{name}"
+    - ""
+    - "&7Birthday: &f{birthday}"
+    - "&7Nationality: &f{nationality}"
+    - "&7Sex: &f{sex}"
+    - ""
+    - "&8=========================================="
 
 character-selection:
   title: "Character Selection"

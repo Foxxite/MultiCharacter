@@ -11,13 +11,11 @@ import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.minecraft.server.v1_15_R1.EntityPlayer;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,7 +35,6 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -156,17 +153,12 @@ public class CharacterSelector implements InventoryHolder, Listener {
         meta.setDisplayName(this.language.getMessage("character-selection.new-character.name"));
         meta.setLore(this.language.getMultiLineMessage("character-selection.new-character.lore"));
 
-        final EntityPlayer ep = ((CraftPlayer) this.player).getHandle();
-        final GameProfile profile = ep.getProfile();
-
+        final GameProfile profile = new GameProfile(UUID.randomUUID(), "skull");
         final PropertyMap pm = profile.getProperties();
-        final Collection<Property> properties = pm.get("textures");
-        final Property property = pm.get("textures").iterator().next();
 
         final String textureValue = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGM5MjY5NDQ4YWZmZmY0NDQ1MTc3NTJmNzI1YWJiNDliOTFlZjM4MGU5YmQ3M2Y5YmY5ZDgzNzA0ZWYzZDZiNSJ9fX0=";
         final String textureSignature = "";
 
-        pm.remove("textures", property);
         pm.put("textures", new Property("textures", textureValue, textureSignature));
 
         Field profileField = null;
@@ -193,17 +185,12 @@ public class CharacterSelector implements InventoryHolder, Listener {
         final String characterName = ChatColor.GOLD + character.getName();
         meta.setDisplayName(characterName);
 
-        final EntityPlayer ep = ((CraftPlayer) this.player).getHandle();
-        final GameProfile profile = ep.getProfile();
-
+        final GameProfile profile = new GameProfile(UUID.randomUUID(), "skull");
         final PropertyMap pm = profile.getProperties();
-        final Collection<Property> properties = pm.get("textures");
-        final Property property = pm.get("textures").iterator().next();
 
         final String textureValue = character.getSkinTexture();
         final String textureSignature = character.getSkinSignature();
 
-        pm.remove("textures", property);
         pm.put("textures", new Property("textures", textureValue, textureSignature));
 
         Field profileField = null;
@@ -237,17 +224,12 @@ public class CharacterSelector implements InventoryHolder, Listener {
         meta.setDisplayName(this.language.getMessage("character-selection.staff-mode.name"));
         meta.setLore(this.language.getMultiLineMessage("character-selection.staff-mode.lore"));
 
-        final EntityPlayer ep = ((CraftPlayer) this.player).getHandle();
-        final GameProfile profile = ep.getProfile();
-
+        final GameProfile profile = new GameProfile(UUID.randomUUID(), "skull");
         final PropertyMap pm = profile.getProperties();
-        final Collection<Property> properties = pm.get("textures");
-        final Property property = pm.get("textures").iterator().next();
 
         final String textureValue = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGQxOWM2ODQ2MTY2NmFhY2Q3NjI4ZTM0YTFlMmFkMzlmZTRmMmJkZTMyZTIzMTk2M2VmM2IzNTUzMyJ9fX0=";
         final String textureSignature = "";
 
-        pm.remove("textures", property);
         pm.put("textures", new Property("textures", textureValue, textureSignature));
 
         Field profileField = null;
@@ -308,7 +290,9 @@ public class CharacterSelector implements InventoryHolder, Listener {
         if (inventory == this.selectorGui) {
             event.setCancelled(true);
 
-            if (event.getSlot() == 8 && clickedItem != null) {
+            if (clickedItem == null) return;
+
+            if (event.getSlot() == 8) {
                 //Staff Mode
                 this.teleportToLogoutLocation(this.playerLoginLocation);
                 player.setDisplayName(player.getName());
@@ -327,7 +311,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     p.showPlayer(player);
                 }
-            } else if (event.getSlot() == 0 && clickedItem != null) {
+            } else if (event.getSlot() == 0) {
                 //Disconnect BTN
                 player.kickPlayer("Disconnected");
             } else {

@@ -11,7 +11,10 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class CommandHandler implements TabExecutor {
 
@@ -76,6 +79,30 @@ public class CommandHandler implements TabExecutor {
                                 player.sendMessage(this.language.getMessage("no-perms"));
                             }
                             break;
+                        case "id":
+                            if (player.hasPermission("multicharacter.id")) {
+                                final Character character = this.plugin.getActiveCharacters().get(player.getUniqueId());
+                                if (character != null) {
+
+                                    final HashMap<String, String> placeholder = new HashMap<>();
+                                    placeholder.put("{name}", character.getName());
+                                    placeholder.put("{id}", character.getCharacterID().toString());
+
+                                    player.sendMessage(this.language.getMessagePAPIAndCustom("character-data.id", player, placeholder));
+                                } else {
+                                    player.sendMessage(this.language.getMessage("character-data.non-active"));
+                                }
+                            }
+                            break;
+                        case "lookup":
+                            if (player.hasPermission("multicharacter.lookup")) {
+                                if (args.length == 2 || !args[1].isEmpty()) {
+                                    this.lookupCharacter(args[1], player);
+                                } else {
+                                    player.sendMessage(this.language.getMessage("character-data.missing-param"));
+                                }
+                            }
+                            break;
                         default:
                             player.sendMessage(this.language.getMessage("unknown-command"));
                             break;
@@ -87,8 +114,47 @@ public class CommandHandler implements TabExecutor {
         return false;
     }
 
+    private void lookupCharacter(final String characterID, final Player player) {
 
-    private List<String> getSubCommands() {
+        final Character lookupCharacter;
+
+        //Is UUID
+        final Pattern uuidPattern = Pattern.compile("^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$");
+
+        if (uuidPattern.matcher(characterID.trim()).matches()) {
+            lookupCharacter = new Character(this.plugin, UUID.fromString(characterID));
+        } else {
+            final Player localPlayer = Bukkit.getPlayer(characterID);
+            if (localPlayer == null) {
+                player.sendMessage(this.language.getMessage("character-data.non-active"));
+                return;
+            }
+
+            lookupCharacter = this.plugin.getActiveCharacters().get(localPlayer.getUniqueId());
+        }
+
+        if (lookupCharacter == null) {
+            player.sendMessage(this.language.getMessage("character-data.non-active"));
+            return;
+        }
+
+        final HashMap<String, String> placeholder = new HashMap<>();
+        placeholder.put("{id}", lookupCharacter.getCharacterID().toString());
+        placeholder.put("{name}", lookupCharacter.getName());
+        placeholder.put("{birthday}", lookupCharacter.getBirthday());
+        placeholder.put("{nationality}", lookupCharacter.getNationality());
+        placeholder.put("{sex}", lookupCharacter.getSex());
+
+        final ArrayList<String> data = this.language.getMultiLineMessagePAPIAndCustom("character-data.data", player, placeholder);
+
+        for (final String line : data) {
+            player.sendMessage(line);
+        }
+
+    }
+
+
+    private ArrayList<String> getSubCommands() {
         final ArrayList<String> returns = new ArrayList<>();
         returns.add("logout");
         returns.add("switch");
@@ -105,24 +171,40 @@ public class CommandHandler implements TabExecutor {
     public List<String> onTabComplete(final CommandSender sender, final Command command, final String label, final String[] agrs) {
 
         if (agrs.length > 0) {
-            final ArrayList<String> autoComplete = new ArrayList<>();
+            ArrayList<String> autoComplete = new ArrayList<>();
+            int activeArg = 0;
+
             if (agrs.length == 1) {
 
+                activeArg = 0;
                 if (agrs[0].length() == 0) return this.getSubCommands();
 
-                for (final String subCommand : this.getSubCommands()) {
-                    if (subCommand.startsWith(agrs[0]))
-                        autoComplete.add(subCommand);
-                }
+                autoComplete = this.getSubCommands();
 
             } else if (agrs.length == 2 && agrs[0].equalsIgnoreCase("lookup")) {
 
+                activeArg = 1;
                 for (final Player player : Bukkit.getOnlinePlayers()) {
-                    autoComplete.add(player.getDisplayName());
+                    autoComplete.add(player.getName());
                 }
 
+                final ArrayList<String> finalAutoComplete = autoComplete;
+                this.plugin.getActiveCharacters().forEach((playerUUID, character) -> {
+                    finalAutoComplete.add(character.getCharacterID().toString());
+                });
+
             }
-            return autoComplete;
+
+            final ArrayList<String> returnList = new ArrayList<>();
+
+            //Intelligent Auto Complete
+            for (final String subCommand : autoComplete) {
+                //Check if args contain subcommand, ignore case
+                if (subCommand.startsWith(agrs[activeArg]) || subCommand.toLowerCase().startsWith(agrs[activeArg]))
+                    returnList.add(subCommand);
+            }
+
+            return returnList;
         }
 
         return null;

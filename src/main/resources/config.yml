@@ -1,12 +1,12 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 2
+file-version: 0
 
 menu-location:
-  x: 0
+  x: 0.5
   y: 255
-  z: 0
+  z: 0.5
   world: world
 
 skin-dimension-location:

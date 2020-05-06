@@ -124,12 +124,14 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     void onInventoryClick(final InventoryClickEvent event) {
 
-        final Player player = (Player) event.getWhoClicked();
-        final ItemStack clickedItem = event.getCurrentItem();
-
         if (event.getClickedInventory() == this.guiInventory) {
 
+            final Player player = (Player) event.getWhoClicked();
+            final ItemStack clickedItem = event.getCurrentItem();
+
             event.setCancelled(true);
+
+            if (clickedItem == null) return;
 
             final ItemMeta meta = clickedItem.getItemMeta();
 

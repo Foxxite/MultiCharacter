@@ -62,12 +62,6 @@ public class MultiCharacter extends JavaPlugin {
 
         this.pluginLogger = new PluginLogger(this);
 
-        if (this.getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
-            this.pluginLogger.severe("PlaceholderAPI not found, disabling...");
-            this.getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
         //Register config files
         this.language = new Language(this);
         this.configRaw = new Config(this);
@@ -102,7 +96,10 @@ public class MultiCharacter extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(this.worldSaveEventListener, this);
 
         //Register PAPI placeholders
-        new PAPIPlaceholders(this).register();
+        if (this.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            this.pluginLogger.info("PlaceholderAPI registering placeholders");
+            new PAPIPlaceholders(this).register();
+        }
 
         this.pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin enabled"));
     }

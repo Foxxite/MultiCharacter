@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -80,12 +81,22 @@ public class CharacterCreator extends TimerTask implements Listener {
                     break;
                 case COMPLETE:
                     player.sendTitle("", "", 0, 200, 0);
-                    this.playerCharacter.get(playerUUID).saveToDatabase();
-                    this.playerCharacter.remove(playerUUID);
-                    this.playerState.remove(playerUUID);
-                    this.plugin.getPlayersInCreation().remove(player.getUniqueId());
 
-                    final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+                    this.playerCharacter.get(playerUUID).saveToDatabase();
+                    this.updateCreatorState(playerUUID, CreatorSate.DONE);
+
+                    break;
+                case DONE:
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            CharacterCreator.this.playerState.remove(playerUUID);
+                            CharacterCreator.this.plugin.getPlayersInCreation().remove(player.getUniqueId());
+                            CharacterCreator.this.playerCharacter.remove(playerUUID);
+
+                            final CharacterSelector characterSelector = new CharacterSelector(CharacterCreator.this.plugin, player);
+                        }
+                    }.runTask(this.plugin);
 
                     break;
                 default:

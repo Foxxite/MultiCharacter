@@ -7,5 +7,6 @@ public enum CreatorSate {
     SEX,
     SKIN,
     CREATING,
-    COMPLETE
+    COMPLETE,
+    DONE
 }

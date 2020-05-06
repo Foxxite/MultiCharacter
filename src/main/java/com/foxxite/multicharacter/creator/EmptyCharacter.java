@@ -11,37 +11,29 @@ public class EmptyCharacter {
 
     private final MultiCharacter plugin;
     private final SQLHandler sqlHandler;
-
     @Getter
     private final UUID owningPlayer;
-
+    boolean hasBeenSaved = false;
     @Getter
-    private final UUID characterID;
-
+    private UUID characterID;
     @Getter
     @Setter
     private String name;
-
     @Getter
     @Setter
     private String skinUrl;
-
     @Getter
     @Setter
     private String skinValue;
-
     @Getter
     @Setter
     private String skinSignature;
-
     @Getter
     @Setter
     private String birthday;
-
     @Getter
     @Setter
     private String nationality;
-
     @Getter
     @Setter
     private String sex;
@@ -50,24 +42,30 @@ public class EmptyCharacter {
         this.plugin = plugin;
         this.sqlHandler = plugin.getSqlHandler();
         this.owningPlayer = owningPlayer;
+
         this.characterID = UUID.randomUUID();
     }
 
-
     public void saveToDatabase() {
 
-        final String insertIntoCharacter = "INSERT INTO Characters (UUID, OwnerUUID, Name, Skin, Texture, Signature, Birthday, Nationality, Sex) VALUES ('" + this.characterID + "', '" + this.owningPlayer + "', '" + this.name + "', '" + this.skinUrl + "', '" + this.skinValue + "', '" + this.skinSignature + "', '" + this.birthday + "', '" + this.nationality + "', '" + this.sex + "' ); ";
+        if (this.characterID == null)
+            this.characterID = UUID.randomUUID();
 
-        final String insertIntoInventories = "INSERT INTO Inventories (CharacterUUID, Contents, Health, Hunger)\n" +
-                "VALUES ('" + this.characterID + "', '', '20.0', '20'); ";
+        if (!this.hasBeenSaved) {
+            final String insertIntoCharacter = "INSERT INTO Characters (UUID, OwnerUUID, Name, Skin, Texture, Signature, Birthday, Nationality, Sex) VALUES ('" + this.characterID + "', '" + this.owningPlayer + "', '" + this.name + "', '" + this.skinUrl + "', '" + this.skinValue + "', '" + this.skinSignature + "', '" + this.birthday + "', '" + this.nationality + "', '" + this.sex + "' ); ";
 
-        final String insertIntoLogout = "INSERT INTO LogoutLocations (CharacterUUID, World, X, Y, Z, Yaw, Pitch)\n" +
-                "VALUES ('" + this.characterID + "', 'World', '0', '0', '0', '0', '0'); ";
+            final String insertIntoInventories = "INSERT INTO Inventories (CharacterUUID, Contents, Health, Hunger)\n" +
+                    "VALUES ('" + this.characterID + "', '', '20.0', '20'); ";
 
-        this.sqlHandler.executeUpdateQuery(insertIntoCharacter);
-        this.sqlHandler.executeUpdateQuery(insertIntoInventories);
-        this.sqlHandler.executeUpdateQuery(insertIntoLogout);
+            final String insertIntoLogout = "INSERT INTO LogoutLocations (CharacterUUID, World, X, Y, Z, Yaw, Pitch)\n" +
+                    "VALUES ('" + this.characterID + "', 'World', '0', '0', '0', '0', '0'); ";
 
+            this.sqlHandler.executeUpdateQuery(insertIntoCharacter);
+            this.sqlHandler.executeUpdateQuery(insertIntoInventories);
+            this.sqlHandler.executeUpdateQuery(insertIntoLogout);
+
+            this.hasBeenSaved = true;
+        }
     }
 
 }

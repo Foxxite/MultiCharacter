@@ -1,10 +1,10 @@
 package com.foxxite.multicharacter.inventories;
 
 import com.foxxite.multicharacter.MultiCharacter;
+import com.foxxite.multicharacter.character.Character;
+import com.foxxite.multicharacter.character.NMSSkinChanger;
 import com.foxxite.multicharacter.config.Language;
-import com.foxxite.multicharacter.misc.Character;
 import com.foxxite.multicharacter.misc.Common;
-import com.foxxite.multicharacter.misc.NMSSkinChanger;
 import com.foxxite.multicharacter.mojangapi.MojangResponse;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.google.gson.Gson;
@@ -65,8 +65,9 @@ public class CharacterSelector implements InventoryHolder, Listener {
         final double x = this.config.getDouble("menu-location.x");
         final double y = this.config.getDouble("menu-location.y");
         final double z = this.config.getDouble("menu-location.z");
-        final float pitch = 90;
-        final float yaw = 0;
+        final float yaw = (float) this.config.getDouble("menu-location.yaw");
+        final float pitch = (float) this.config.getDouble("menu-location.pitch");
+
         final String world = this.config.getString("menu-location.world");
         this.menuLocation = new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
 

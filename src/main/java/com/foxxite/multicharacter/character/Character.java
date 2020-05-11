@@ -1,6 +1,7 @@
-package com.foxxite.multicharacter.misc;
+package com.foxxite.multicharacter.character;
 
 import com.foxxite.multicharacter.MultiCharacter;
+import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import lombok.Getter;
 import org.apache.commons.lang.StringEscapeUtils;

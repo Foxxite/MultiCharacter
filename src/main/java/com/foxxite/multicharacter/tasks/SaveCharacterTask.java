@@ -1,7 +1,7 @@
 package com.foxxite.multicharacter.tasks;
 
 import com.foxxite.multicharacter.MultiCharacter;
-import com.foxxite.multicharacter.misc.Character;
+import com.foxxite.multicharacter.character.Character;
 import com.foxxite.multicharacter.misc.Common;
 import org.bukkit.entity.Player;
 

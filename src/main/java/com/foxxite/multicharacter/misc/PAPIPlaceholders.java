@@ -1,6 +1,7 @@
 package com.foxxite.multicharacter.misc;
 
 import com.foxxite.multicharacter.MultiCharacter;
+import com.foxxite.multicharacter.character.Character;
 import com.foxxite.multicharacter.config.Language;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;

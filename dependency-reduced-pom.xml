@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.foxxite</groupId>
   <artifactId>MultiCharacter</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <build>
     <resources>
       <resource>
@@ -26,6 +26,12 @@
             </goals>
             <configuration>
               <minimizeJar>true</minimizeJar>
+              <relocations>
+                <relocation>
+                  <pattern>org.bstats</pattern>
+                  <shadedPattern>com.foxxite</shadedPattern>
+                </relocation>
+              </relocations>
             </configuration>
           </execution>
         </executions>
@@ -74,6 +80,10 @@
     <repository>
       <id>maven-central</id>
       <url>https://repo1.maven.org/maven2/</url>
+    </repository>
+    <repository>
+      <id>CodeMC</id>
+      <url>https://repo.codemc.org/repository/maven-public</url>
     </repository>
   </repositories>
   <dependencies>

@@ -1,7 +1,7 @@
 package com.foxxite.multicharacter.events;
 
 import com.foxxite.multicharacter.MultiCharacter;
-import com.foxxite.multicharacter.misc.Character;
+import com.foxxite.multicharacter.character.Character;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

@@ -1,7 +1,7 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 0
+file-version: 1
 
 #
 # Plugin Messages
@@ -11,6 +11,15 @@ key-missing: "{prefix} &cMessage for &e`{key}` &cis missing!"
 no-perm: "{prefix} &cYou don't have permissions for this command."
 reload: "{prefix} &aConfig and Lang reloaded"
 unknown-command: "{prefix} &7Unknown Sub Command"
+update:
+  - "&a&m====================================================="
+  - ""
+  - "&b There's an update for &eMultiCharacter&f!"
+  - "&b You're running &e{version}&f, but &e{newVersion}&f has been released!"
+  - "&b You can download the latest version from:"
+  - "&a {updateUrl}"
+  - ""
+  - "&a&m====================================================="
 
 saving:
   start: "{prefix} &aSaving player data..."
@@ -35,14 +44,12 @@ character-data:
 
 character-selection:
   title: "Character Selection"
-
   staff-mode:
     name:  "&4&lSTAFF MODE"
     lore:
       - "&7Spawn you at your logout location"
       - "&7with the items you had in"
       - "&7your inventory upon logout."
-
   character:
     name: "&6{name}"
     lore:
@@ -55,6 +62,7 @@ character-selection:
   new-character:
     name: "&aCreate New Character"
     lore: []
+  no-dimension: "{prefix} &cCould not find a dimension to update your skin, your skin might not be visible to you."
 
 character-creator:
   title: "&aCharacter Creator"

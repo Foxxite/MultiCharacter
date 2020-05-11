@@ -1,6 +1,7 @@
-package com.foxxite.multicharacter.misc;
+package com.foxxite.multicharacter.character;
 
 import com.foxxite.multicharacter.MultiCharacter;
+import com.foxxite.multicharacter.config.Language;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -10,6 +11,7 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutRespawn;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,9 +21,13 @@ import java.util.Collection;
 public class NMSSkinChanger {
 
     private final MultiCharacter plugin;
+    private final FileConfiguration config;
+    private final Language language;
 
     public NMSSkinChanger(final MultiCharacter plugin, final Player player, final String skinTexture, final String skinSignature) {
         this.plugin = plugin;
+        this.config = plugin.getConfiguration();
+        this.language = plugin.getLanguage();
         final boolean wasOP = player.isOp();
 
         final EntityPlayer ep = ((CraftPlayer) player).getHandle();
@@ -71,11 +77,11 @@ public class NMSSkinChanger {
         ep.playerConnection.sendPacket(removeInfo);
         ep.playerConnection.sendPacket(addInfo);
 
-        World skinWorld = Bukkit.getWorld(this.plugin.getConfiguration().getString("skin-dimension-location.world"));
+        World skinWorld = Bukkit.getWorld(this.config.getString("skin-dimension-location.world"));
 
         if (skinWorld == null) {
             skinWorld = player.getWorld();
-            player.sendMessage(this.plugin.getConfiguration().getString("prefix") + Common.colorize(" &cCould not find a dimension to update your skin, your skin might not be visible to you."));
+            player.sendMessage(this.language.getMessage("character-selection.no-dimension"));
         }
 
         final Location tpLoc;

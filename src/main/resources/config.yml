@@ -1,19 +1,29 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 0
+file-version: 1
 
+# Please keep this enabled, it helps me.
+bstats: true
+
+# Location where the player will be tped to show the character menu.
 menu-location:
   x: 0.5
   y: 255
   z: 0.5
+  yaw: 0
+  pitch: 90
   world: world
 
+# Dimension used to update skin.
 skin-dimension-location:
   world: world_the_end
 
+# Clear chat when character is selected.
 clear-chat: false
 
+# Locations shown in the spawn location picker.
+# Last location is added automatically.
 spawn-locations:
   1:
     icon: COMMAND_BLOCK

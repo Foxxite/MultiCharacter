@@ -46,6 +46,7 @@ public class PlayerLoginEventListener implements Listener {
 
                 placeholders.put("{newVersion}", newVersion);
                 placeholders.put("{updateUrl}", updateUrl);
+                placeholders.put("{checkResult}", this.updateChecker.getUpdateCheckResult().toString());
 
                 final List<String> updateMSG = this.language.getMultiLineMessageCustom("update", placeholders);
                 for (final String message : updateMSG) {

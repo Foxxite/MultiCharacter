@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.creator;
+package com.foxxite.multicharacter.character.creator;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;

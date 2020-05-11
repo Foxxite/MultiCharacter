@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.creator;
+package com.foxxite.multicharacter.character.creator;
 
 public enum CreatorSate {
     NAME,

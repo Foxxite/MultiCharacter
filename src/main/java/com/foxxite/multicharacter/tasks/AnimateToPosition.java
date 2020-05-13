@@ -165,12 +165,22 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
     private Location findSafeSpawnLocation(Location destination)
     {
+        boolean foundVoidOnce = false;
         Location blockLoc = destination;
         while(blockLoc.getBlock().isPassable()) {
             if (blockLoc.getBlockY() > 0) {
                 blockLoc.subtract(0, 1, 0);
             } else {
-                blockLoc.setY(255);
+                //Prevent infinite loop
+                if(foundVoidOnce)
+                {
+                    return blockLoc;
+                }
+                else
+                {
+                    foundVoidOnce = true;
+                    blockLoc.setY(255);
+                }
             }
         }
         return blockLoc.add(0,1,0);

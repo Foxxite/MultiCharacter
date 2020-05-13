@@ -54,6 +54,7 @@ public class AnimateToPosition extends TimerTask implements Listener {
                         return;
                     }
 
+                    //Add player to list of animated players
                     if (!AnimateToPosition.this.flyingPlayer.containsKey(uuid)) {
                         AnimateToPosition.this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
                         player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
@@ -66,12 +67,14 @@ public class AnimateToPosition extends TimerTask implements Listener {
                         }
                     }
 
+                    //Put player in spectator mode, enable fly mode
                     if (player.getGameMode() != GameMode.SPECTATOR) {
                         player.setGameMode(GameMode.SPECTATOR);
                         player.setAllowFlight(true);
                         player.setFlying(true);
                     }
 
+                    //Make player face down
                     final Location startLocation = player.getLocation().clone();
                     startLocation.setY(255);
                     startLocation.setPitch(90);
@@ -84,6 +87,7 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                     final double distance = startLocation.distance(realDestination);
 
+                    //Teleport player closer if logout location is too far from menu location
                     if (distance > 500) {
                         final Location shortStartLocation = realDestination.clone();
                         shortStartLocation.setX(shortStartLocation.getX() - 350);
@@ -96,7 +100,7 @@ public class AnimateToPosition extends TimerTask implements Listener {
                         return;
                     }
 
-
+                    //Make player fly in the right direction
                     final Vector direction = AnimateToPosition.this.genVec(startLocation, realDestination);
                     direction.normalize();
                     direction.multiply(AnimateToPosition.this.clamp((float) startLocation.distance(realDestination), 0, 5000));
@@ -104,18 +108,20 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     player.teleport(startLocation);
                     player.setVelocity(direction);
 
+                    //Play flying sound
                     if (AnimateToPosition.this.flyingPlayer.get(uuid) < Instant.now().getEpochSecond() - 10) {
                         player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
                         AnimateToPosition.this.flyingPlayer.remove(uuid);
                         AnimateToPosition.this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
                     }
 
-
+                    //Add Blindness Effect
                     if (distance < 0.5) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
                     }
 
+                    //Teleport player to logout location
                     if (distance < 0.2f) {
                         AnimateToPosition.this.plugin.getAnimateToLocation().remove(uuid);
                         player.setVelocity(new Vector(0, 0, 0));
@@ -126,7 +132,7 @@ public class AnimateToPosition extends TimerTask implements Listener {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
 
-                        player.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        player.teleport(findSafeSpawnLocation(destination), PlayerTeleportEvent.TeleportCause.PLUGIN);
 
                         player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
 
@@ -155,6 +161,19 @@ public class AnimateToPosition extends TimerTask implements Listener {
             player.teleport(this.plugin.getAnimateToLocation().get(player.getUniqueId()));
             this.plugin.getAnimateToLocation().remove(player.getUniqueId());
         }
+    }
+
+    private Location findSafeSpawnLocation(Location destination)
+    {
+        Location blockLoc = destination;
+        while(blockLoc.getBlock().isPassable()) {
+            if (blockLoc.getBlockY() > 0) {
+                blockLoc.subtract(0, 1, 0);
+            } else {
+                blockLoc.setY(255);
+            }
+        }
+        return blockLoc.add(0,1,0);
     }
 
     private Vector genVec(final Location a, final Location b) {

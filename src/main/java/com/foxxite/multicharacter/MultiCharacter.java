@@ -39,7 +39,7 @@ public class MultiCharacter extends JavaPlugin {
     private final String userID = "%%__USER__%%";
     private final String nonce = "%%__NONCE__%%";
     @Getter
-    UpdateChecker updateChecker;
+    private UpdateChecker updateChecker;
     @Getter
     private SQLHandler sqlHandler;
     @Getter

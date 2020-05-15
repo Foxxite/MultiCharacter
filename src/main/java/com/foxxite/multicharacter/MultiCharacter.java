@@ -7,15 +7,19 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.events.*;
 import com.foxxite.multicharacter.misc.CommandHandler;
 import com.foxxite.multicharacter.misc.PAPIPlaceholders;
+import com.foxxite.multicharacter.misc.UUIDHandler;
 import com.foxxite.multicharacter.misc.UpdateChecker;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import com.foxxite.multicharacter.tasks.SaveCharacterTask;
+import com.mojang.authlib.GameProfile;
 import lombok.Getter;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -136,6 +140,7 @@ public class MultiCharacter extends JavaPlugin {
     public void onDisable() {
 
         for (final Player player : Bukkit.getOnlinePlayers()) {
+            UUIDHandler.RESET_UUID(player);
             player.kickPlayer("Fatal plugin unloaded, kicking to prevent data corruption.");
         }
 

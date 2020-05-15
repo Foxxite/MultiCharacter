@@ -50,6 +50,8 @@ public class CommandHandler implements TabExecutor {
                         case "switch":
                             if (player.hasPermission("multicharacter.switch")) {
 
+                                UUIDHandler.RESET_UUID(player);
+
                                 if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
                                     if (!this.saveData(player)) {
                                         player.sendMessage(this.language.getMessage("saving.error"));

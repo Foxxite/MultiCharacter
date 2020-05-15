@@ -2,6 +2,10 @@ package com.foxxite.multicharacter.events;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.character.Character;
+import com.foxxite.multicharacter.misc.UUIDHandler;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,6 +24,8 @@ public class PlayerQuitEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerQuit(final PlayerQuitEvent event) {
         final Player player = event.getPlayer();
+
+        UUIDHandler.RESET_UUID(player);
 
         this.plugin.getPluginLogger().info("Player quit event fired for: " + player.getName());
 
@@ -47,6 +53,4 @@ public class PlayerQuitEventListener implements Listener {
         }
 
     }
-
-
 }

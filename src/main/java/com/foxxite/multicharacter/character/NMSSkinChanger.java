@@ -2,9 +2,11 @@ package com.foxxite.multicharacter.character;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
+import com.foxxite.multicharacter.misc.UUIDHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import net.minecraft.server.v1_15_R1.Entity;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_15_R1.PacketPlayOutRespawn;
@@ -12,11 +14,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.UUID;
 
 public class NMSSkinChanger {
 
@@ -24,7 +30,7 @@ public class NMSSkinChanger {
     private final FileConfiguration config;
     private final Language language;
 
-    public NMSSkinChanger(final MultiCharacter plugin, final Player player, final String skinTexture, final String skinSignature) {
+    public NMSSkinChanger(final MultiCharacter plugin, final Player player, UUID characterUUID, final String skinTexture, final String skinSignature) {
         this.plugin = plugin;
         this.config = plugin.getConfiguration();
         this.language = plugin.getLanguage();
@@ -51,6 +57,14 @@ public class NMSSkinChanger {
         pm.remove("textures", property);
         pm.put("textures", new Property("textures", textureValue, textureSignature));
 
+        plugin.getPluginLogger().info("Old UUID: " + gp.getId());
+        plugin.getPluginLogger().info("Old UUID Spigot: " + player.getUniqueId());
+
+        if(config.getBoolean("use-character-uuid"))
+        {
+            UUIDHandler.CHANGE_UUID(player, characterUUID);
+        }
+
         for (final Player p : Bukkit.getOnlinePlayers()) {
             p.hidePlayer(player);
             p.showPlayer(player);
@@ -62,8 +76,11 @@ public class NMSSkinChanger {
         new BukkitRunnable() {
             @Override
             public void run() {
+                plugin.getPluginLogger().info("New UUID: " + gp.getId());
+                plugin.getPluginLogger().info("New UUID Spigot: " + player.getUniqueId());
+
                 if (wasOP) {
-                    player.setOp(true);
+                    Bukkit.getPlayer(characterUUID).setOp(true);
                 }
             }
         }.runTaskLater(plugin, 20L);

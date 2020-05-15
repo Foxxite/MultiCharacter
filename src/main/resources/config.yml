@@ -1,10 +1,18 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 1
+file-version: 2
 
 # Please keep this enabled, it helps me.
 bstats: true
+
+#
+# This will change the players UUID to the one their character uses.
+# Causing plugins to save data per character if coded correctly.
+# USE AT YOUR OWN RISK, IT MIGHT BREAK A LOT, NOT SUPPORTED
+# MAKE A FULL SERVER BACKUP BEFORE ENABLING THIS
+#
+use-character-uuid: false
 
 # Location where the player will be tped to show the character menu.
 menu-location:

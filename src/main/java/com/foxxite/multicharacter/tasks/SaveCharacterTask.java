@@ -29,9 +29,10 @@ public class SaveCharacterTask extends TimerTask {
 
             final Player player = Common.getPlayerByUuid(uuid);
 
-            if (!player.isOnline() || player == null) {
-                this.plugin.getActiveCharacters().remove(player.getUniqueId());
-            }
+           if(player == null)
+           {
+               return;
+           }
         });
 
         Common.broadcastActionBar(this.plugin.getLanguage().getMessage("saving.complete"));

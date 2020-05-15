@@ -307,7 +307,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
                 final String[] skinData = this.deserializeMojangData(json);
 
-                final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, skinData[0], skinData[1]);
+                final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, player.getUniqueId(), skinData[0], skinData[1]);
 
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     p.showPlayer(player);
@@ -360,7 +360,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
                         player.setDisplayName(character.getName());
 
-                        final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, character.getSkinTexture(), character.getSkinSignature());
+                        final NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(this.plugin, player, characterUUID, character.getSkinTexture(), character.getSkinSignature());
 
                         this.plugin.getActiveCharacters().put(this.player.getUniqueId(), character);
 

@@ -31,10 +31,9 @@ public class CommandHandler implements TabExecutor {
 
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        if (command.getName().equalsIgnoreCase("multicharacter"))
+        if (command.getName().equalsIgnoreCase("multicharacter")) {
             if (sender instanceof Player) {
                 final Player player = (Player) sender;
-
                 if (args.length > 0) {
                     switch (args[0]) {
                         case "reload":
@@ -61,11 +60,9 @@ public class CommandHandler implements TabExecutor {
                                     player.sendMessage(this.language.getMessage("saving.complete"));
 
                                     this.plugin.getActiveCharacters().remove(player.getUniqueId());
-
-                                    final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
-                                } else {
-                                    final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
                                 }
+
+                                final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
                             } else {
                                 player.sendMessage(this.language.getMessage("no-perms"));
                             }
@@ -89,6 +86,7 @@ public class CommandHandler implements TabExecutor {
 
                                     final HashMap<String, String> placeholder = new HashMap<>();
                                     placeholder.put("{name}", character.getName());
+                                    placeholder.put("{uuid}", player.getUniqueId().toString());
                                     placeholder.put("{id}", character.getCharacterID().toString());
 
                                     player.sendMessage(this.language.getMessagePAPIAndCustom("character-data.id", player, placeholder));
@@ -112,8 +110,11 @@ public class CommandHandler implements TabExecutor {
                     }
                     return true;
                 }
+            } else {
+                sender.sendMessage(Common.colorize("&cYou have to be a player to use this command."));
+                return true;
             }
-        sender.sendMessage(this.language.getMessage("unknown-command"));
+        }
         return false;
     }
 

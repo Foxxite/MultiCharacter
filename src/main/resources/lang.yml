@@ -1,7 +1,7 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 1
+file-version: 2
 
 #
 # Plugin Messages
@@ -28,7 +28,7 @@ saving:
 
 character-data:
   non-active: "{prefix} &cNo active character found."
-  id: "{prefix} &7The ID of your active character &f{name} &7is &f{id}"
+  id: "{prefix} &7The ID of your active character &f{name} &7is &f{id}&7, your UUID is &f{uuid}"
   missing-param: "{prefix} &cPlease supply a player name or character ID."
   data:
     - "&8=========================================="

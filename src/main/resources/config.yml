@@ -1,7 +1,7 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 2
+file-version: 3
 
 # Please keep this enabled, it helps me.
 bstats: true
@@ -22,10 +22,6 @@ menu-location:
   yaw: 0
   pitch: 90
   world: world
-
-# Dimension used to update skin.
-skin-dimension-location:
-  world: world_the_end
 
 # Clear chat when character is selected.
 clear-chat: false

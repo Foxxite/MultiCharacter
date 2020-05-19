@@ -6,14 +6,12 @@ import com.foxxite.multicharacter.misc.UUIDHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.minecraft.server.v1_15_R1.Entity;
-import net.minecraft.server.v1_15_R1.EntityPlayer;
-import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_15_R1.PacketPlayOutRespawn;
+import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -39,6 +37,8 @@ public class NMSSkinChanger {
         final EntityPlayer ep = ((CraftPlayer) player).getHandle();
         final GameProfile gp = ep.getProfile();
 
+        UUID newUUID = player.getUniqueId();
+
         //Reset OP before skin change, or OP access will be lost
         if (wasOP) {
             player.setOp(false);
@@ -63,6 +63,7 @@ public class NMSSkinChanger {
         if(config.getBoolean("use-character-uuid"))
         {
             UUIDHandler.CHANGE_UUID(player, characterUUID);
+            newUUID = characterUUID;
         }
 
         for (final Player p : Bukkit.getOnlinePlayers()) {
@@ -73,6 +74,7 @@ public class NMSSkinChanger {
         this.reloadSkinForSelf(player);
 
         //Set OP after skin change, or OP access will be lost
+        UUID finalNewUUID = newUUID;
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -80,43 +82,38 @@ public class NMSSkinChanger {
                 plugin.getPluginLogger().info("New UUID Spigot: " + player.getUniqueId());
 
                 if (wasOP) {
-                    Bukkit.getPlayer(characterUUID).setOp(true);
+                    Bukkit.getPlayer(finalNewUUID).setOp(true);
+                    player.setOp(true);
                 }
             }
         }.runTaskLater(plugin, 20L);
     }
 
     public void reloadSkinForSelf(final Player player) {
+        Location l = player.getLocation();
         final EntityPlayer ep = ((CraftPlayer) player).getHandle();
+
+        net.minecraft.server.v1_15_R1.World w = ((CraftWorld)l.getWorld()).getHandle();
+        World.Environment environment = player.getWorld().getEnvironment();
+
+        int dimension = 0;
+        if (environment.equals(World.Environment.NETHER))
+            dimension = -1;
+        else if (environment.equals(World.Environment.THE_END))
+            dimension = 1;
+        //send packet to player
+        DimensionManager dm = DimensionManager.a(dimension);
+
+        PacketPlayOutRespawn respawn = new PacketPlayOutRespawn(dm,w.worldData.getSeed(),w.worldData.getType(),ep.playerInteractManager.getGameMode());
         final PacketPlayOutPlayerInfo removeInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ep);
         final PacketPlayOutPlayerInfo addInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ep);
+
         final Location loc = player.getLocation().clone();
+
+        ep.playerConnection.sendPacket(respawn);
         ep.playerConnection.sendPacket(removeInfo);
         ep.playerConnection.sendPacket(addInfo);
-
-        World skinWorld = Bukkit.getWorld(this.config.getString("skin-dimension-location.world"));
-
-        if (skinWorld == null) {
-            skinWorld = player.getWorld();
-            player.sendMessage(this.language.getMessage("character-selection.no-dimension"));
-        }
-
-        final Location tpLoc;
-
-        tpLoc = new Location(skinWorld, 0, 256, 0, 0, 0);
-
-        tpLoc.getChunk().load();
-
-        player.teleport(tpLoc);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                player.teleport(loc);
-                ep.playerConnection.sendPacket(new PacketPlayOutRespawn(ep.dimension, 4, ep.getWorld().getWorldData().getType(), ep.playerInteractManager.getGameMode()));
-                player.updateInventory();
-            }
-        }.runTaskLater(this.plugin, 2L);
+        ep.updateAbilities();
     }
 
 }

@@ -57,6 +57,10 @@ public class Common {
             if (item != null) {
                 inventoryConfig.set(String.valueOf(i), item);
             }
+            else
+            {
+                inventoryConfig.set(String.valueOf(i), new ItemStack(Material.AIR, 1));
+            }
         }
         return inventoryConfig.saveToString();
     }

@@ -12,13 +12,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -27,11 +24,27 @@ public class NMSSkinChanger {
     private final MultiCharacter plugin;
     private final FileConfiguration config;
     private final Language language;
+    private Character character = null;
+
+    public NMSSkinChanger(final MultiCharacter plugin, final Player player, Character character, final String skinTexture, final String skinSignature) {
+        this.plugin = plugin;
+        this.config = plugin.getConfiguration();
+        this.language = plugin.getLanguage();
+        this.character = character;
+
+        mainLogic(player, character.getCharacterID(), skinTexture, skinSignature);
+    }
 
     public NMSSkinChanger(final MultiCharacter plugin, final Player player, UUID characterUUID, final String skinTexture, final String skinSignature) {
         this.plugin = plugin;
         this.config = plugin.getConfiguration();
         this.language = plugin.getLanguage();
+
+        mainLogic(player, characterUUID, skinTexture, skinSignature);
+    }
+
+    private void mainLogic(final Player player, UUID uuid, final String skinTexture, final String skinSignature)
+    {
         final boolean wasOP = player.isOp();
 
         final EntityPlayer ep = ((CraftPlayer) player).getHandle();
@@ -60,10 +73,14 @@ public class NMSSkinChanger {
         plugin.getPluginLogger().info("Old UUID: " + gp.getId());
         plugin.getPluginLogger().info("Old UUID Spigot: " + player.getUniqueId());
 
-        if(config.getBoolean("use-character-uuid"))
+        if(character != null)
         {
-            UUIDHandler.CHANGE_UUID(player, characterUUID);
-            newUUID = characterUUID;
+            if(config.getBoolean("use-character-uuid"))
+            {
+                UUID characterUUID = character.getCharacterID();
+                UUIDHandler.CHANGE_UUID(player,characterUUID);
+                newUUID = characterUUID;
+            }
         }
 
         for (final Player p : Bukkit.getOnlinePlayers()) {

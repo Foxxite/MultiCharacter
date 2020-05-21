@@ -137,6 +137,12 @@ public class SQLHandler {
         } catch (Exception e) {
             plugin.getPluginLogger().severe(e.getMessage() + " " + e.getCause());
             plugin.getPluginLogger().info("Query: " + query);
+
+            if (e instanceof SQLException) {
+                SQLException sqlException = (SQLException) e;
+                plugin.getPluginLogger().info(sqlException.getSQLState() + " " + sqlException.getErrorCode());
+            }
+
             e.printStackTrace();
         }
     }

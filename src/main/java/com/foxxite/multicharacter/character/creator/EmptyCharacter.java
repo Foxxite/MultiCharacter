@@ -4,6 +4,7 @@ import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.UUID;
 
@@ -37,34 +38,49 @@ public class EmptyCharacter {
     @Getter
     @Setter
     private String sex;
+    @Getter
+    @Setter
+    private double vaultBalance;
+    @Getter
+    @Setter
+    private String vaultGroup;
+    @Getter
+    @Setter
+    private String[] vaultPermissions;
 
-    public EmptyCharacter(final MultiCharacter plugin, final UUID owningPlayer) {
+    public EmptyCharacter(MultiCharacter plugin, UUID owningPlayer) {
         this.plugin = plugin;
-        this.sqlHandler = plugin.getSqlHandler();
+        sqlHandler = plugin.getSqlHandler();
         this.owningPlayer = owningPlayer;
+        FileConfiguration config = plugin.getConfiguration();
 
-        this.characterID = UUID.randomUUID();
+        characterID = UUID.randomUUID();
+
+        vaultBalance = config.getDouble("vault.default-balance");
+        vaultGroup = config.getString("vault.default-group");
+        vaultPermissions = (String[]) config.getStringList("vault.default-perms").toArray();
     }
 
     public void saveToDatabase() {
 
-        if (this.characterID == null)
-            this.characterID = UUID.randomUUID();
+        if (characterID == null) {
+            characterID = UUID.randomUUID();
+        }
 
-        if (!this.hasBeenSaved) {
-            final String insertIntoCharacter = "INSERT INTO Characters (UUID, OwnerUUID, Name, Skin, Texture, Signature, Birthday, Nationality, Sex) VALUES ('" + this.characterID + "', '" + this.owningPlayer + "', '" + this.name + "', '" + this.skinUrl + "', '" + this.skinValue + "', '" + this.skinSignature + "', '" + this.birthday + "', '" + this.nationality + "', '" + this.sex + "' ); ";
+        if (!hasBeenSaved) {
+            String insertIntoCharacter = "INSERT INTO Characters (UUID, OwnerUUID, Name, Skin, Texture, Signature, Birthday, Nationality, Sex) VALUES ('" + characterID + "', '" + owningPlayer + "', '" + name + "', '" + skinUrl + "', '" + skinValue + "', '" + skinSignature + "', '" + birthday + "', '" + nationality + "', '" + sex + "' ); ";
 
-            final String insertIntoInventories = "INSERT INTO Inventories (CharacterUUID, Contents, Health, Hunger)\n" +
-                    "VALUES ('" + this.characterID + "', '', '20.0', '20'); ";
+            String insertIntoInventories = "INSERT INTO Inventories (CharacterUUID, Contents, Health, Hunger)\n" +
+                    "VALUES ('" + characterID + "', '', '20.0', '20'); ";
 
-            final String insertIntoLogout = "INSERT INTO LogoutLocations (CharacterUUID, World, X, Y, Z, Yaw, Pitch)\n" +
-                    "VALUES ('" + this.characterID + "', 'World', '0', '0', '0', '0', '0'); ";
+            String insertIntoLogout = "INSERT INTO LogoutLocations (CharacterUUID, World, X, Y, Z, Yaw, Pitch)\n" +
+                    "VALUES ('" + characterID + "', 'World', '0', '0', '0', '0', '0'); ";
 
-            this.sqlHandler.executeUpdateQuery(insertIntoCharacter);
-            this.sqlHandler.executeUpdateQuery(insertIntoInventories);
-            this.sqlHandler.executeUpdateQuery(insertIntoLogout);
+            sqlHandler.executeUpdateQuery(insertIntoCharacter);
+            sqlHandler.executeUpdateQuery(insertIntoInventories);
+            sqlHandler.executeUpdateQuery(insertIntoLogout);
 
-            this.hasBeenSaved = true;
+            hasBeenSaved = true;
         }
     }
 

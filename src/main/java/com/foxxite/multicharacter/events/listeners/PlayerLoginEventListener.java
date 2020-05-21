@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.events;
+package com.foxxite.multicharacter.events.listeners;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
@@ -24,45 +24,46 @@ public class PlayerLoginEventListener implements Listener {
     private final Language language;
     private final UpdateChecker updateChecker;
 
-    public PlayerLoginEventListener(final MultiCharacter plugin) {
+    public PlayerLoginEventListener(MultiCharacter plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfiguration();
-        this.language = plugin.getLanguage();
-        this.updateChecker = plugin.getUpdateChecker();
+        config = plugin.getConfiguration();
+        language = plugin.getLanguage();
+        updateChecker = plugin.getUpdateChecker();
     }
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerLogin(final PlayerJoinEvent event) {
+    public void onPlayerLogin(PlayerJoinEvent event) {
 
-        final Player player = event.getPlayer();
+        Player player = event.getPlayer();
 
         if (player.isOp()) {
-            if (this.updateChecker.getUpdateCheckResult() != (UP_TO_DATE)) {
-                final HashMap<String, String> placeholders = new HashMap<>();
+            if (updateChecker.getUpdateCheckResult() != (UP_TO_DATE)) {
+                HashMap<String, String> placeholders = new HashMap<>();
 
-                final String newVersion = (this.updateChecker.getLatestVersionString() != null ? this.updateChecker.getLatestVersionString() : "N/A");
-                final String updateUrl = (this.updateChecker.getResourceURL() != null ? this.updateChecker.getResourceURL() : "N/A");
+                String newVersion = (updateChecker.getLatestVersionString() != null ? updateChecker.getLatestVersionString() : "N/A");
+                String updateUrl = (updateChecker.getResourceURL() != null ? updateChecker.getResourceURL() : "N/A");
 
                 placeholders.put("{newVersion}", newVersion);
                 placeholders.put("{updateUrl}", updateUrl);
-                placeholders.put("{checkResult}", this.updateChecker.getUpdateCheckResult().toString());
+                placeholders.put("{checkResult}", updateChecker.getUpdateCheckResult().toString());
 
-                final List<String> updateMSG = this.language.getMultiLineMessageCustom("update", placeholders);
-                for (final String message : updateMSG) {
+                List<String> updateMSG = language.getMultiLineMessageCustom("update", placeholders);
+                for (String message : updateMSG) {
                     player.sendMessage(message);
                 }
             }
         }
 
-        if (player.isDead())
+        if (player.isDead()) {
             player.spigot().respawn();
+        }
 
-        for (final Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
             p.hidePlayer(player);
         }
 
-        final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+        CharacterSelector characterSelector = new CharacterSelector(plugin, player);
 
     }
 

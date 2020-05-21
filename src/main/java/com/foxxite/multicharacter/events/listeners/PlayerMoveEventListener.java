@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.events;
+package com.foxxite.multicharacter.events.listeners;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import org.bukkit.entity.Player;
@@ -12,24 +12,24 @@ public class PlayerMoveEventListener implements Listener {
 
     private final MultiCharacter plugin;
 
-    public PlayerMoveEventListener(final MultiCharacter plugin) {
+    public PlayerMoveEventListener(MultiCharacter plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onPlayerMove(final PlayerMoveEvent event) {
-        final Player player = event.getPlayer();
+    void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
 
-        if (this.plugin.getPlayersInCreation().contains(player.getUniqueId())) {
+        if (plugin.getPlayersInCreation().contains(player.getUniqueId())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onPlayerTeleport(final PlayerTeleportEvent event) {
-        final Player player = event.getPlayer();
+    void onPlayerTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
 
-        if (this.plugin.getPlayersInCreation().contains(player.getUniqueId())) {
+        if (plugin.getPlayersInCreation().contains(player.getUniqueId())) {
             event.setCancelled(true);
         }
 

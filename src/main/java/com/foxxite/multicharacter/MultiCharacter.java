@@ -4,7 +4,7 @@ import com.foxxite.multicharacter.character.Character;
 import com.foxxite.multicharacter.character.creator.CharacterCreator;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
-import com.foxxite.multicharacter.events.*;
+import com.foxxite.multicharacter.events.listeners.*;
 import com.foxxite.multicharacter.misc.CommandHandler;
 import com.foxxite.multicharacter.misc.PAPIPlaceholders;
 import com.foxxite.multicharacter.misc.UUIDHandler;
@@ -12,16 +12,16 @@ import com.foxxite.multicharacter.misc.UpdateChecker;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import com.foxxite.multicharacter.tasks.SaveCharacterTask;
-import com.mojang.authlib.GameProfile;
 import lombok.Getter;
-import net.minecraft.server.v1_15_R1.EntityPlayer;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginLogger;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
@@ -54,7 +54,13 @@ public class MultiCharacter extends JavaPlugin {
     private FileConfiguration configuration;
     @Getter
     private PluginLogger pluginLogger;
+    @Getter
+    private Permission vaultPermission;
+    @Getter
+    private Economy vaultEconomy;
+
     private Timer timer = new Timer();
+
     private PlayerLoginEventListener playerLoginEventListener;
     private PlayerMoveEventListener playerMoveEventListener;
     private ItemPickupEventListener itemPickupEventListener;
@@ -67,98 +73,142 @@ public class MultiCharacter extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        this.pluginLogger = new PluginLogger(this);
+        pluginLogger = new PluginLogger(this);
+
+        //Dependencies Check
+        if (!checkDependencies()) {
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         //Register config files
-        this.language = new Language(this);
-        this.configRaw = new Config(this);
-        this.configuration = this.configRaw.getConfig();
+        language = new Language(this);
+        configRaw = new Config(this);
+        configuration = configRaw.getConfig();
 
         //Setup BSTATS
-        if (this.configuration.getBoolean("bstats")) {
-            final Metrics metrics = new Metrics(this, 7480);
+        if (configuration.getBoolean("bstats")) {
+            Metrics metrics = new Metrics(this, 7480);
         }
+
+        //Setup Vault Classes
+        setupEconomy();
+        setupPermissions();
 
         //Update Checker
-        this.updateChecker = new UpdateChecker(this.resourceID, this);
-        if (this.updateChecker.getUpdateCheckResult() != (UP_TO_DATE)) {
-            final HashMap<String, String> placeholders = new HashMap<>();
-
-            final String newVersion = (this.updateChecker.getLatestVersionString() != null ? this.updateChecker.getLatestVersionString() : "N/A");
-            final String updateUrl = (this.updateChecker.getResourceURL() != null ? this.updateChecker.getResourceURL() : "N/A");
-
-            placeholders.put("{newVersion}", newVersion);
-            placeholders.put("{updateUrl}", updateUrl);
-            placeholders.put("{checkResult}", this.updateChecker.getUpdateCheckResult().toString());
-
-            final List<String> updateMSG = this.language.getMultiLineMessageCustom("update", placeholders);
-            for (final String message : updateMSG) {
-                this.pluginLogger.info(message);
-            }
-        } else {
-            System.out.println("Multi Character is up to date.");
-        }
+        updateChecker = new UpdateChecker(resourceID, this);
+        showUpdateMessage();
 
         //Register SQL handler
-        this.sqlHandler = new SQLHandler(this);
+        sqlHandler = new SQLHandler(this);
 
         //Register other
-        this.characterCreator = new CharacterCreator(this);
+        characterCreator = new CharacterCreator(this);
 
         //Register commands
-        this.commandHandler = new CommandHandler(this);
-        this.getCommand("multicharacter").setExecutor(this.commandHandler);
+        commandHandler = new CommandHandler(this);
+        getCommand("multicharacter").setExecutor(commandHandler);
 
         //Register Timers
-        this.timer.schedule(new AnimateToPosition(this), 0, 100);
-        this.timer.schedule(new SaveCharacterTask(this), 0, 30 * 1000);
-        this.timer.schedule(this.characterCreator, 0, 500);
+        timer.schedule(new AnimateToPosition(this), 0, 100);
+        timer.schedule(new SaveCharacterTask(this), 0, 30 * 1000);
+        timer.schedule(characterCreator, 0, 500);
 
         //Register event listeners
-        this.playerLoginEventListener = new PlayerLoginEventListener(this);
-        this.playerMoveEventListener = new PlayerMoveEventListener(this);
-        this.itemPickupEventListener = new ItemPickupEventListener(this);
-        this.playerQuitEventListener = new PlayerQuitEventListener(this);
-        this.worldSaveEventListener = new WorldSaveEventListener(this);
+        playerLoginEventListener = new PlayerLoginEventListener(this);
+        playerMoveEventListener = new PlayerMoveEventListener(this);
+        itemPickupEventListener = new ItemPickupEventListener(this);
+        playerQuitEventListener = new PlayerQuitEventListener(this);
+        worldSaveEventListener = new WorldSaveEventListener(this);
 
-        this.getServer().getPluginManager().registerEvents(this.playerLoginEventListener, this);
-        this.getServer().getPluginManager().registerEvents(this.playerMoveEventListener, this);
-        this.getServer().getPluginManager().registerEvents(this.itemPickupEventListener, this);
-        this.getServer().getPluginManager().registerEvents(this.playerQuitEventListener, this);
-        this.getServer().getPluginManager().registerEvents(this.worldSaveEventListener, this);
+        getServer().getPluginManager().registerEvents(playerLoginEventListener, this);
+        getServer().getPluginManager().registerEvents(playerMoveEventListener, this);
+        getServer().getPluginManager().registerEvents(itemPickupEventListener, this);
+        getServer().getPluginManager().registerEvents(playerQuitEventListener, this);
+        getServer().getPluginManager().registerEvents(worldSaveEventListener, this);
 
         //Register PAPI placeholders
-        if (this.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            this.pluginLogger.info("PlaceholderAPI registering placeholders");
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            pluginLogger.info("PlaceholderAPI registering placeholders");
             new PAPIPlaceholders(this).register();
         }
 
-        this.pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin enabled"));
+        pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin enabled"));
     }
 
     @Override
     public void onDisable() {
 
-        for (final Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             player.kickPlayer("Fatal plugin unloaded, kicking to prevent data corruption.");
             UUIDHandler.RESET_UUID(player);
         }
 
-        this.playerLoginEventListener = null;
-        this.playerMoveEventListener = null;
-        this.itemPickupEventListener = null;
-        this.playerQuitEventListener = null;
-        this.worldSaveEventListener = null;
+        playerLoginEventListener = null;
+        playerMoveEventListener = null;
+        itemPickupEventListener = null;
+        playerQuitEventListener = null;
+        worldSaveEventListener = null;
 
-        this.timer.cancel();
-        this.timer = null;
+        timer.cancel();
+        timer = null;
 
-        this.getCommand("multicharacter").setExecutor(null);
-        this.commandHandler = null;
+        getCommand("multicharacter").setExecutor(null);
+        commandHandler = null;
 
-        this.sqlHandler.closeConnection();
-        this.sqlHandler = null;
+        sqlHandler.closeConnection();
+        sqlHandler = null;
 
-        this.pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin disabled"));
+        pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin disabled"));
+    }
+
+    private boolean checkDependencies() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            pluginLogger.severe("Vault not found, disabling plugin");
+            return false;
+        }
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            pluginLogger.severe("PlaceholderAPI not found, some function might not work.");
+        }
+        return true;
+    }
+
+    private void showUpdateMessage() {
+        if (updateChecker.getUpdateCheckResult() != (UP_TO_DATE)) {
+            HashMap<String, String> placeholders = new HashMap<>();
+
+            String newVersion = (updateChecker.getLatestVersionString() != null ? updateChecker.getLatestVersionString() : "N/A");
+            String updateUrl = (updateChecker.getResourceURL() != null ? updateChecker.getResourceURL() : "N/A");
+
+            placeholders.put("{newVersion}", newVersion);
+            placeholders.put("{updateUrl}", updateUrl);
+            placeholders.put("{checkResult}", updateChecker.getUpdateCheckResult().toString());
+
+            List<String> updateMSG = language.getMultiLineMessageCustom("update", placeholders);
+            for (String message : updateMSG) {
+                pluginLogger.info(message);
+            }
+        } else {
+            System.out.println("Multi Character is up to date.");
+        }
+    }
+
+
+    private boolean setupEconomy() {
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        vaultEconomy = rsp.getProvider();
+        return vaultEconomy != null;
+    }
+
+    private boolean setupPermissions() {
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        if (rsp == null) {
+            return false;
+        }
+        vaultPermission = rsp.getProvider();
+        return vaultPermission != null;
     }
 }

@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.events;
+package com.foxxite.multicharacter.events.listeners;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import org.bukkit.Bukkit;
@@ -13,24 +13,24 @@ public class ItemPickupEventListener implements Listener {
 
     private final MultiCharacter plugin;
 
-    public ItemPickupEventListener(final MultiCharacter plugin) {
+    public ItemPickupEventListener(MultiCharacter plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onItemPickup(final EntityPickupItemEvent event) {
-        final LivingEntity entity = event.getEntity();
+    void onItemPickup(EntityPickupItemEvent event) {
+        LivingEntity entity = event.getEntity();
 
         if (entity instanceof Player) {
 
-            final Player player = (Player) entity;
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
+            Player player = (Player) entity;
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                 player.updateInventory();
             }, 1L);
 
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
-                if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
-                    this.plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                if (plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
+                    plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
                 }
             }, 1l);
 

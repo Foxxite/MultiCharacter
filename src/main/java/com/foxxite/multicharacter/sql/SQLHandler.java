@@ -6,6 +6,7 @@ import javax.sql.rowset.CachedRowSet;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -16,62 +17,67 @@ public class SQLHandler {
     private final File sqlFile;
     private Connection conn;
 
-    public SQLHandler(final MultiCharacter plugin) {
+    public SQLHandler(MultiCharacter plugin) {
 
         this.plugin = plugin;
 
-        this.sqlFile = new File(this.plugin.getDataFolder(), "storage.db");
+        sqlFile = new File(this.plugin.getDataFolder(), "storage.db");
 
-        if (!this.sqlFile.exists()) {
-            this.sqlFile.getParentFile().mkdirs();
+        if (!sqlFile.exists()) {
+            sqlFile.getParentFile().mkdirs();
             try {
-                this.sqlFile.createNewFile();
-            } catch (final IOException e) {
+                sqlFile.createNewFile();
+            } catch (IOException e) {
                 plugin.getPluginLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
                 e.printStackTrace();
             }
         }
 
-        this.connect();
-        this.setupDatabase();
+        connect();
+        setupDatabase();
     }
 
     private void connect() {
 
         try {
             // db parameters
-            final String url = "jdbc:sqlite:" + this.sqlFile.getAbsolutePath();
+            String url = "jdbc:sqlite:" + sqlFile.getAbsolutePath();
             // create a connection to the database
-            this.conn = DriverManager.getConnection(url);
+            conn = DriverManager.getConnection(url);
 
-            this.plugin.getPluginLogger().log(new LogRecord(Level.INFO, "Connection to SQLite has been established."));
+            plugin.getPluginLogger().log(new LogRecord(Level.INFO, "Connection to SQLite has been established."));
 
-        } catch (final SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
     public void closeConnection() {
         try {
-            if (this.conn != null) {
-                this.conn.close();
+            if (conn != null) {
+                conn.close();
             }
-        } catch (final SQLException e) {
-            this.plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
+        } catch (SQLException e) {
+            plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
             e.printStackTrace();
         }
     }
 
     private void setupDatabase() {
-        final String playerTable =
-                "CREATE TABLE IF NOT EXISTS \"Players\" (\n" +
-                        "\t\"UUID\"\tTEXT UNIQUE,\n" +
-                        "\t\"Username\"\tTEXT,\n" +
-                        "\t\"IP\"\tTEXT,\n" +
-                        "\tPRIMARY KEY(\"UUID\")\n" +
-                        ");";
 
-        final String characterTable =
+        ArrayList<String> tables = new ArrayList<>();
+
+        tables.add(
+                "CREATE TABLE IF NOT EXISTS \"Vault\" (\n" +
+                        "\t\"CharacterUUID\"\tTEXT UNIQUE,\n" +
+                        "\t\"Balance\"\tREAL,\n" +
+                        "\t\"Group\"\tTEXT,\n" +
+                        "\t\"Permissions\"\tTEXT,\n" +
+                        "\tPRIMARY KEY(\"CharacterUUID\")\n" +
+                        ");"
+        );
+
+        tables.add(
                 "CREATE TABLE IF NOT EXISTS \"Characters\" (\n" +
                         "\t\"UUID\"\tTEXT UNIQUE,\n" +
                         "\t\"OwnerUUID\"\tTEXT,\n" +
@@ -84,9 +90,10 @@ public class SQLHandler {
                         "\t\"Signature\"\tTEXT,\n" +
                         "\t\"Deleted\"\tINTEGER DEFAULT 0,\n" +
                         "\tPRIMARY KEY(\"UUID\")\n" +
-                        ");";
+                        ");"
+        );
 
-        final String inventoryTable =
+        tables.add(
                 "CREATE TABLE IF NOT EXISTS \"Inventories\" (\n" +
                         "\t\"CharacterUUID\"\tTEXT UNIQUE,\n" +
                         "\t\"Contents\"\tTEXT,\n" +
@@ -95,9 +102,10 @@ public class SQLHandler {
                         "\t\"EXP\"\tREAL DEFAULT 0,\n" +
                         "\t\"EXPLevel\"\tINTEGER DEFAULT 0,\n" +
                         "\tPRIMARY KEY(\"CharacterUUID\")\n" +
-                        ");";
+                        ");"
+        );
 
-        final String locationTable =
+        tables.add(
                 "CREATE TABLE IF NOT EXISTS \"LogoutLocations\" (\n" +
                         "\t\"ID\"\tINTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,\n" +
                         "\t\"CharacterUUID\"\tTEXT,\n" +
@@ -107,42 +115,43 @@ public class SQLHandler {
                         "\t\"Z\"\tREAL,\n" +
                         "\t\"Yaw\"\tREAL,\n" +
                         "\t\"Pitch\"\tREAL\n" +
-                        ");";
+                        ");"
+        );
 
         try {
-            final Statement stmt = this.conn.createStatement();
+            Statement stmt = conn.createStatement();
             // create a new table
-            stmt.execute(playerTable);
-            stmt.execute(characterTable);
-            stmt.execute(inventoryTable);
-            stmt.execute(locationTable);
-        } catch (final Exception e) {
-            this.plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
+            for (String createQuery : tables) {
+                stmt.execute(createQuery);
+            }
+
+        } catch (Exception e) {
+            plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
             e.printStackTrace();
         }
     }
 
-    public void executeUpdateQuery(final String query) {
+    public void executeUpdateQuery(String query) {
         try {
-            final Statement stmt = this.conn.createStatement();
+            Statement stmt = conn.createStatement();
             stmt.executeUpdate(query);
-        } catch (final Exception e) {
-            this.plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
+        } catch (Exception e) {
+            plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
             e.printStackTrace();
         }
     }
 
-    public HashMap<Integer, HashMap<String, Object>> executeQuery(final String query, final HashMap<String, String> columns) {
+    public HashMap<Integer, HashMap<String, Object>> executeQuery(String query, HashMap<String, String> columns) {
         try {
-            final Statement stmt = this.conn.createStatement();
-            final ResultSet resultSet = stmt.executeQuery(query);
+            Statement stmt = conn.createStatement();
+            ResultSet resultSet = stmt.executeQuery(query);
 
-            final HashMap<Integer, HashMap<String, Object>> rows = new HashMap<>();
+            HashMap<Integer, HashMap<String, Object>> rows = new HashMap<>();
 
             int rowCount = 0;
             while (resultSet.next()) {
 
-                final HashMap<String, Object> resultRows = new HashMap<>();
+                HashMap<String, Object> resultRows = new HashMap<>();
 
                 columns.forEach((columnName, columnType) -> {
 
@@ -168,7 +177,7 @@ public class SQLHandler {
                                 resultRows.put(columnName, resultSet.getObject(columnName));
                                 break;
                         }
-                    } catch (final SQLException throwables) {
+                    } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
 
@@ -181,17 +190,17 @@ public class SQLHandler {
                 rowCount++;
             }
             return rows;
-        } catch (final Exception e) {
-            this.plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
+        } catch (Exception e) {
+            plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
             e.printStackTrace();
         }
 
         return null;
     }
 
-    public int getRows(final ResultSet rs) throws SQLException {
+    public int getRows(ResultSet rs) throws SQLException {
 
-        final CachedRowSet localResult = (CachedRowSet) rs;
+        CachedRowSet localResult = (CachedRowSet) rs;
 
         int rowCount = 0;
         while (localResult.next()) {

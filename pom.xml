@@ -33,6 +33,10 @@
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -82,6 +86,14 @@
             <systemPath>F:/IntelliJ/TestServer/cache/patched_1.15.2.jar</systemPath>
         </dependency>
 
+        <!-- Vault -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <properties>
@@ -115,7 +127,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.bstats</pattern>
-                                    <shadedPattern>com.foxxite</shadedPattern>
+                                    <shadedPattern>com.foxxite.multicharacter</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

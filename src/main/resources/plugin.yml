@@ -8,6 +8,7 @@ website: https://foxxite.com
 version: "1.3.0"
 api-version: "1.15"
 
+depend: [Vault]
 softdepend: [PlaceholderAPI]
 
 commands:

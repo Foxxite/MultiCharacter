@@ -23,26 +23,26 @@ public class CommandHandler implements TabExecutor {
     private final Config config;
     private final Language language;
 
-    public CommandHandler(final MultiCharacter plugin) {
+    public CommandHandler(MultiCharacter plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfigRaw();
-        this.language = plugin.getLanguage();
+        config = plugin.getConfigRaw();
+        language = plugin.getLanguage();
     }
 
     @Override
-    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("multicharacter")) {
             if (sender instanceof Player) {
-                final Player player = (Player) sender;
+                Player player = (Player) sender;
                 if (args.length > 0) {
                     switch (args[0]) {
                         case "reload":
                             if (player.hasPermission("multicharacter.admin")) {
-                                this.config.reloadConfig();
-                                this.language.reloadLanguage();
-                                player.sendMessage(this.language.getMessage("reload"));
+                                config.reloadConfig();
+                                language.reloadLanguage();
+                                player.sendMessage(language.getMessage("reload"));
                             } else {
-                                player.sendMessage(this.language.getMessage("no-perms"));
+                                player.sendMessage(language.getMessage("no-perms"));
                             }
                             break;
                         case "logout":
@@ -51,61 +51,61 @@ public class CommandHandler implements TabExecutor {
 
                                 UUIDHandler.RESET_UUID(player);
 
-                                if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
-                                    if (!this.saveData(player)) {
-                                        player.sendMessage(this.language.getMessage("saving.error"));
+                                if (plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
+                                    if (!saveData(player)) {
+                                        player.sendMessage(language.getMessage("saving.error"));
                                         return true;
                                     }
 
-                                    player.sendMessage(this.language.getMessage("saving.complete"));
+                                    player.sendMessage(language.getMessage("saving.complete"));
 
-                                    this.plugin.getActiveCharacters().remove(player.getUniqueId());
+                                    plugin.getActiveCharacters().remove(player.getUniqueId());
                                 }
 
-                                final CharacterSelector characterSelector = new CharacterSelector(this.plugin, player);
+                                CharacterSelector characterSelector = new CharacterSelector(plugin, player);
                             } else {
-                                player.sendMessage(this.language.getMessage("no-perms"));
+                                player.sendMessage(language.getMessage("no-perms"));
                             }
                             break;
                         case "save":
                             if (player.hasPermission("multicharacter.save")) {
-                                if (!this.saveData(player)) {
-                                    player.sendMessage(this.language.getMessage("saving.error"));
+                                if (!saveData(player)) {
+                                    player.sendMessage(language.getMessage("saving.error"));
                                     return true;
                                 }
 
-                                player.sendMessage(this.language.getMessage("saving.complete"));
+                                player.sendMessage(language.getMessage("saving.complete"));
                             } else {
-                                player.sendMessage(this.language.getMessage("no-perms"));
+                                player.sendMessage(language.getMessage("no-perms"));
                             }
                             break;
                         case "id":
                             if (player.hasPermission("multicharacter.id")) {
-                                final Character character = this.plugin.getActiveCharacters().get(player.getUniqueId());
+                                Character character = plugin.getActiveCharacters().get(player.getUniqueId());
                                 if (character != null) {
 
-                                    final HashMap<String, String> placeholder = new HashMap<>();
+                                    HashMap<String, String> placeholder = new HashMap<>();
                                     placeholder.put("{name}", character.getName());
                                     placeholder.put("{uuid}", player.getUniqueId().toString());
                                     placeholder.put("{id}", character.getCharacterID().toString());
 
-                                    player.sendMessage(this.language.getMessagePAPIAndCustom("character-data.id", player, placeholder));
+                                    player.sendMessage(language.getMessagePAPIAndCustom("character-data.id", player, placeholder));
                                 } else {
-                                    player.sendMessage(this.language.getMessage("character-data.non-active"));
+                                    player.sendMessage(language.getMessage("character-data.non-active"));
                                 }
                             }
                             break;
                         case "lookup":
                             if (player.hasPermission("multicharacter.lookup")) {
                                 if (args.length == 2 || !args[1].isEmpty()) {
-                                    this.lookupCharacter(args[1], player);
+                                    lookupCharacter(args[1], player);
                                 } else {
-                                    player.sendMessage(this.language.getMessage("character-data.missing-param"));
+                                    player.sendMessage(language.getMessage("character-data.missing-param"));
                                 }
                             }
                             break;
                         default:
-                            player.sendMessage(this.language.getMessage("unknown-command"));
+                            player.sendMessage(language.getMessage("unknown-command"));
                             break;
                     }
                     return true;
@@ -118,40 +118,42 @@ public class CommandHandler implements TabExecutor {
         return false;
     }
 
-    private void lookupCharacter(final String characterID, final Player player) {
+    private void lookupCharacter(String characterID, Player player) {
 
-        final Character lookupCharacter;
+        Character lookupCharacter;
 
         //Is UUID
-        final Pattern uuidPattern = Pattern.compile("^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$");
+        Pattern uuidPattern = Pattern.compile("^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$");
 
         if (uuidPattern.matcher(characterID.trim()).matches()) {
-            lookupCharacter = new Character(this.plugin, UUID.fromString(characterID));
+            lookupCharacter = new Character(plugin, UUID.fromString(characterID));
         } else {
-            final Player localPlayer = Bukkit.getPlayer(characterID);
+            Player localPlayer = Bukkit.getPlayer(characterID);
             if (localPlayer == null) {
-                player.sendMessage(this.language.getMessage("character-data.non-active"));
+                player.sendMessage(language.getMessage("character-data.non-active"));
                 return;
             }
 
-            lookupCharacter = this.plugin.getActiveCharacters().get(localPlayer.getUniqueId());
+            lookupCharacter = plugin.getActiveCharacters().get(localPlayer.getUniqueId());
         }
 
         if (lookupCharacter == null) {
-            player.sendMessage(this.language.getMessage("character-data.non-active"));
+            player.sendMessage(language.getMessage("character-data.non-active"));
             return;
         }
 
-        final HashMap<String, String> placeholder = new HashMap<>();
+        HashMap<String, String> placeholder = new HashMap<>();
         placeholder.put("{id}", lookupCharacter.getCharacterID().toString());
         placeholder.put("{name}", lookupCharacter.getName());
         placeholder.put("{birthday}", lookupCharacter.getBirthday());
         placeholder.put("{nationality}", lookupCharacter.getNationality());
         placeholder.put("{sex}", lookupCharacter.getSex());
+        placeholder.put("{balance}", String.valueOf(lookupCharacter.getVaultBalance()));
+        placeholder.put("{group}", lookupCharacter.getVaultGroup());
 
-        final ArrayList<String> data = this.language.getMultiLineMessagePAPIAndCustom("character-data.data", player, placeholder);
+        ArrayList<String> data = language.getMultiLineMessagePAPIAndCustom("character-data.data", player, placeholder);
 
-        for (final String line : data) {
+        for (String line : data) {
             player.sendMessage(line);
         }
 
@@ -159,7 +161,7 @@ public class CommandHandler implements TabExecutor {
 
 
     private ArrayList<String> getSubCommands() {
-        final ArrayList<String> returns = new ArrayList<>();
+        ArrayList<String> returns = new ArrayList<>();
         returns.add("logout");
         returns.add("switch");
         returns.add("save");
@@ -172,7 +174,7 @@ public class CommandHandler implements TabExecutor {
     }
 
     @Override
-    public List<String> onTabComplete(final CommandSender sender, final Command command, final String label, final String[] agrs) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] agrs) {
 
         if (agrs.length > 0) {
             ArrayList<String> autoComplete = new ArrayList<>();
@@ -181,31 +183,34 @@ public class CommandHandler implements TabExecutor {
             if (agrs.length == 1) {
 
                 activeArg = 0;
-                if (agrs[0].length() == 0) return this.getSubCommands();
+                if (agrs[0].length() == 0) {
+                    return getSubCommands();
+                }
 
-                autoComplete = this.getSubCommands();
+                autoComplete = getSubCommands();
 
             } else if (agrs.length == 2 && agrs[0].equalsIgnoreCase("lookup")) {
 
                 activeArg = 1;
-                for (final Player player : Bukkit.getOnlinePlayers()) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
                     autoComplete.add(player.getName());
                 }
 
-                final ArrayList<String> finalAutoComplete = autoComplete;
-                this.plugin.getActiveCharacters().forEach((playerUUID, character) -> {
+                ArrayList<String> finalAutoComplete = autoComplete;
+                plugin.getActiveCharacters().forEach((playerUUID, character) -> {
                     finalAutoComplete.add(character.getCharacterID().toString());
                 });
 
             }
 
-            final ArrayList<String> returnList = new ArrayList<>();
+            ArrayList<String> returnList = new ArrayList<>();
 
             //Intelligent Auto Complete
-            for (final String subCommand : autoComplete) {
+            for (String subCommand : autoComplete) {
                 //Check if args contain subcommand, ignore case
-                if (subCommand.startsWith(agrs[activeArg]) || subCommand.toLowerCase().startsWith(agrs[activeArg]))
+                if (subCommand.startsWith(agrs[activeArg]) || subCommand.toLowerCase().startsWith(agrs[activeArg])) {
                     returnList.add(subCommand);
+                }
             }
 
             return returnList;
@@ -214,10 +219,11 @@ public class CommandHandler implements TabExecutor {
         return null;
     }
 
-    private boolean saveData(final Player player) {
-        if (this.plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
-            if (!this.plugin.getActiveCharacters().get(player.getUniqueId()).saveData())
+    private boolean saveData(Player player) {
+        if (plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
+            if (!plugin.getActiveCharacters().get(player.getUniqueId()).saveData()) {
                 return false;
+            }
             return true;
         }
         return false;

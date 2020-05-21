@@ -218,7 +218,7 @@ public class Character {
             vaultBalance = eco.getBalance(owningPlayer);
             vaultGroup = perm.getPrimaryGroup(owningPlayer);
 
-            String updateVault = "UPDATE Vault SET `Balance` = '" + vaultBalance + "', `Group` = '" + StringEscapeUtils.escapeSql(vaultGroup) + "'";
+            String updateVault = "UPDATE Vault SET `Balance` = '" + vaultBalance + "', `Group` = '" + StringEscapeUtils.escapeSql(vaultGroup) + "' WHERE CharacterUUID = '" + characterID.toString() + "'";
             sqlHandler.executeUpdateQuery(updateVault);
 
             return true;

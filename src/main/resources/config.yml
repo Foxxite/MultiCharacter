@@ -33,10 +33,11 @@ clear-chat: false
 # Vault integration
 # Default Balance: The balance each character will start with. The economy is still handled by your preferred economy plugin.
 # Default Group: The default group (PEX, LuckPerms, GroupManger, etc) each character will have.
-# Default Perms: The default permission nodes each character will have (preferably use your permission plugin for this).
+# Staff Group: The group staff members will get if they go into staff mode.
 vault:
   default-balance: 1500
   default-group: default
+  staff-group: admin
 
 # Locations shown in the spawn location picker.
 # Last location is added automatically.

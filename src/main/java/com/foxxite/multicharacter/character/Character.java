@@ -5,10 +5,14 @@ import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import lombok.Getter;
 import lombok.Setter;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import net.milkbowl.vault.permission.Permission;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,6 +23,7 @@ public class Character {
 
     private final MultiCharacter plugin;
     private final SQLHandler sqlHandler;
+    private final FileConfiguration config;
     @Getter
     private UUID characterID;
     @Getter
@@ -57,12 +62,10 @@ public class Character {
     @Getter
     @Setter
     private String vaultGroup;
-    @Getter
-    @Setter
-    private String[] vaultPermissions;
 
     public Character(MultiCharacter plugin, UUID characterUUID) {
         this.plugin = plugin;
+        config = plugin.getConfiguration();
         sqlHandler = plugin.getSqlHandler();
 
         HashMap<String, String> tableLayout = new HashMap<>();
@@ -143,6 +146,47 @@ public class Character {
             logoutLocation = new Location(world, X, Y, Z, (float) Yaw, (float) Pitch);
         }
 
+        tableLayout.clear();
+        tableLayout.put("CharacterUUID", "string");
+        tableLayout.put("Balance", "double");
+        tableLayout.put("Group", "string");
+        tableLayout.put("Permissions", "string");
+        queryResult = sqlHandler.executeQuery("SELECT * FROM Vault WHERE CharacterUUID = '" + characterUUID.toString() + "'", tableLayout);
+
+        if (queryResult != null && queryResult.size() > 0) {
+            HashMap<String, Object> queryResultRow = queryResult.get(0);
+
+            vaultBalance = (double) queryResultRow.get("Balance");
+            vaultGroup = (String) queryResultRow.get("Group");
+        } else {
+            String insertIntoVault = "INSERT INTO Vault (CharacterUUID, Balance, Group)\n" +
+                    "VALUES ('" + characterID + "', '" + vaultBalance + "', '" + vaultGroup + "')";
+            sqlHandler.executeUpdateQuery(insertIntoVault);
+
+            vaultBalance = config.getDouble("vault.default-balance");
+            vaultGroup = config.getString("vault.default-group");
+        }
+
+        Economy eco = plugin.getVaultEconomy();
+        Permission perm = plugin.getVaultPermission();
+
+        // Reset balance to character balance.
+        double currBalance = eco.getBalance(owningPlayer);
+        EconomyResponse response = eco.withdrawPlayer(owningPlayer, currBalance);
+        EconomyResponse response1 = eco.depositPlayer(owningPlayer, vaultBalance);
+
+        if (!response.transactionSuccess() || !response1.transactionSuccess()) {
+            plugin.getPluginLogger().warning("An vault error occurred while resetting the balance for " + owningPlayer.getName());
+            plugin.getPluginLogger().warning(response.errorMessage);
+            plugin.getPluginLogger().warning(response1.errorMessage);
+        }
+
+        // Reset player group.
+        String currGroup = perm.getPrimaryGroup(owningPlayer);
+        perm.playerRemoveGroup(owningPlayer, currGroup);
+        perm.playerAddGroup(owningPlayer, vaultGroup);
+
+
     }
 
     public void saveData(Player player) {
@@ -168,6 +212,16 @@ public class Character {
             String updateInventory = "UPDATE Inventories SET Contents = '" + StringEscapeUtils.escapeSql(playerInventory) + "', Health = " + player.getHealth() + ", Hunger = " + player.getFoodLevel() + ", EXP = " + player.getExp() + ", EXPLevel = " + player.getLevel() + " WHERE CharacterUUID = '" + characterID.toString() + "'";
 
             sqlHandler.executeUpdateQuery(updateInventory);
+
+            Economy eco = plugin.getVaultEconomy();
+            Permission perm = plugin.getVaultPermission();
+
+            vaultBalance = eco.getBalance(owningPlayer);
+            vaultGroup = perm.getPrimaryGroup(owningPlayer);
+
+            String updateVault = "UPDATE Vault SET Balance = '" + vaultBalance + "', Group = '" + StringEscapeUtils.escapeSql(vaultGroup) + "'";
+            sqlHandler.executeUpdateQuery(updateVault);
+
             return true;
         } catch (Exception ex) {
             plugin.getPluginLogger().severe(ex.getMessage());

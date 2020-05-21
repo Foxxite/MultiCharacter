@@ -44,9 +44,6 @@ public class EmptyCharacter {
     @Getter
     @Setter
     private String vaultGroup;
-    @Getter
-    @Setter
-    private String[] vaultPermissions;
 
     public EmptyCharacter(MultiCharacter plugin, UUID owningPlayer) {
         this.plugin = plugin;
@@ -58,7 +55,6 @@ public class EmptyCharacter {
 
         vaultBalance = config.getDouble("vault.default-balance");
         vaultGroup = config.getString("vault.default-group");
-        vaultPermissions = (String[]) config.getStringList("vault.default-perms").toArray();
     }
 
     public void saveToDatabase() {
@@ -76,9 +72,13 @@ public class EmptyCharacter {
             String insertIntoLogout = "INSERT INTO LogoutLocations (CharacterUUID, World, X, Y, Z, Yaw, Pitch)\n" +
                     "VALUES ('" + characterID + "', 'World', '0', '0', '0', '0', '0'); ";
 
+            String insertIntoVault = "INSERT INTO Vault (CharacterUUID, Balance, Group, Permissions)\n" +
+                    "VALUES ('" + characterID + "', '" + vaultBalance + "', '" + vaultGroup + "')";
+
             sqlHandler.executeUpdateQuery(insertIntoCharacter);
             sqlHandler.executeUpdateQuery(insertIntoInventories);
             sqlHandler.executeUpdateQuery(insertIntoLogout);
+            sqlHandler.executeUpdateQuery(insertIntoVault);
 
             hasBeenSaved = true;
         }

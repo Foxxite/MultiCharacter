@@ -72,7 +72,6 @@ public class SQLHandler {
                         "\t\"CharacterUUID\"\tTEXT UNIQUE,\n" +
                         "\t\"Balance\"\tREAL,\n" +
                         "\t\"Group\"\tTEXT,\n" +
-                        "\t\"Permissions\"\tTEXT,\n" +
                         "\tPRIMARY KEY(\"CharacterUUID\")\n" +
                         ");"
         );

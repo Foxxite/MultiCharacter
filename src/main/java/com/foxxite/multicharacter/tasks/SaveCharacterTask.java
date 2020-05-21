@@ -3,6 +3,7 @@ package com.foxxite.multicharacter.tasks;
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.character.Character;
 import com.foxxite.multicharacter.misc.Common;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -12,29 +13,33 @@ import java.util.UUID;
 public class SaveCharacterTask extends TimerTask {
 
     private final MultiCharacter plugin;
+    FileConfiguration config;
 
-    public SaveCharacterTask(final MultiCharacter plugin) {
+    public SaveCharacterTask(MultiCharacter plugin) {
         this.plugin = plugin;
+        config = plugin.getConfiguration();
     }
 
     @Override
     public void run() {
 
-        Common.broadcastActionBar(this.plugin.getLanguage().getMessage("saving.start"));
+        Common.broadcastActionBar(plugin.getLanguage().getMessage("saving.start"));
 
-        final HashMap<UUID, Character> localActiveCharacters = (HashMap<UUID, Character>) this.plugin.getActiveCharacters().clone();
+        HashMap<UUID, Character> localActiveCharacters = (HashMap<UUID, Character>) plugin.getActiveCharacters().clone();
 
         localActiveCharacters.forEach((uuid, character) -> {
             character.saveData();
 
-            final Player player = Common.getPlayerByUuid(uuid);
+            Player player = Common.getPlayerByUuid(uuid);
 
-           if(player == null)
-           {
-               return;
-           }
+            if (player == null) {
+                return;
+            }
         });
 
-        Common.broadcastActionBar(this.plugin.getLanguage().getMessage("saving.complete"));
+        if (config.getBoolean("show-save")) {
+            Common.broadcastActionBar(plugin.getLanguage().getMessage("saving.complete"));
+        }
+
     }
 }

@@ -7,6 +7,9 @@ file-version: -1
 # Please keep this enabled, it helps me.
 bstats: true
 
+# If the periodic save messages should be shown.
+show-save: true
+
 #
 # This will change the players UUID to the one their character uses.
 # Causing plugins to save data per character if coded correctly.
@@ -34,9 +37,6 @@ clear-chat: false
 vault:
   default-balance: 1500
   default-group: default
-  default-perms:
-    - multicharacter.switch
-    - multicharacter.id
 
 # Locations shown in the spawn location picker.
 # Last location is added automatically.

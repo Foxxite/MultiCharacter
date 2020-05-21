@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import net.milkbowl.vault.permission.Permission;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -312,6 +313,12 @@ public class CharacterSelector implements InventoryHolder, Listener {
                 String[] skinData = deserializeMojangData(json);
 
                 NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(plugin, player, player.getUniqueId(), skinData[0], skinData[1]);
+
+                // Reset player group.
+                Permission perm = plugin.getVaultPermission();
+                String currGroup = perm.getPrimaryGroup(player);
+                perm.playerRemoveGroup(player, currGroup);
+                perm.playerAddGroup(player, config.getString("vault.staff-group"));
 
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     p.showPlayer(player);

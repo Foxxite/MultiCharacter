@@ -184,8 +184,6 @@ public class Character {
         String currGroup = perm.getPrimaryGroup(owningPlayer);
         perm.playerRemoveGroup(owningPlayer, currGroup);
         perm.playerAddGroup(owningPlayer, vaultGroup);
-
-
     }
 
     public void saveData(Player player) {

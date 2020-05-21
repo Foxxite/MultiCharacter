@@ -1,7 +1,7 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 2
+file-version: 3
 
 #
 # Plugin Messages
@@ -40,6 +40,9 @@ character-data:
     - "&7Nationality: &f{nationality}"
     - "&7Sex: &f{sex}"
     - ""
+    - "&7Balance: &f{balance}"
+    - "&7Group: &f{group}"
+    - ""
     - "&8=========================================="
 
 character-selection:
@@ -56,6 +59,9 @@ character-selection:
       - "&7Birthday: {birthday}"
       - "&7Nationality: {nationality}"
       - "&7Sex: {sex}"
+      - ""
+      - "&7Balance: $ {balance}"
+      - "&7Group: {group}"
       - ""
       - "&7Right Click To Play"
       - "&4Double Left Click To Delete"

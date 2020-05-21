@@ -72,7 +72,7 @@ public class EmptyCharacter {
             String insertIntoLogout = "INSERT INTO LogoutLocations (CharacterUUID, World, X, Y, Z, Yaw, Pitch)\n" +
                     "VALUES ('" + characterID + "', 'World', '0', '0', '0', '0', '0'); ";
 
-            String insertIntoVault = "INSERT INTO Vault (CharacterUUID, Balance, Group, Permissions)\n" +
+            String insertIntoVault = "INSERT INTO Vault (`CharacterUUID`, `Balance`, `Group`)\n" +
                     "VALUES ('" + characterID + "', '" + vaultBalance + "', '" + vaultGroup + "')";
 
             sqlHandler.executeUpdateQuery(insertIntoCharacter);

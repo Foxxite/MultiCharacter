@@ -150,7 +150,6 @@ public class Character {
         tableLayout.put("CharacterUUID", "string");
         tableLayout.put("Balance", "double");
         tableLayout.put("Group", "string");
-        tableLayout.put("Permissions", "string");
         queryResult = sqlHandler.executeQuery("SELECT * FROM Vault WHERE CharacterUUID = '" + characterUUID.toString() + "'", tableLayout);
 
         if (queryResult != null && queryResult.size() > 0) {
@@ -159,12 +158,12 @@ public class Character {
             vaultBalance = (double) queryResultRow.get("Balance");
             vaultGroup = (String) queryResultRow.get("Group");
         } else {
-            String insertIntoVault = "INSERT INTO Vault (CharacterUUID, Balance, Group)\n" +
-                    "VALUES ('" + characterID + "', '" + vaultBalance + "', '" + vaultGroup + "')";
-            sqlHandler.executeUpdateQuery(insertIntoVault);
-
             vaultBalance = config.getDouble("vault.default-balance");
             vaultGroup = config.getString("vault.default-group");
+
+            String insertIntoVault = "INSERT INTO Vault (`CharacterUUID`, `Balance`, `Group`)\n" +
+                    "VALUES ('" + characterID + "', '" + vaultBalance + "', '" + vaultGroup + "')";
+            sqlHandler.executeUpdateQuery(insertIntoVault);
         }
 
         Economy eco = plugin.getVaultEconomy();
@@ -219,7 +218,7 @@ public class Character {
             vaultBalance = eco.getBalance(owningPlayer);
             vaultGroup = perm.getPrimaryGroup(owningPlayer);
 
-            String updateVault = "UPDATE Vault SET Balance = '" + vaultBalance + "', Group = '" + StringEscapeUtils.escapeSql(vaultGroup) + "'";
+            String updateVault = "UPDATE Vault SET `Balance` = '" + vaultBalance + "', `Group` = '" + StringEscapeUtils.escapeSql(vaultGroup) + "'";
             sqlHandler.executeUpdateQuery(updateVault);
 
             return true;

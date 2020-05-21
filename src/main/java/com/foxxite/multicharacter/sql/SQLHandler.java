@@ -135,7 +135,8 @@ public class SQLHandler {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(query);
         } catch (Exception e) {
-            plugin.getLogger().log(new LogRecord(Level.SEVERE, e.getMessage() + " " + e.getCause()));
+            plugin.getPluginLogger().severe(e.getMessage() + " " + e.getCause());
+            plugin.getPluginLogger().info("Query: " + query);
             e.printStackTrace();
         }
     }

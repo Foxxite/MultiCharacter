@@ -169,6 +169,13 @@ public class Character {
         Economy eco = plugin.getVaultEconomy();
         Permission perm = plugin.getVaultPermission();
 
+        if (eco == null || perm == null) {
+            plugin.getPluginLogger().severe("A fatal error occurred while loading Vault data. Is Vault installed?");
+            plugin.getPluginLogger().info("Disabling plugin...");
+            Bukkit.getPluginManager().disablePlugin(plugin);
+            return;
+        }
+
         // Reset balance to character balance.
         double currBalance = eco.getBalance(owningPlayer);
         EconomyResponse response = eco.withdrawPlayer(owningPlayer, currBalance);

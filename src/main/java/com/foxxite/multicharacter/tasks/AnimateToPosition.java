@@ -24,12 +24,11 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
     private final MultiCharacter plugin;
     private final FileConfiguration config;
-    HashMap<UUID, Long> flyingPlayer = new HashMap<>();
+    private final HashMap<UUID, Long> flyingPlayer = new HashMap<>();
 
-
-    public AnimateToPosition(final MultiCharacter plugin) {
+    public AnimateToPosition(MultiCharacter plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfiguration();
+        config = plugin.getConfiguration();
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
@@ -41,26 +40,27 @@ public class AnimateToPosition extends TimerTask implements Listener {
             @Override
             public void run() {
 
-                if (AnimateToPosition.this.plugin.getAnimateToLocation().size() == 0)
+                if (plugin.getAnimateToLocation().size() == 0) {
                     return;
+                }
 
-                final HashMap<UUID, Location> localAnimateToLocation = (HashMap<UUID, Location>) AnimateToPosition.this.plugin.getAnimateToLocation().clone();
+                HashMap<UUID, Location> localAnimateToLocation = (HashMap<UUID, Location>) plugin.getAnimateToLocation().clone();
 
                 localAnimateToLocation.forEach((uuid, destination) -> {
 
-                    final Player player = Common.getPlayerByUuid(uuid);
+                    Player player = Common.getPlayerByUuid(uuid);
 
                     if (player == null) {
                         return;
                     }
 
                     //Add player to list of animated players
-                    if (!AnimateToPosition.this.flyingPlayer.containsKey(uuid)) {
-                        AnimateToPosition.this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
+                    if (!flyingPlayer.containsKey(uuid)) {
+                        flyingPlayer.put(uuid, Instant.now().getEpochSecond());
                         player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
 
                         //Clear player chat
-                        if (AnimateToPosition.this.config.getBoolean("clear-chat")) {
+                        if (config.getBoolean("clear-chat")) {
                             for (int i = 0; i < 500; i++) {
                                 player.sendMessage("");
                             }
@@ -75,21 +75,23 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     }
 
                     //Make player face down
-                    final Location startLocation = player.getLocation().clone();
+                    Location startLocation = player.getLocation().clone();
                     startLocation.setY(255);
                     startLocation.setPitch(90);
                     startLocation.setYaw(0);
 
-                    final Location realDestination = destination.clone();
+                    Location realDestination = destination.clone();
                     realDestination.setY(255);
 
-                    if (!startLocation.getWorld().equals(realDestination.getWorld())) return;
+                    if (!startLocation.getWorld().equals(realDestination.getWorld())) {
+                        return;
+                    }
 
-                    final double distance = startLocation.distance(realDestination);
+                    double distance = startLocation.distance(realDestination);
 
                     //Teleport player closer if logout location is too far from menu location
                     if (distance > 500) {
-                        final Location shortStartLocation = realDestination.clone();
+                        Location shortStartLocation = realDestination.clone();
                         shortStartLocation.setX(shortStartLocation.getX() - 350);
                         shortStartLocation.setZ(shortStartLocation.getZ() - 350);
                         shortStartLocation.setYaw(0);
@@ -101,18 +103,18 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     }
 
                     //Make player fly in the right direction
-                    final Vector direction = AnimateToPosition.this.genVec(startLocation, realDestination);
+                    Vector direction = realDestination.toVector().subtract(startLocation.toVector());
                     direction.normalize();
-                    direction.multiply(AnimateToPosition.this.clamp((float) startLocation.distance(realDestination), 0, 5000));
+                    direction.multiply(clamp((float) distance, 0, 5000));
 
                     player.teleport(startLocation);
                     player.setVelocity(direction);
 
                     //Play flying sound
-                    if (AnimateToPosition.this.flyingPlayer.get(uuid) < Instant.now().getEpochSecond() - 10) {
+                    if (flyingPlayer.get(uuid) < Instant.now().getEpochSecond() - 9) {
                         player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
-                        AnimateToPosition.this.flyingPlayer.remove(uuid);
-                        AnimateToPosition.this.flyingPlayer.put(uuid, Instant.now().getEpochSecond());
+                        flyingPlayer.remove(uuid);
+                        flyingPlayer.put(uuid, Instant.now().getEpochSecond());
                     }
 
                     //Add Blindness Effect
@@ -123,7 +125,7 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                     //Teleport player to logout location
                     if (distance < 0.2f) {
-                        AnimateToPosition.this.plugin.getAnimateToLocation().remove(uuid);
+                        plugin.getAnimateToLocation().remove(uuid);
                         player.setVelocity(new Vector(0, 0, 0));
                         player.setGameMode(GameMode.SURVIVAL);
                         player.setFlying(false);
@@ -136,10 +138,10 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                         player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
 
-                        AnimateToPosition.this.flyingPlayer.remove(uuid);
+                        flyingPlayer.remove(uuid);
 
                         //Clear player chat
-                        if (AnimateToPosition.this.config.getBoolean("clear-chat")) {
+                        if (config.getBoolean("clear-chat")) {
                             for (int i = 0; i < 500; i++) {
                                 player.sendMessage("");
                             }
@@ -149,60 +151,40 @@ public class AnimateToPosition extends TimerTask implements Listener {
                 });
 
             }
-        }.runTask(this.plugin);
+        }.runTask(plugin);
 
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onPlayerLogout(final PlayerQuitEvent event) {
-        final Player player = event.getPlayer();
+    void onPlayerLogout(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
 
-        if (this.plugin.getAnimateToLocation().containsKey(player.getUniqueId())) {
-            player.teleport(this.plugin.getAnimateToLocation().get(player.getUniqueId()));
-            this.plugin.getAnimateToLocation().remove(player.getUniqueId());
+        if (plugin.getAnimateToLocation().containsKey(player.getUniqueId())) {
+            player.teleport(plugin.getAnimateToLocation().get(player.getUniqueId()));
+            plugin.getAnimateToLocation().remove(player.getUniqueId());
         }
     }
 
-    private Location findSafeSpawnLocation(Location destination)
-    {
+    private Location findSafeSpawnLocation(Location destination) {
         boolean foundVoidOnce = false;
         Location blockLoc = destination;
-        while(blockLoc.getBlock().isPassable()) {
+        while (blockLoc.getBlock().isPassable()) {
             if (blockLoc.getBlockY() > 0) {
                 blockLoc.subtract(0, 1, 0);
             } else {
                 //Prevent infinite loop
-                if(foundVoidOnce)
-                {
+                if (foundVoidOnce) {
                     return blockLoc;
-                }
-                else
-                {
+                } else {
                     foundVoidOnce = true;
                     blockLoc.setY(255);
                 }
             }
         }
-        return blockLoc.add(0,1,0);
+        return blockLoc.add(0, 1, 0);
     }
 
-    private Vector genVec(final Location a, final Location b) {
-        final double dX = a.getX() - b.getX();
-        final double dY = a.getY() - b.getY();
-        final double dZ = a.getZ() - b.getZ();
-        final double yaw = Math.atan2(dZ, dX);
-        final double pitch = Math.atan2(Math.sqrt(dZ * dZ + dX * dX), dY) + Math.PI;
-        final double x = Math.sin(pitch) * Math.cos(yaw);
-        final double y = Math.sin(pitch) * Math.sin(yaw);
-        final double z = Math.cos(pitch);
-
-        final Vector vector = new Vector(x, z, y);
-        //If you want to: vector = vector.normalize();
-
-        return vector;
-    }
-
-    private float clamp(final float val, final float min, final float max) {
+    private float clamp(float val, float min, float max) {
         return Math.max(min, Math.min(max, val));
     }
 

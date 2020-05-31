@@ -25,6 +25,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
@@ -89,6 +90,13 @@ public class MultiCharacter extends JavaPlugin {
         //Setup BSTATS
         if (configuration.getBoolean("bstats")) {
             Metrics metrics = new Metrics(this, 7480);
+
+            metrics.addCustomChart(new Metrics.SimplePie("uuid_changer", new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    return configuration.getBoolean("use-character-uuid") ? "yes" : "no";
+                }
+            }));
         }
 
         //Setup Vault Classes

@@ -7,6 +7,7 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.mojangapi.MojangResponse;
 import com.foxxite.multicharacter.sql.SQLHandler;
+import com.foxxite.multicharacter.tasks.ReopenCharacterSelectorTask;
 import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -37,6 +38,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Timer;
 import java.util.UUID;
 
 public class CharacterSelector implements InventoryHolder, Listener {
@@ -50,6 +52,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
     private final SQLHandler sqlHandler;
     private final NamespacedKey namespacedKey;
     private final Location menuLocation;
+    private Timer timer = new Timer();
     private boolean canClose = false;
     private Location playerLoginLocation;
 
@@ -83,6 +86,8 @@ public class CharacterSelector implements InventoryHolder, Listener {
         openGuiForPlayer();
 
         populateGUI();
+
+        timer.schedule(new ReopenCharacterSelectorTask(plugin, player, selectorGui), 10, 50);
     }
 
     private void openGuiForPlayer() {
@@ -257,6 +262,9 @@ public class CharacterSelector implements InventoryHolder, Listener {
         player.updateInventory();
 
         plugin.getAnimateToLocation().put(player.getUniqueId(), staffLocation);
+
+        timer.cancel();
+        timer = null;
     }
 
     @Override
@@ -272,6 +280,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
             }
         }
     }
+
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onInventoryClose(InventoryCloseEvent event) {
@@ -300,6 +309,8 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
             if (event.getSlot() == 8) {
                 //Staff Mode
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1f, 1f);
+
                 teleportToLogoutLocation(playerLoginLocation);
                 player.setDisplayName(player.getName());
 
@@ -333,6 +344,8 @@ public class CharacterSelector implements InventoryHolder, Listener {
                     player.closeInventory();
                     plugin.getPlayersInCreation().add(player.getUniqueId());
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
+                    timer.cancel();
+                    timer = null;
 
                 } else if (clickedItem.getType() == Material.PLAYER_HEAD) {
                     //Character Selector Stuff
@@ -356,8 +369,12 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
                         Character character = new Character(plugin, characterUUID);
 
+                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
+
                         canClose = true;
                         player.closeInventory();
+                        timer.cancel();
+                        timer = null;
 
                         if (character.getInventoryContent() != null) {
                             player.getInventory().setContents(character.getInventoryContent());

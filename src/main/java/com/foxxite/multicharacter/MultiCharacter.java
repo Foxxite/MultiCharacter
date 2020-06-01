@@ -5,10 +5,7 @@ import com.foxxite.multicharacter.character.creator.CharacterCreator;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.events.listeners.*;
-import com.foxxite.multicharacter.misc.CommandHandler;
-import com.foxxite.multicharacter.misc.PAPIPlaceholders;
-import com.foxxite.multicharacter.misc.UUIDHandler;
-import com.foxxite.multicharacter.misc.UpdateChecker;
+import com.foxxite.multicharacter.misc.*;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import com.foxxite.multicharacter.tasks.SaveCharacterTask;
@@ -33,6 +30,11 @@ import static com.foxxite.multicharacter.misc.UpdateChecker.UpdateCheckResult.UP
 
 public class MultiCharacter extends JavaPlugin {
 
+    public static final String RESOURCE_ID = "%%__RESOURCE__%%";
+    public static final String USER_ID = "%%__USER__%%";
+    public static final String NONCE = "%%__NONCE__%%";
+    public static String PLATFORM = "%%__SONGODA__%%";
+
     @Getter
     private final ArrayList<UUID> playersInCreation = new ArrayList<>();
     @Getter
@@ -40,9 +42,7 @@ public class MultiCharacter extends JavaPlugin {
     @Getter
     private final HashMap<UUID, Location> animateToLocation = new HashMap<>();
     @Getter
-    private final int resourceID = 78441;
-    private final String userID = "%%__USER__%%";
-    private final String nonce = "%%__NONCE__%%";
+    private final int spigotResourceID = 78441;
     @Getter
     private UpdateChecker updateChecker;
     @Getter
@@ -74,11 +74,24 @@ public class MultiCharacter extends JavaPlugin {
     @Override
     public void onEnable() {
 
+        // Make sure platform is correct
+        if (PLATFORM.equalsIgnoreCase("%%__SONGODA__%%")) {
+            PLATFORM = "Spigot";
+        } else if (PLATFORM.equalsIgnoreCase("true")) {
+            PLATFORM = "Songoda";
+        }
+
         pluginLogger = new PluginLogger(this);
 
         //Dependencies Check
         if (!checkDependencies()) {
             getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        //License check
+        License license = new License(this);
+        if (!license.isContinueLoad()) {
             return;
         }
 
@@ -104,7 +117,7 @@ public class MultiCharacter extends JavaPlugin {
         setupPermissions();
 
         //Update Checker
-        updateChecker = new UpdateChecker(resourceID, this);
+        updateChecker = new UpdateChecker(spigotResourceID, this);
         showUpdateMessage();
 
         //Register SQL handler

@@ -187,10 +187,13 @@ public class CharacterCreator extends TimerTask implements Listener {
                         player.sendMessage(language.getMessage("character-creator.skin-generate"));
                         updateCreatorState(playerUUID, CreatorSate.CREATING);
                         String skinData = getMineskinData(message);
-                        if (skinData == null) {
+
+                        if (!skinData.startsWith("{")) {
                             playerState.remove(playerUUID);
                             Bukkit.getScheduler().runTask(plugin, () -> {
-                                player.kickPlayer("An error occurred while creating your character, please try again later.");
+                                player.kickPlayer("An error occurred while getting the Skin data from Mineskin. \n" +
+                                        "Please report the following error to staff: " + skinData +
+                                        "\n Please try again later.");
                             });
                             return;
                         }
@@ -240,6 +243,8 @@ public class CharacterCreator extends TimerTask implements Listener {
 
     private String getMineskinData(String imageURL) {
 
+        Request request = null;
+
         try {
             final String url = ("https://api.mineskin.org/generate/url");
             OkHttpClient httpClient = new OkHttpClient();
@@ -249,13 +254,18 @@ public class CharacterCreator extends TimerTask implements Listener {
                     .add("url", imageURL)
                     .build();
 
-            Request request = new Request.Builder()
+            request = new Request.Builder()
                     .url(url)
                     .addHeader("User-Agent", "OkHttp Bot")
                     .post(formBody)
                     .build();
 
             try (Response response = httpClient.newCall(request).execute()) {
+
+                //Dump request for debugging.
+                plugin.getPluginLogger().info("Request:");
+                plugin.getPluginLogger().info(request.toString());
+                plugin.getPluginLogger().info(request.body().toString());
 
                 if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
@@ -269,9 +279,14 @@ public class CharacterCreator extends TimerTask implements Listener {
         } catch (Exception ex) {
             plugin.getPluginLogger().severe(ex.getMessage());
             ex.printStackTrace();
-        }
 
-        return null;
+            //Dump request for debugging.
+            plugin.getPluginLogger().info("Request:");
+            plugin.getPluginLogger().info(request.toString());
+            plugin.getPluginLogger().info(request.body().toString());
+
+            return ex.getMessage();
+        }
     }
 
     private void deserializeMineskin(String json, UUID playerUUID) {

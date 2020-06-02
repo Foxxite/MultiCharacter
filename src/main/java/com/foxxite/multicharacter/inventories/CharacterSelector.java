@@ -263,8 +263,10 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
         plugin.getAnimateToLocation().put(player.getUniqueId(), staffLocation);
 
-        timer.cancel();
-        timer = null;
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
 
     @Override
@@ -411,7 +413,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
             Request request = new Request.Builder()
                     .url(url)
-                    .addHeader("User-Agent", "OkHttp Bot")
+                    .addHeader("User-Agent", "Foxxite's MultiCharacter Spigot Plugin")
                     .build();
 
             try (Response response = httpClient.newCall(request).execute()) {

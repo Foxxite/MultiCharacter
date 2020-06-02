@@ -118,8 +118,15 @@ public class MultiCharacter extends JavaPlugin {
         }
 
         //Setup Vault Classes
-        setupEconomy();
-        setupPermissions();
+        if (!setupEconomy()) {
+            pluginLogger.severe("No economy plugin found by Vault, disabling plugin.");
+            getServer().getPluginManager().disablePlugin(this);
+        }
+
+        if (!setupPermissions()) {
+            pluginLogger.severe("No permissions plugin found by Vault, disabling plugin.");
+            getServer().getPluginManager().disablePlugin(this);
+        }
 
         //Update Checker
         updateChecker = new UpdateChecker(spigotResourceID, this);
@@ -215,7 +222,7 @@ public class MultiCharacter extends JavaPlugin {
                 pluginLogger.info(message);
             }
         } else {
-            System.out.println("Multi Character is up to date.");
+            pluginLogger.info("Multi Character is up to date.");
         }
     }
 

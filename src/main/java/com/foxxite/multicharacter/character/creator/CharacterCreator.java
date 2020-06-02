@@ -256,7 +256,7 @@ public class CharacterCreator extends TimerTask implements Listener {
 
             request = new Request.Builder()
                     .url(url)
-                    .addHeader("User-Agent", "OkHttp Bot")
+                    .addHeader("User-Agent", "Foxxite's MultiCharacter Spigot Plugin")
                     .post(formBody)
                     .build();
 

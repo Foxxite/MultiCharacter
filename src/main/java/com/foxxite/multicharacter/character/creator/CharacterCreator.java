@@ -177,11 +177,16 @@ public class CharacterCreator extends TimerTask implements Listener {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     break;
                 case NATIONALITY:
+                    playerCharacter.get(playerUUID).setNationality(StringEscapeUtils.escapeSql(message));
+                    updateCreatorState(playerUUID, CreatorSate.MODEL);
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
+                    break;
+                case MODEL:
                     switch (message) {
                         case "NORMAL":
                         case "SLIM":
-                            playerCharacter.get(playerUUID).setNationality(StringEscapeUtils.escapeSql(message));
-                            updateCreatorState(playerUUID, CreatorSate.MODEL);
+                            playerCharacter.get(playerUUID).setModel(StringEscapeUtils.escapeSql(message));
+                            updateCreatorState(playerUUID, CreatorSate.SKIN);
                             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                             break;
                         default:
@@ -189,11 +194,6 @@ public class CharacterCreator extends TimerTask implements Listener {
                             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);
                             break;
                     }
-                    break;
-                case MODEL:
-                    playerCharacter.get(playerUUID).setModel(StringEscapeUtils.escapeSql(message));
-                    updateCreatorState(playerUUID, CreatorSate.SKIN);
-                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     break;
                 case SKIN:
                     player.sendMessage(language.getMessage("character-creator.skin-download"));
@@ -208,9 +208,10 @@ public class CharacterCreator extends TimerTask implements Listener {
                         if (!skinData.startsWith("{")) {
                             playerState.remove(playerUUID);
                             Bukkit.getScheduler().runTask(plugin, () -> {
-                                player.kickPlayer("An error occurred while getting the Skin data from Mineskin. \n" +
-                                        "Please report the following error to staff: " + skinData +
-                                        "\n Please try again later.");
+                                player.kickPlayer("An error occurred while getting the Skin data from Mineskin. \n\n" +
+                                        "Please report the following error to staff: \n\n"
+                                        + skinData +
+                                        "\n\n Please try again later.");
                             });
                             return;
                         }
@@ -269,7 +270,7 @@ public class CharacterCreator extends TimerTask implements Listener {
             // form parameters
             RequestBody formBody = new FormBody.Builder()
                     .add("url", imageURL)
-                    .add("model", (playerCharacter.get(playerUUID).getModel() == "SLIM" ? "slim" : ""))
+                    .add("model", (playerCharacter.get(playerUUID).getModel().equalsIgnoreCase("SLIM") ? "slim" : ""))
                     .add("visibility", "1")
                     .build();
 

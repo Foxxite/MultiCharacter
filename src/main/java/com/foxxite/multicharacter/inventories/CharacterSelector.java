@@ -362,7 +362,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
                     //Delete Character
                     if (clickType == ClickType.DOUBLE_CLICK) {
                         sqlHandler.executeUpdateQuery("UPDATE Characters SET Deleted = 1 WHERE UUID = '" + characterUUID + "';");
-                        player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1f, 1f);
+                        player.playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1f);
                         populateGUI();
                     }
 

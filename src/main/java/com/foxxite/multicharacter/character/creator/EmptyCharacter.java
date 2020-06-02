@@ -40,6 +40,9 @@ public class EmptyCharacter {
     private String sex;
     @Getter
     @Setter
+    private String model;
+    @Getter
+    @Setter
     private double vaultBalance;
     @Getter
     @Setter

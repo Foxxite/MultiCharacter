@@ -5,6 +5,7 @@ public enum CreatorSate {
     BIRTHDAY,
     NATIONALITY,
     SEX,
+    MODEL,
     SKIN,
     CREATING,
     COMPLETE,

@@ -73,6 +73,9 @@ public class CharacterCreator extends TimerTask implements Listener {
                 case NATIONALITY:
                     player.sendTitle(creatorTitle, language.getMessage("character-creator.nationality"), 0, 200, 0);
                     break;
+                case MODEL:
+                    player.sendTitle(creatorTitle, language.getMessage("character-creator.model"), 0, 200, 0);
+                    break;
                 case SKIN:
                     player.sendTitle(creatorTitle, language.getMessage("character-creator.skin"), 0, 200, 0);
                     break;
@@ -174,7 +177,21 @@ public class CharacterCreator extends TimerTask implements Listener {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     break;
                 case NATIONALITY:
-                    playerCharacter.get(playerUUID).setNationality(StringEscapeUtils.escapeSql(message));
+                    switch (message) {
+                        case "NORMAL":
+                        case "SLIM":
+                            playerCharacter.get(playerUUID).setNationality(StringEscapeUtils.escapeSql(message));
+                            updateCreatorState(playerUUID, CreatorSate.MODEL);
+                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
+                            break;
+                        default:
+                            player.sendMessage(language.getMessage("character-creator.model-format-incorrect"));
+                            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);
+                            break;
+                    }
+                    break;
+                case MODEL:
+                    playerCharacter.get(playerUUID).setModel(StringEscapeUtils.escapeSql(message));
                     updateCreatorState(playerUUID, CreatorSate.SKIN);
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                     break;
@@ -186,7 +203,7 @@ public class CharacterCreator extends TimerTask implements Listener {
 
                         player.sendMessage(language.getMessage("character-creator.skin-generate"));
                         updateCreatorState(playerUUID, CreatorSate.CREATING);
-                        String skinData = getMineskinData(message);
+                        String skinData = getMineskinData(message, playerUUID);
 
                         if (!skinData.startsWith("{")) {
                             playerState.remove(playerUUID);
@@ -241,7 +258,7 @@ public class CharacterCreator extends TimerTask implements Listener {
         }
     }
 
-    private String getMineskinData(String imageURL) {
+    private String getMineskinData(String imageURL, UUID playerUUID) {
 
         Request request = null;
 
@@ -252,6 +269,8 @@ public class CharacterCreator extends TimerTask implements Listener {
             // form parameters
             RequestBody formBody = new FormBody.Builder()
                     .add("url", imageURL)
+                    .add("model", (playerCharacter.get(playerUUID).getModel() == "SLIM" ? "slim" : ""))
+                    .add("visibility", "1")
                     .build();
 
             request = new Request.Builder()

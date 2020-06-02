@@ -5,7 +5,10 @@ import com.foxxite.multicharacter.character.creator.CharacterCreator;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.events.listeners.*;
-import com.foxxite.multicharacter.misc.*;
+import com.foxxite.multicharacter.misc.CommandHandler;
+import com.foxxite.multicharacter.misc.PAPIPlaceholders;
+import com.foxxite.multicharacter.misc.UUIDHandler;
+import com.foxxite.multicharacter.misc.UpdateChecker;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import com.foxxite.multicharacter.tasks.SaveCharacterTask;
@@ -89,11 +92,13 @@ public class MultiCharacter extends JavaPlugin {
             return;
         }
 
+        /*
         //License check
         License license = new License(this);
         if (!license.isContinueLoad()) {
             return;
         }
+        */
 
         //Register config files
         language = new Language(this);

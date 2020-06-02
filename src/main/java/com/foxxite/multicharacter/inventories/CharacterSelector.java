@@ -5,7 +5,7 @@ import com.foxxite.multicharacter.character.Character;
 import com.foxxite.multicharacter.character.NMSSkinChanger;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.misc.Common;
-import com.foxxite.multicharacter.mojangapi.MojangResponse;
+import com.foxxite.multicharacter.restapi.mojang.MojangResponse;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.ReopenCharacterSelectorTask;
 import com.google.gson.Gson;

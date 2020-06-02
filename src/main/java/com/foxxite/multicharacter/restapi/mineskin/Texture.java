@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.mineskin;
+package com.foxxite.multicharacter.restapi.mineskin;
 
 public class Texture {
     Urls UrlsObject;
@@ -9,36 +9,36 @@ public class Texture {
     // Getter Methods
 
     public String getValue() {
-        return this.value;
+        return value;
     }
 
-    public void setValue(final String value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
     public String getSignature() {
-        return this.signature;
+        return signature;
     }
 
-    public void setSignature(final String signature) {
+    public void setSignature(String signature) {
         this.signature = signature;
     }
 
     // Setter Methods
 
     public String getUrl() {
-        return this.url;
+        return url;
     }
 
-    public void setUrl(final String url) {
+    public void setUrl(String url) {
         this.url = url;
     }
 
     public Urls getUrls() {
-        return this.UrlsObject;
+        return UrlsObject;
     }
 
-    public void setUrls(final Urls urlsObject) {
-        this.UrlsObject = urlsObject;
+    public void setUrls(Urls urlsObject) {
+        UrlsObject = urlsObject;
     }
 }

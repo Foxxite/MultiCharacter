@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.mineskin;
+package com.foxxite.multicharacter.restapi.mineskin;
 
 public class MineskinResponse {
 
@@ -18,100 +18,100 @@ public class MineskinResponse {
     // Getter Methods
 
     public float getId() {
-        return this.id;
+        return id;
     }
 
-    public void setId(final float id) {
+    public void setId(float id) {
         this.id = id;
     }
 
     public String getIdStr() {
-        return this.idStr;
+        return idStr;
     }
 
-    public void setIdStr(final String idStr) {
+    public void setIdStr(String idStr) {
         this.idStr = idStr;
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
     public String getModel() {
-        return this.model;
+        return model;
     }
 
-    public void setModel(final String model) {
+    public void setModel(String model) {
         this.model = model;
     }
 
     public Data getData() {
-        return this.data;
+        return data;
     }
 
-    public void setData(final Data data) {
+    public void setData(Data data) {
         this.data = data;
     }
 
     public float getTimestamp() {
-        return this.timestamp;
+        return timestamp;
     }
 
-    public void setTimestamp(final float timestamp) {
+    public void setTimestamp(float timestamp) {
         this.timestamp = timestamp;
     }
 
     // Setter Methods
 
     public float getDuration() {
-        return this.duration;
+        return duration;
     }
 
-    public void setDuration(final float duration) {
+    public void setDuration(float duration) {
         this.duration = duration;
     }
 
     public float getAccountId() {
-        return this.accountId;
+        return accountId;
     }
 
-    public void setAccountId(final float accountId) {
+    public void setAccountId(float accountId) {
         this.accountId = accountId;
     }
 
     public String getServer() {
-        return this.server;
+        return server;
     }
 
-    public void setServer(final String server) {
+    public void setServer(String server) {
         this.server = server;
     }
 
     public boolean getPrivate() {
-        return this._private;
+        return _private;
     }
 
-    public void setPrivate(final boolean _private) {
+    public void setPrivate(boolean _private) {
         this._private = _private;
     }
 
     public float getViews() {
-        return this.views;
+        return views;
     }
 
-    public void setViews(final float views) {
+    public void setViews(float views) {
         this.views = views;
     }
 
     public float getNextRequest() {
-        return this.nextRequest;
+        return nextRequest;
     }
 
-    public void setNextRequest(final float nextRequest) {
+    public void setNextRequest(float nextRequest) {
         this.nextRequest = nextRequest;
     }
 }

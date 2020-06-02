@@ -1,27 +1,26 @@
-package com.foxxite.multicharacter.mineskin;
+package com.foxxite.multicharacter.restapi.mineskin;
 
 public class Data {
     Texture texture;
     private String uuid;
 
-
     // Getter Methods
 
     public String getUuid() {
-        return this.uuid;
+        return uuid;
     }
 
-    public void setUuid(final String uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
     // Setter Methods
 
     public Texture getTexture() {
-        return this.texture;
+        return texture;
     }
 
-    public void setTexture(final Texture texture) {
+    public void setTexture(Texture texture) {
         this.texture = texture;
     }
 }

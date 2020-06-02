@@ -1,4 +1,4 @@
-package com.foxxite.multicharacter.mineskin;
+package com.foxxite.multicharacter.restapi.mineskin;
 
 public class Urls {
     private String skin;
@@ -7,12 +7,12 @@ public class Urls {
     // Getter Methods
 
     public String getSkin() {
-        return this.skin;
+        return skin;
     }
 
     // Setter Methods
 
-    public void setSkin(final String skin) {
+    public void setSkin(String skin) {
         this.skin = skin;
     }
 

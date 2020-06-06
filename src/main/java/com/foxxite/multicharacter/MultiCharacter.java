@@ -49,6 +49,7 @@ public class MultiCharacter extends JavaPlugin {
     private final HashMap<UUID, WorldSpaceMenu> playersInWorldMenu = new HashMap<>();
     @Getter
     private final int spigotResourceID = 78441;
+    private UUIDHandler uuidHandler = new UUIDHandler();
     @Getter
     private UpdateChecker updateChecker;
     @Getter
@@ -65,16 +66,13 @@ public class MultiCharacter extends JavaPlugin {
     private Permission vaultPermission;
     @Getter
     private Economy vaultEconomy;
-
     private Timer timer = new Timer();
-
     private PlayerLoginEventListener playerLoginEventListener;
     private PlayerMoveEventListener playerMoveEventListener;
     private ItemPickupEventListener itemPickupEventListener;
     private PlayerQuitEventListener playerQuitEventListener;
     private WorldSaveEventListener worldSaveEventListener;
     private CharacterCreator characterCreator;
-
     private CommandHandler commandHandler;
 
     @Override
@@ -175,8 +173,6 @@ public class MultiCharacter extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        UUIDHandler uuidHandler = new UUIDHandler();
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             try {
                 uuidHandler.RESET_UUID(player);
@@ -187,6 +183,8 @@ public class MultiCharacter extends JavaPlugin {
 
             player.kickPlayer("Fatal plugin unloaded, kicking to prevent data corruption.");
         }
+
+        uuidHandler = null;
 
         playerLoginEventListener = null;
         playerMoveEventListener = null;

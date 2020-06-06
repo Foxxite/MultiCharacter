@@ -83,12 +83,43 @@ public class WorldSpaceMenu implements Listener {
     }
 
     public void closeMenu() {
+
+        for (int i = 0; i < 6; i++) {
+            int entityId = 0;
+
+            switch (i) {
+                case 0:
+                    entityId = charStand1.getEntityId();
+                    break;
+                case 1:
+                    entityId = charStand2.getEntityId();
+                    break;
+                case 2:
+                    entityId = charStand3.getEntityId();
+                    break;
+                case 3:
+                    entityId = charInfoStand.getEntityId();
+                    break;
+                case 4:
+                    entityId = staffModeStand.getEntityId();
+                    break;
+                case 5:
+                    entityId = fakeEntityPlayer.getId();
+                    break;
+            }
+
+            PacketPlayOutEntityDestroy packetPlayOutEntityDestroy = new PacketPlayOutEntityDestroy(entityId);
+            connection.sendPacket(packetPlayOutEntityDestroy);
+        }
+
         charStand1.remove();
         charStand2.remove();
         charStand3.remove();
         staffModeStand.remove();
         charInfoStand.remove();
+        fakeEntityPlayer.killEntity();
 
+        fakeEntityPlayer = null;
         player = null;
     }
 

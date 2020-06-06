@@ -465,11 +465,7 @@ public class WorldSpaceMenu implements Listener {
 
                     plugin.getActiveCharacters().put(player.getUniqueId(), character);
 
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-
-                        SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(plugin, player, character);
-
-                    }, 5L);
+                    SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(plugin, player, character);
 
                 } else if (selectedStand == 3) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1f, 1f);

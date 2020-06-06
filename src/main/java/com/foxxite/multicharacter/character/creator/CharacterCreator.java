@@ -5,6 +5,7 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.restapi.mineskin.MineskinResponse;
+import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import com.google.gson.Gson;
 import okhttp3.*;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -97,7 +98,9 @@ public class CharacterCreator extends TimerTask implements Listener {
                             plugin.getPlayersInCreation().remove(player.getUniqueId());
                             playerCharacter.remove(playerUUID);
 
-                            CharacterSelector characterSelector = new CharacterSelector(plugin, player);
+                            plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
+
+                            //CharacterSelector characterSelector = new CharacterSelector(plugin, player);
                         }
                     }.runTask(plugin);
 

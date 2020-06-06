@@ -4,7 +4,6 @@ import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.character.Character;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
-import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -63,7 +62,7 @@ public class CommandHandler implements TabExecutor {
                                     plugin.getActiveCharacters().remove(player.getUniqueId());
                                 }
 
-                                CharacterSelector characterSelector = new CharacterSelector(plugin, player);
+                                plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
                             } else {
                                 player.sendMessage(language.getMessage("no-perms"));
                             }

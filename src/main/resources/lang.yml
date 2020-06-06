@@ -55,7 +55,8 @@ character-selection:
       - "&fwith the items you had in"
       - "&fyour inventory upon logout."
       - "&0"
-      - "&Right Click to enter &4&lSTAFF MODE"
+      - "&aRight Click to"
+      - "&aenter &4&lSTAFF MODE"
   character:
     name: "&6{name}"
     lore:

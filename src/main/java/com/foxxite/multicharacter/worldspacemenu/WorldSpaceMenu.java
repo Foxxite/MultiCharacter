@@ -117,7 +117,6 @@ public class WorldSpaceMenu implements Listener {
         charStand3.remove();
         staffModeStand.remove();
         charInfoStand.remove();
-        fakeEntityPlayer.killEntity();
 
         fakeEntityPlayer = null;
         player = null;

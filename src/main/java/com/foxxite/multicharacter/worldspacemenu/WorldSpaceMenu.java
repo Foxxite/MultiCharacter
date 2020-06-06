@@ -28,9 +28,11 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
-public class WorldSpaceMenu extends TimerTask implements Listener {
+public class WorldSpaceMenu implements Listener {
 
     private final MultiCharacter plugin;
     private final MinecraftServer server;
@@ -46,7 +48,6 @@ public class WorldSpaceMenu extends TimerTask implements Listener {
     private final NamespacedKey namespacedKey;
     private ArrayList<ArmorStand> charInfoStands = new ArrayList<>();
     private int lastSelectedStand = -1;
-    private Timer timer;
     private int selectedStand = 0;
     private Player player;
     private EntityPlayer fakeEntityPlayer;
@@ -87,15 +88,16 @@ public class WorldSpaceMenu extends TimerTask implements Listener {
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
-        timer = new Timer();
-        timer.schedule(this, 0, 100);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                updateMenu();
+            }
+        }.runTaskLater(plugin, 10L);
 
     }
 
     public void closeMenu() {
-
-        timer.cancel();
-        timer = null;
 
         for (int i = 0; i < 6; i++) {
             int entityId = 0;
@@ -209,8 +211,14 @@ public class WorldSpaceMenu extends TimerTask implements Listener {
                     lastArmorStandPos.subtract(0, 0.4, 0);
                     break;
                 case 3:
-                    staffModeStand = localArmorStand;
-                    localArmorStand.setCustomName(language.getMessage("character-selection.staff-mode.name"));
+                    // Don't show admin mode is no perms
+                    if (player.hasPermission("multicharacter.admin")) {
+                        staffModeStand = localArmorStand;
+                        localArmorStand.setCustomName(language.getMessage("character-selection.staff-mode.name"));
+                    } else {
+                        staffModeStand = localArmorStand;
+                        localArmorStand.setCustomName(ChatColor.BLACK + "");
+                    }
                     lastArmorStandPos.subtract(0, 0.4, 0);
                     break;
                 case 4:
@@ -367,6 +375,8 @@ public class WorldSpaceMenu extends TimerTask implements Listener {
                     selectedStand -= 1;
                 }
             }
+
+            updateMenu();
         }
     }
 
@@ -387,11 +397,12 @@ public class WorldSpaceMenu extends TimerTask implements Listener {
                     selectedStand += 1;
                 }
             }
+
+            updateMenu();
         }
     }
 
-    @Override
-    public void run() {
+    public void updateMenu() {
 
         // Don't update if we don't have to
         if (selectedStand == lastSelectedStand) {
@@ -435,10 +446,15 @@ public class WorldSpaceMenu extends TimerTask implements Listener {
                     character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
                     localStand.setCustomName(character.getName());
                     break;
-                //Staff Mode
+                //Staff Mode - Don't show if no perms
                 case 3:
-                    localStand = staffModeStand;
-                    localStand.setCustomName(language.getMessage("character-selection.staff-mode.name"));
+                    if (player.hasPermission("multicharacter.admin")) {
+                        localStand = staffModeStand;
+                        localStand.setCustomName(language.getMessage("character-selection.staff-mode.name"));
+                    } else {
+                        localStand = staffModeStand;
+                        localStand.setCustomName(ChatColor.BLACK + "");
+                    }
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + i);
@@ -565,7 +581,5 @@ public class WorldSpaceMenu extends TimerTask implements Listener {
             connection.sendPacket(packetPlayOutEntityLook);
             connection.sendPacket(packetPlayOutEntityHeadRotation);
         }
-
-
     }
 }

@@ -1,7 +1,8 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 4
+# 5
+file-version: -1
 
 #
 # Plugin Messages
@@ -66,7 +67,7 @@ character-selection:
       - "&7Right Click To Play"
       - "&4Double Left Click To Delete"
   new-character:
-    name: "&aCreate New Character"
+    name: "&aEmpty Character Slot"
     lore: []
   no-dimension: "{prefix} &cCould not find a dimension to update your skin, your skin might not be visible to you."
 

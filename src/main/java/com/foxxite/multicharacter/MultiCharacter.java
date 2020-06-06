@@ -173,8 +173,14 @@ public class MultiCharacter extends JavaPlugin {
     public void onDisable() {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            try {
+                UUIDHandler.RESET_UUID(player);
+            } catch (Exception e) {
+                pluginLogger.warning(e.getMessage() + " " + e.getCause());
+                e.printStackTrace();
+            }
+
             player.kickPlayer("Fatal plugin unloaded, kicking to prevent data corruption.");
-            UUIDHandler.RESET_UUID(player);
         }
 
         playerLoginEventListener = null;

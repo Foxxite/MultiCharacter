@@ -5,6 +5,7 @@ import com.foxxite.multicharacter.character.Character;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
+import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -104,6 +105,9 @@ public class CommandHandler implements TabExecutor {
                                 }
                             }
                             break;
+                        case "3DMenu":
+                            new WorldSpaceMenu(plugin, player);
+                            break;
                         default:
                             player.sendMessage(language.getMessage("unknown-command"));
                             break;
@@ -168,6 +172,7 @@ public class CommandHandler implements TabExecutor {
         returns.add("reload");
         returns.add("id");
         returns.add("lookup");
+        returns.add("3DMenu");
 
         returns.sort(String::compareToIgnoreCase);
         return returns;

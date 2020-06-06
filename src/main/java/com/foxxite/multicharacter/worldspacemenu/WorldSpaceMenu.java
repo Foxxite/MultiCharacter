@@ -9,7 +9,9 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.server.v1_15_R1.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftArmorStand;
@@ -17,15 +19,21 @@ import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.UUID;
 
-public class WorldSpaceMenu {
+public class WorldSpaceMenu implements Listener {
 
     private final MultiCharacter plugin;
-    private final Player player;
     private final MinecraftServer server;
     private final CraftPlayer cPlayer;
     private final WorldServer world;
@@ -36,6 +44,9 @@ public class WorldSpaceMenu {
     private final SQLHandler sqlHandler;
     private final Language language;
     private final FileConfiguration config;
+    private final NamespacedKey namespacedKey;
+    private final int selectedStand = 0;
+    private Player player;
     private EntityPlayer fakeEntityPlayer;
     private ArmorStand charStand1;
     private ArmorStand charStand2;
@@ -46,9 +57,14 @@ public class WorldSpaceMenu {
     public WorldSpaceMenu(MultiCharacter plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
+
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
         sqlHandler = plugin.getSqlHandler();
         language = plugin.getLanguage();
         config = plugin.getConfiguration();
+
+        namespacedKey = new NamespacedKey(plugin, "chardata");
 
         connection = ((CraftPlayer) player).getHandle().playerConnection;
 
@@ -66,8 +82,17 @@ public class WorldSpaceMenu {
 
     }
 
+    public void closeMenu() {
+        charStand1.remove();
+        charStand2.remove();
+        charStand3.remove();
+        staffModeStand.remove();
+        charInfoStand.remove();
 
-    void spawnNPC() {
+        player = null;
+    }
+
+    private void spawnNPC() {
 
         PropertyMap pm = profile.getProperties();
 
@@ -101,7 +126,7 @@ public class WorldSpaceMenu {
 
     }
 
-    void spawnArmorStands() {
+    private void spawnArmorStands() {
 
         ArmorStand localArmorStand;
 
@@ -178,14 +203,17 @@ public class WorldSpaceMenu {
                     case 0:
                         localStand = charStand1;
                         charStand1.setCustomName(character.getName());
+                        charStand1.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
                         break;
                     case 1:
                         localStand = charStand2;
                         charStand2.setCustomName(character.getName());
+                        charStand2.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
                         break;
                     case 2:
                         localStand = charStand3;
                         charStand3.setCustomName(character.getName());
+                        charStand3.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value: " + i);
@@ -229,6 +257,38 @@ public class WorldSpaceMenu {
 
     private Character getCharacterData(UUID uuid) {
         return new Character(plugin, uuid);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getPlayer() == player) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void onPlayerMove(PlayerMoveEvent event) {
+        boolean jumped = false;
+        if (event.getPlayer() == player) {
+            event.setCancelled(true);
+
+            // Check if player jumped
+            if (event.getFrom().getY() < event.getTo().getY()) {
+                jumped = true;
+            }
+
+            Bukkit.broadcastMessage("Jumped: " + jumped);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void onPlayerSneak(PlayerToggleSneakEvent event) {
+        boolean sneaked = event.isSneaking();
+        if (event.getPlayer() == player) {
+            event.setCancelled(true);
+
+            Bukkit.broadcastMessage("Sneaked: " + sneaked);
+        }
     }
 
 }

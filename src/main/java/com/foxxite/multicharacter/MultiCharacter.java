@@ -12,6 +12,7 @@ import com.foxxite.multicharacter.misc.UpdateChecker;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import com.foxxite.multicharacter.tasks.SaveCharacterTask;
+import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -44,6 +45,8 @@ public class MultiCharacter extends JavaPlugin {
     private final HashMap<UUID, Character> activeCharacters = new HashMap<>();
     @Getter
     private final HashMap<UUID, Location> animateToLocation = new HashMap<>();
+    @Getter
+    private final HashMap<UUID, WorldSpaceMenu> playersInWorldMenu = new HashMap<>();
     @Getter
     private final int spigotResourceID = 78441;
     @Getter
@@ -172,9 +175,11 @@ public class MultiCharacter extends JavaPlugin {
     @Override
     public void onDisable() {
 
+        UUIDHandler uuidHandler = new UUIDHandler();
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             try {
-                UUIDHandler.RESET_UUID(player);
+                uuidHandler.RESET_UUID(player);
             } catch (Exception e) {
                 pluginLogger.warning(e.getMessage() + " " + e.getCause());
                 e.printStackTrace();

@@ -2,13 +2,22 @@ package com.foxxite.multicharacter.worldspacemenu;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.character.Character;
+import com.foxxite.multicharacter.character.NMSSkinChanger;
 import com.foxxite.multicharacter.config.Language;
+import com.foxxite.multicharacter.inventories.SpawnLocationSelector;
 import com.foxxite.multicharacter.misc.Common;
+import com.foxxite.multicharacter.restapi.mojang.MojangResponse;
 import com.foxxite.multicharacter.sql.SQLHandler;
+import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import net.milkbowl.vault.permission.Permission;
 import net.minecraft.server.v1_15_R1.*;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.bukkit.Material;
 import org.bukkit.SoundCategory;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,14 +30,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -49,6 +59,7 @@ public class WorldSpaceMenu implements Listener {
     private final FileConfiguration config;
     private final NamespacedKey namespacedKey;
     private final Location playerLoginLocation;
+    private final ItemStack[] currPlayerInventory;
     private String textureValue;
     private String textureSignature;
     private Location lastArmorStandPos;
@@ -94,6 +105,16 @@ public class WorldSpaceMenu implements Listener {
         player.setAllowFlight(true);
         player.setFlying(true);
         player.setGameMode(GameMode.ADVENTURE);
+
+        // Clear inventory
+        currPlayerInventory = player.getInventory().getContents();
+        player.getInventory().clear();
+        this.player.updateInventory();
+
+        // Fill inventory with buttons
+        for (int i = 0; i < 9; i++) {
+            player.getInventory().setItem(i, new ItemStack(Material.STONE_BUTTON));
+        }
 
         namespacedKey = new NamespacedKey(plugin, "character-uuid");
 
@@ -179,6 +200,7 @@ public class WorldSpaceMenu implements Listener {
         }
 
         if (showPlayer) {
+            player.getInventory().setContents(currPlayerInventory);
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.showPlayer(player);
             }
@@ -396,7 +418,102 @@ public class WorldSpaceMenu implements Listener {
     private void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getPlayer() == player) {
             event.setCancelled(true);
+
+            Action action = event.getAction();
+
+            if (action == Action.LEFT_CLICK_AIR) {
+                // Do stuff later
+            } else if (action == Action.RIGHT_CLICK_AIR) {
+
+                ArmorStand selectedArmorStand;
+
+                switch (selectedStand) {
+                    case 0:
+                        selectedArmorStand = charStand1;
+                        break;
+                    case 1:
+                        selectedArmorStand = charStand2;
+                        break;
+                    case 2:
+                        selectedArmorStand = charStand3;
+                        break;
+                    case 3:
+                        selectedArmorStand = staffModeStand;
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + selectedStand);
+                }
+
+                if (selectedArmorStand.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)) {
+                    Character character = getCharacterData(UUID.fromString(selectedArmorStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
+
+                    if (character.getInventoryContent() != null) {
+                        player.getInventory().setContents(character.getInventoryContent());
+                        player.updateInventory();
+                    }
+
+                    player.setHealth(character.getHealth());
+                    player.setFoodLevel(character.getHunger());
+                    player.setExp((float) character.getExp());
+                    player.setLevel(character.getExpLevel());
+
+                    player.setDisplayName(character.getName());
+
+                    NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(plugin, player, character.getCharacterID(), character.getSkinTexture(), character.getSkinSignature());
+
+                    plugin.getActiveCharacters().put(player.getUniqueId(), character);
+
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+
+                        SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(plugin, player, character);
+
+                    }, 5L);
+
+                } else if (selectedStand == 3) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1f, 1f);
+
+                    teleportToLogoutLocation(playerLoginLocation);
+                    player.setDisplayName(player.getName());
+
+                    String json = getMojangSkinData(player.getUniqueId().toString());
+
+                    if (json == null) {
+                        player.kickPlayer("Could not get data from Mojang");
+                        return;
+                    }
+
+                    String[] skinData = deserializeMojangData(json);
+
+                    NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(plugin, player, player.getUniqueId(), skinData[0], skinData[1]);
+
+                    // Reset player group.
+                    Permission perm = plugin.getVaultPermission();
+                    String currGroup = perm.getPrimaryGroup(player);
+                    perm.playerRemoveGroup(player, currGroup);
+                    perm.playerAddGroup(player, config.getString("vault.staff-group"));
+
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        p.showPlayer(player);
+                    }
+                } else {
+                    plugin.getPlayersInCreation().add(player.getUniqueId());
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
+                }
+
+                closeMenu(false);
+            }
         }
+
+    }
+
+    private void teleportToLogoutLocation(Location staffLocation) {
+        player.closeInventory();
+        player.getInventory().setContents(currPlayerInventory);
+        player.updateInventory();
+
+        plugin.getAnimateToLocation().put(player.getUniqueId(), staffLocation);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -425,6 +542,20 @@ public class WorldSpaceMenu implements Listener {
             }
 
             updateMenu();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void onInventoryClick(InventoryClickEvent event) {
+        if (event.getWhoClicked() == player) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void onPlayerDropItem(PlayerDropItemEvent event) {
+        if (event.getPlayer() == player) {
+            event.setCancelled(true);
         }
     }
 
@@ -639,5 +770,47 @@ public class WorldSpaceMenu implements Listener {
         connection.sendPacket(packetPlayOutEntityLook);
         connection.sendPacket(packetPlayOutEntityHeadRotation);
 
+    }
+
+    private String getMojangSkinData(String uuid) {
+
+        try {
+            String url = ("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.replace("-", "") + "?unsigned=false");
+            OkHttpClient httpClient = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("User-Agent", "Foxxite's MultiCharacter Spigot Plugin")
+                    .build();
+
+            try (Response response = httpClient.newCall(request).execute()) {
+
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                }
+
+                // Get response body
+                String responseStr = response.body().string();
+                return responseStr;
+            }
+
+        } catch (Exception ex) {
+            plugin.getPluginLogger().severe(ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private String[] deserializeMojangData(String json) {
+
+        Gson gson = new Gson();
+        MojangResponse response = gson.fromJson(json, MojangResponse.class);
+
+        String[] output = new String[2];
+        output[0] = response.getProperties().get(0).getValue();
+        output[1] = response.getProperties().get(0).getSignature();
+
+        return output;
     }
 }

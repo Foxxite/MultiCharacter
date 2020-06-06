@@ -51,9 +51,11 @@ character-selection:
   staff-mode:
     name:  "&4&lSTAFF MODE"
     lore:
-      - "&fSpawn you at your logout location"
+      - "&fSpawn at your logout location"
       - "&fwith the items you had in"
       - "&fyour inventory upon logout."
+      - "&0"
+      - "&Right Click to enter &4&lSTAFF MODE"
   character:
     name: "&6{name}"
     lore:
@@ -74,6 +76,8 @@ character-selection:
       - "&0"
       - "&fMake sure you have a SKIN"
       - "&fURL (Imgur) ready!"
+      - "&0"
+      - "&Right Click to start creation"
   no-dimension: "{prefix} &cCould not find a dimension to update your skin, your skin might not be visible to you."
   pointers:
     left: "&a→ &r"

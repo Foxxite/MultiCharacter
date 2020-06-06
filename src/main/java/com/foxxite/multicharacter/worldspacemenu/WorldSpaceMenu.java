@@ -257,6 +257,7 @@ public class WorldSpaceMenu implements Listener {
 
                 ArmorStand localStand;
 
+
                 switch (i) {
                     case 0:
                         localStand = charStand1;

@@ -60,16 +60,19 @@ character-selection:
       - "&7Birthday: {birthday}"
       - "&7Nationality: {nationality}"
       - "&7Sex: {sex}"
-      - ""
+      - "&0"
       - "&7Balance: $ {balance}"
       - "&7Group: {group}"
-      - ""
-      - "&7Right Click To Play"
-      - "&4Double Left Click To Delete"
+      - "&0"
+      - "&aRight Click To Play"
+      - "&4Left Click To Delete"
   new-character:
     name: "&aEmpty Character Slot"
     lore: []
   no-dimension: "{prefix} &cCould not find a dimension to update your skin, your skin might not be visible to you."
+  pointers:
+    left: "&a→ &r"
+    right: "&a ←"
 
 character-creator:
   title: "&aCharacter Creator"

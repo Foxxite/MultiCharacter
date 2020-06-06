@@ -9,9 +9,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.server.v1_15_R1.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
+import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftArmorStand;
@@ -28,10 +27,9 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
-public class WorldSpaceMenu implements Listener {
+public class WorldSpaceMenu extends TimerTask implements Listener {
 
     private final MultiCharacter plugin;
     private final MinecraftServer server;
@@ -45,26 +43,32 @@ public class WorldSpaceMenu implements Listener {
     private final Language language;
     private final FileConfiguration config;
     private final NamespacedKey namespacedKey;
-    private final int selectedStand = 0;
+    private ArrayList<ArmorStand> charInfoStands = new ArrayList<>();
+    private int lastSelectedStand = -1;
+    private Timer timer;
+    private int selectedStand = 0;
     private Player player;
     private EntityPlayer fakeEntityPlayer;
     private ArmorStand charStand1;
     private ArmorStand charStand2;
     private ArmorStand charStand3;
-    private ArmorStand charInfoStand;
     private ArmorStand staffModeStand;
 
     public WorldSpaceMenu(MultiCharacter plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
 
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        // Reset Player Rotation
+        Location playerLoc = player.getLocation();
+        playerLoc.setYaw(180);
+        playerLoc.setPitch(0);
+        player.teleport(playerLoc);
 
         sqlHandler = plugin.getSqlHandler();
         language = plugin.getLanguage();
         config = plugin.getConfiguration();
 
-        namespacedKey = new NamespacedKey(plugin, "chardata");
+        namespacedKey = new NamespacedKey(plugin, "character-uuid");
 
         connection = ((CraftPlayer) player).getHandle().playerConnection;
 
@@ -80,9 +84,17 @@ public class WorldSpaceMenu implements Listener {
 
         spawnArmorStands();
 
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
+        timer = new Timer();
+        timer.schedule(this, 0, 100);
+
     }
 
     public void closeMenu() {
+
+        timer.cancel();
+        timer = null;
 
         for (int i = 0; i < 6; i++) {
             int entityId = 0;
@@ -98,7 +110,15 @@ public class WorldSpaceMenu implements Listener {
                     entityId = charStand3.getEntityId();
                     break;
                 case 3:
-                    entityId = charInfoStand.getEntityId();
+                    while (!charInfoStands.isEmpty()) {
+                        entityId = charInfoStands.get(0).getEntityId();
+                        PacketPlayOutEntityDestroy packetPlayOutEntityDestroy = new PacketPlayOutEntityDestroy(entityId);
+                        connection.sendPacket(packetPlayOutEntityDestroy);
+
+                        charInfoStands.get(0).remove();
+                        charInfoStands.remove(0);
+                    }
+                    entityId = -1;
                     break;
                 case 4:
                     entityId = staffModeStand.getEntityId();
@@ -108,16 +128,19 @@ public class WorldSpaceMenu implements Listener {
                     break;
             }
 
-            PacketPlayOutEntityDestroy packetPlayOutEntityDestroy = new PacketPlayOutEntityDestroy(entityId);
-            connection.sendPacket(packetPlayOutEntityDestroy);
+            if (entityId != -1) {
+                PacketPlayOutEntityDestroy packetPlayOutEntityDestroy = new PacketPlayOutEntityDestroy(entityId);
+                connection.sendPacket(packetPlayOutEntityDestroy);
+            }
+
         }
 
         charStand1.remove();
         charStand2.remove();
         charStand3.remove();
         staffModeStand.remove();
-        charInfoStand.remove();
 
+        charInfoStands = null;
         fakeEntityPlayer = null;
         player = null;
     }
@@ -174,25 +197,25 @@ public class WorldSpaceMenu implements Listener {
             switch (i) {
                 case 0:
                     charStand1 = localArmorStand;
-                    lastArmorStandPos.add(-2, 1.25, -3);
+                    lastArmorStandPos.add(-2.25, 1, -3);
                     break;
                 case 1:
                     charStand2 = localArmorStand;
-                    lastArmorStandPos.subtract(0, 0.5, 0);
+                    lastArmorStandPos.subtract(0, 0.4, 0);
                     break;
                 case 2:
                     charStand3 = localArmorStand;
-                    lastArmorStandPos.subtract(0, 0.5, 0);
+                    lastArmorStandPos.subtract(0, 0.4, 0);
                     break;
                 case 3:
                     staffModeStand = localArmorStand;
                     localArmorStand.setCustomName(language.getMessage("character-selection.staff-mode.name"));
-                    lastArmorStandPos.subtract(0, 0.5, 0);
+                    lastArmorStandPos.subtract(0, 0.4, 0);
                     break;
                 case 4:
-                    charInfoStand = localArmorStand;
+                    charInfoStands.add(localArmorStand);
                     localArmorStand.setCustomName("Char Info");
-                    lastArmorStandPos.add(2, 1.8, -0.75);
+                    lastArmorStandPos.add(2.25, 1.8, -0.75);
                     break;
             }
 
@@ -205,8 +228,11 @@ public class WorldSpaceMenu implements Listener {
 
             connection.sendPacket(packetPlayOutSpawnEntity);
             connection.sendPacket(metadata);
+
         }
 
+        // Spawn stands for the info hologram
+        spawnInfoStands();
 
         HashMap<String, String> tableLayout = new HashMap<>();
         tableLayout.put("UUID", "string");
@@ -222,8 +248,6 @@ public class WorldSpaceMenu implements Listener {
             for (int i = 0; i < queryResult.size(); i++) {
 
                 HashMap<String, Object> row = queryResult.get(i);
-
-                System.out.println(row);
 
                 Character character = getCharacterData(UUID.fromString((String) queryResult.get(i).get("UUID")));
 
@@ -256,6 +280,33 @@ public class WorldSpaceMenu implements Listener {
             }
         }
 
+    }
+
+    private void spawnInfoStands() {
+        ArmorStand localArmorStand;
+
+        for (int j = 0; j < 8; j++) {
+
+            localArmorStand = (ArmorStand) Common.createLivingEntity(EntityType.ARMOR_STAND, player.getLocation());
+            localArmorStand.setCustomNameVisible(true);
+            localArmorStand.setSmall(true);
+            localArmorStand.setGravity(false);
+            localArmorStand.setVisible(false);
+
+            charInfoStands.add(localArmorStand);
+            localArmorStand.setCustomName("Char Info");
+            lastArmorStandPos.subtract(0, 0.25, 0);
+
+            localArmorStand.teleport(lastArmorStandPos);
+
+            EntityArmorStand entityArmorStand = ((CraftArmorStand) localArmorStand).getHandle();
+
+            PacketPlayOutSpawnEntity packetPlayOutSpawnEntity = new PacketPlayOutSpawnEntity(entityArmorStand);
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
+
+            connection.sendPacket(packetPlayOutSpawnEntity);
+            connection.sendPacket(metadata);
+        }
     }
 
     /*
@@ -305,9 +356,16 @@ public class WorldSpaceMenu implements Listener {
             // Check if player jumped
             if (event.getFrom().getY() < event.getTo().getY()) {
                 jumped = true;
-            }
 
-            Bukkit.broadcastMessage("Jumped: " + jumped);
+                if (selectedStand == 0) {
+                    selectedStand = 2;
+                    if (player.hasPermission("multicharacter.admin")) {
+                        selectedStand = 3;
+                    }
+                } else {
+                    selectedStand -= 1;
+                }
+            }
         }
     }
 
@@ -317,8 +375,171 @@ public class WorldSpaceMenu implements Listener {
         if (event.getPlayer() == player) {
             event.setCancelled(true);
 
-            Bukkit.broadcastMessage("Sneaked: " + sneaked);
+            if (sneaked) {
+                if (selectedStand >= 2) {
+                    if (selectedStand == 2 && player.hasPermission("multicharacter.admin")) {
+                        selectedStand = 3;
+                    } else {
+                        selectedStand = 0;
+                    }
+                } else {
+                    selectedStand += 1;
+                }
+            }
         }
     }
 
+    @Override
+    public void run() {
+
+        // Don't update if we don't have to
+        if (selectedStand == lastSelectedStand) {
+            return;
+        }
+
+        lastSelectedStand = selectedStand;
+
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 0.5f, 1f);
+
+        ArmorStand localStand;
+        Character character;
+
+        String pointerLeft = language.getMessage("character-selection.pointers.left");
+        String pointerRight = language.getMessage("character-selection.pointers.right");
+
+        // Reset Char Info
+        for (ArmorStand charInfoStand : charInfoStands) {
+            charInfoStand.setCustomName(ChatColor.BLACK + "");
+
+            EntityArmorStand entityArmorStand = ((CraftArmorStand) charInfoStand).getHandle();
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
+            connection.sendPacket(metadata);
+        }
+
+        // Reset names of all armor stands
+        for (int i = 0; i < 4; i++) {
+            switch (i) {
+                case 0:
+                    localStand = charStand1;
+                    character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+                    localStand.setCustomName(character.getName());
+                    break;
+                case 1:
+                    localStand = charStand2;
+                    character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+                    localStand.setCustomName(character.getName());
+                    break;
+                case 2:
+                    localStand = charStand3;
+                    character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+                    localStand.setCustomName(character.getName());
+                    break;
+                //Staff Mode
+                case 3:
+                    localStand = staffModeStand;
+                    localStand.setCustomName(language.getMessage("character-selection.staff-mode.name"));
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + i);
+            }
+
+            EntityArmorStand entityArmorStand = ((CraftArmorStand) localStand).getHandle();
+
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
+            connection.sendPacket(metadata);
+        }
+
+
+        // Set pointers for selected option
+        switch (selectedStand) {
+            case 0:
+                localStand = charStand1;
+                character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+                localStand.setCustomName(pointerLeft + character.getName() + pointerRight);
+                break;
+            case 1:
+                localStand = charStand2;
+                character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+                localStand.setCustomName(pointerLeft + character.getName() + pointerRight);
+                break;
+            case 2:
+                localStand = charStand3;
+                character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+                localStand.setCustomName(pointerLeft + character.getName() + pointerRight);
+                break;
+            //Staff Mode
+            case 3:
+                localStand = staffModeStand;
+                localStand.setCustomName(pointerLeft + language.getMessage("character-selection.staff-mode.name") + pointerRight);
+                character = null;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + selectedStand);
+        }
+
+        EntityArmorStand entityArmorStand = ((CraftArmorStand) localStand).getHandle();
+        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
+        connection.sendPacket(metadata);
+
+
+        // Update Char Info
+        ArrayList<String> info = new ArrayList<>();
+        int count = 0;
+
+        switch (selectedStand) {
+            case 0:
+            case 1:
+            case 2:
+                HashMap<String, String> placeholdersLore = new HashMap<>();
+                placeholdersLore.put("{birthday}", character.getBirthday());
+                placeholdersLore.put("{nationality}", character.getNationality());
+                placeholdersLore.put("{sex}", character.getSex());
+                placeholdersLore.put("{balance}", String.valueOf(character.getVaultBalance()));
+                placeholdersLore.put("{group}", character.getVaultGroup());
+
+                info = language.getMultiLineMessageCustom("character-selection.character.lore", placeholdersLore);
+
+                for (String line : info) {
+                    charInfoStands.get(count).setCustomName(line);
+                    count++;
+                }
+
+                break;
+
+            // Staff Mode
+            case 3:
+                info = language.getMultiLineMessage("character-selection.staff-mode.lore");
+
+                for (String line : info) {
+                    charInfoStands.get(count).setCustomName(line);
+                    count++;
+                }
+                break;
+        }
+
+        for (ArmorStand charInfoStand : charInfoStands) {
+            entityArmorStand = ((CraftArmorStand) charInfoStand).getHandle();
+            metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
+            connection.sendPacket(metadata);
+        }
+
+        // Update NPC skin
+        if (character != null) {
+            Bukkit.broadcastMessage("Updating NPC skin");
+
+            PropertyMap pm = profile.getProperties();
+
+            Property property = pm.get("textures").iterator().next();
+            pm.remove("textures", property);
+            pm.put("textures", new Property("textures", character.getSkinTexture(), character.getSkinSignature()));
+
+            PacketPlayOutPlayerInfo packetPlayOutPlayerInfoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, fakeEntityPlayer);
+            PacketPlayOutPlayerInfo packetPlayOutPlayerInfoSpawn = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fakeEntityPlayer);
+
+            connection.sendPacket(packetPlayOutPlayerInfoRemove);
+            connection.sendPacket(packetPlayOutPlayerInfoSpawn);
+        }
+
+
+    }
 }

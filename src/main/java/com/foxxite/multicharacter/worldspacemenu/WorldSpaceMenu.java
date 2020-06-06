@@ -25,6 +25,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -525,19 +526,44 @@ public class WorldSpaceMenu extends TimerTask implements Listener {
 
         // Update NPC skin
         if (character != null) {
-            Bukkit.broadcastMessage("Updating NPC skin");
-
             PropertyMap pm = profile.getProperties();
 
             Property property = pm.get("textures").iterator().next();
             pm.remove("textures", property);
             pm.put("textures", new Property("textures", character.getSkinTexture(), character.getSkinSignature()));
 
-            PacketPlayOutPlayerInfo packetPlayOutPlayerInfoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, fakeEntityPlayer);
-            PacketPlayOutPlayerInfo packetPlayOutPlayerInfoSpawn = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fakeEntityPlayer);
+            PacketPlayOutPlayerInfo infoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, fakeEntityPlayer);
+            PacketPlayOutPlayerInfo infoAdd = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fakeEntityPlayer);
+            PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fakeEntityPlayer.getId());
+            PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(fakeEntityPlayer);
+            PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(fakeEntityPlayer.getId(), ((CraftPlayer) player).getHandle().getDataWatcher(), true);
 
-            connection.sendPacket(packetPlayOutPlayerInfoRemove);
-            connection.sendPacket(packetPlayOutPlayerInfoSpawn);
+            connection.sendPacket(destroy);
+            connection.sendPacket(infoAdd);
+            connection.sendPacket(spawn);
+            connection.sendPacket(meta);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    connection.sendPacket(infoRemove);
+                }
+            }.runTaskLaterAsynchronously(plugin, 3L);
+
+            // Make NPC face the right way
+            Location NPCLocation = player.getLocation().clone();
+            NPCLocation.add(2, 0, -3);
+
+            Location lookATTarget = lookAtTarget(player.getLocation(), NPCLocation);
+
+            fakeEntityPlayer.setLocation(NPCLocation.getX(), NPCLocation.getY(), NPCLocation.getZ(), NPCLocation.getYaw(), NPCLocation.getPitch());
+
+            PacketPlayOutEntity.PacketPlayOutEntityLook packetPlayOutEntityLook = new PacketPlayOutEntity.PacketPlayOutEntityLook(fakeEntityPlayer.getId(), Common.toPackedByte(lookATTarget.getYaw()), Common.toPackedByte(lookATTarget.getPitch()), true);
+
+            PacketPlayOutEntityHeadRotation packetPlayOutEntityHeadRotation = new PacketPlayOutEntityHeadRotation(fakeEntityPlayer, Common.toPackedByte(lookATTarget.getYaw()));
+
+            connection.sendPacket(packetPlayOutEntityLook);
+            connection.sendPacket(packetPlayOutEntityHeadRotation);
         }
 
 

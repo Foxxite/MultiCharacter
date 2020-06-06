@@ -51,24 +51,29 @@ character-selection:
   staff-mode:
     name:  "&4&lSTAFF MODE"
     lore:
-      - "&7Spawn you at your logout location"
-      - "&7with the items you had in"
-      - "&7your inventory upon logout."
+      - "&fSpawn you at your logout location"
+      - "&fwith the items you had in"
+      - "&fyour inventory upon logout."
   character:
     name: "&6{name}"
     lore:
-      - "&7Birthday: {birthday}"
-      - "&7Nationality: {nationality}"
-      - "&7Sex: {sex}"
+      - "&fBirthday: &6{birthday}"
+      - "&fNationality: &6{nationality}"
+      - "&fSex: &6{sex}"
       - "&0"
-      - "&7Balance: $ {balance}"
-      - "&7Group: {group}"
+      - "&fBalance: &6${balance}"
+      - "&fGroup: &6{group}"
       - "&0"
       - "&aRight Click To Play"
       - "&4Left Click To Delete"
   new-character:
     name: "&aEmpty Character Slot"
-    lore: []
+    lore:
+      - "&aCreate a new character"
+      - "&ato play with."
+      - "&0"
+      - "&fMake sure you have a SKIN"
+      - "&fURL (Imgur) ready!"
   no-dimension: "{prefix} &cCould not find a dimension to update your skin, your skin might not be visible to you."
   pointers:
     left: "&a→ &r"

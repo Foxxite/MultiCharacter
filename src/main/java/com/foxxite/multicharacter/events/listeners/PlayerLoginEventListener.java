@@ -4,7 +4,6 @@ import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.UpdateChecker;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -57,10 +56,6 @@ public class PlayerLoginEventListener implements Listener {
 
         if (player.isDead()) {
             player.spigot().respawn();
-        }
-
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.hidePlayer(player);
         }
 
         CharacterSelector characterSelector = new CharacterSelector(plugin, player);

@@ -60,6 +60,10 @@ public class CharacterSelector implements InventoryHolder, Listener {
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.hidePlayer(player);
+        }
+
         this.plugin = plugin;
         config = plugin.getConfiguration();
         language = plugin.getLanguage();

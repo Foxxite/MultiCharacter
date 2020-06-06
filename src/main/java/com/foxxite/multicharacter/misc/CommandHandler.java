@@ -109,7 +109,7 @@ public class CommandHandler implements TabExecutor {
                             plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
                             break;
                         case "close3DMenu":
-                            plugin.getPlayersInWorldMenu().get(player.getUniqueId()).closeMenu();
+                            plugin.getPlayersInWorldMenu().get(player.getUniqueId()).closeMenu(true);
                             plugin.getPlayersInWorldMenu().remove(player.getUniqueId());
                             break;
                         default:

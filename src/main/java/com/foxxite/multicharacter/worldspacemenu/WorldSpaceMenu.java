@@ -23,6 +23,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -34,6 +35,8 @@ import java.util.UUID;
 
 public class WorldSpaceMenu implements Listener {
 
+    final String textureValue = "ewogICJ0aW1lc3RhbXAiIDogMTU5MTM3MjMyODQwOCwKICAicHJvZmlsZUlkIiA6ICJiZWNkZGIyOGEyYzg0OWI0YTliMDkyMmE1ODA1MTQyMCIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdFR2IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzlhODY3OTM1OWJiN2NiODUzYzUyYmFhMDNhYWZlZTU3MmM4ZTE0NGRjNWI4NTlmNzY1YjI2NTNiMTkxNGM0ODIiCiAgICB9CiAgfQp9";
+    final String textureSignature = "F3zJ4gOCyWCsCjP3JyiY0/Il+GqmJDyc1OGNiBzRny4RhKn+8JGoAyGfcp77UL3x9JzTcn/V37b3qIWcyPKOAxP391QKtHgKmGthi6vc+rIdRZNMlBU0rSVZWizb9nG9Qmjhjl1APCJa26T2g7Wt7yePCLQV5feBlBkv8GRt+GKSmPtiuTFRXzY/fkFemHwxlyGJqoVMcoyW/xmXeV2pq2ZDLSaLH8UwiucPQcc5uv87fSmrRvScdm7auzteXQgcPJBx7zost5/Q0IK+g0q033pzwbA5uU4Qp3tfPesrMKIC2PtbeuKyu+IXaj0SVOZjO5KSZKRiSvtVdiyoc8jN3YxZl5u0Dln0LEuHHBUvIxOjz69fq7syHJTQ++8fHf+7Gfn2GEKQRELIDbQ6MrPwq/N+Y0RbO+nlzWSt0TMVSR27/bqu2VaMgHLnpc0pFN8aPHb5sGotYhzzyRDG4joRCDntYc3ZfaoUi8DkPQy5c5zXqakmb/riPCsKYT3rxKpzPdAKS6fU3ulg6WIJVSaeKlIjIcXjam7NhP9l+ze0W71MFuQJTJYeqYimrCO8zGqN9M3/Yr9Ua20GCfJ2IcYd0NvB/FF7+jW7qZkkj190M0ZmkfURyXZc2UyUNcrstCaK5Ykg1SP/ZIkaiq+lcS+lNxuEowmSfUlNnib0xzGHHzU=";
     private final MultiCharacter plugin;
     private final MinecraftServer server;
     private final CraftPlayer cPlayer;
@@ -45,6 +48,7 @@ public class WorldSpaceMenu implements Listener {
     private final Language language;
     private final FileConfiguration config;
     private final NamespacedKey namespacedKey;
+    private final Location playerLoginLocation;
     private Location lastArmorStandPos;
     private ArrayList<ArmorStand> charInfoStands = new ArrayList<>();
     private int lastSelectedStand = -1;
@@ -60,15 +64,31 @@ public class WorldSpaceMenu implements Listener {
         this.plugin = plugin;
         this.player = player;
 
-        // Reset Player Rotation
-        Location playerLoc = player.getLocation();
-        playerLoc.setYaw(180);
-        playerLoc.setPitch(0);
-        player.teleport(playerLoc);
+        // Hide player for everyone
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.hidePlayer(player);
+        }
+
+        playerLoginLocation = player.getLocation().clone();
 
         sqlHandler = plugin.getSqlHandler();
         language = plugin.getLanguage();
         config = plugin.getConfiguration();
+
+        // Reset Player Rotation
+        double x = config.getDouble("menu-location.x");
+        double y = config.getDouble("menu-location.y");
+        double z = config.getDouble("menu-location.z");
+        final float yaw = 180;
+        final float pitch = 0;
+
+        String confWorld = config.getString("menu-location.world");
+        Location menuLocation = new Location(Bukkit.getWorld(confWorld), x, y, z, yaw, pitch);
+
+        player.teleport(menuLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        player.setAllowFlight(true);
+        player.setFlying(true);
+        player.setGameMode(GameMode.ADVENTURE);
 
         namespacedKey = new NamespacedKey(plugin, "character-uuid");
 
@@ -97,7 +117,7 @@ public class WorldSpaceMenu implements Listener {
 
     }
 
-    public void closeMenu() {
+    public void closeMenu(boolean showPlayer) {
 
         for (int i = 0; i < 6; i++) {
             int entityId = 0;
@@ -138,6 +158,12 @@ public class WorldSpaceMenu implements Listener {
 
         }
 
+        if (showPlayer) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.showPlayer(player);
+            }
+        }
+
         charStand1.remove();
         charStand2.remove();
         charStand3.remove();
@@ -151,10 +177,6 @@ public class WorldSpaceMenu implements Listener {
     private void spawnNPC() {
 
         PropertyMap pm = profile.getProperties();
-
-        final String textureValue = "ewogICJ0aW1lc3RhbXAiIDogMTU5MTM3MjMyODQwOCwKICAicHJvZmlsZUlkIiA6ICJiZWNkZGIyOGEyYzg0OWI0YTliMDkyMmE1ODA1MTQyMCIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdFR2IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzlhODY3OTM1OWJiN2NiODUzYzUyYmFhMDNhYWZlZTU3MmM4ZTE0NGRjNWI4NTlmNzY1YjI2NTNiMTkxNGM0ODIiCiAgICB9CiAgfQp9";
-
-        final String textureSignature = "F3zJ4gOCyWCsCjP3JyiY0/Il+GqmJDyc1OGNiBzRny4RhKn+8JGoAyGfcp77UL3x9JzTcn/V37b3qIWcyPKOAxP391QKtHgKmGthi6vc+rIdRZNMlBU0rSVZWizb9nG9Qmjhjl1APCJa26T2g7Wt7yePCLQV5feBlBkv8GRt+GKSmPtiuTFRXzY/fkFemHwxlyGJqoVMcoyW/xmXeV2pq2ZDLSaLH8UwiucPQcc5uv87fSmrRvScdm7auzteXQgcPJBx7zost5/Q0IK+g0q033pzwbA5uU4Qp3tfPesrMKIC2PtbeuKyu+IXaj0SVOZjO5KSZKRiSvtVdiyoc8jN3YxZl5u0Dln0LEuHHBUvIxOjz69fq7syHJTQ++8fHf+7Gfn2GEKQRELIDbQ6MrPwq/N+Y0RbO+nlzWSt0TMVSR27/bqu2VaMgHLnpc0pFN8aPHb5sGotYhzzyRDG4joRCDntYc3ZfaoUi8DkPQy5c5zXqakmb/riPCsKYT3rxKpzPdAKS6fU3ulg6WIJVSaeKlIjIcXjam7NhP9l+ze0W71MFuQJTJYeqYimrCO8zGqN9M3/Yr9Ua20GCfJ2IcYd0NvB/FF7+jW7qZkkj190M0ZmkfURyXZc2UyUNcrstCaK5Ykg1SP/ZIkaiq+lcS+lNxuEowmSfUlNnib0xzGHHzU=";
 
         pm.put("textures", new Property("textures", textureValue, textureSignature));
 
@@ -359,14 +381,19 @@ public class WorldSpaceMenu implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onPlayerMove(PlayerMoveEvent event) {
-        boolean jumped = false;
         if (event.getPlayer() == player) {
             event.setCancelled(true);
 
+            Player eventPlayer = event.getPlayer();
+
+            //Reset flight if flight lost
+            if (!eventPlayer.isFlying()) {
+                eventPlayer.setAllowFlight(true);
+                eventPlayer.setFlying(true);
+            }
+
             // Check if player jumped
             if (event.getFrom().getY() < event.getTo().getY()) {
-                jumped = true;
-
                 if (selectedStand == 0) {
                     selectedStand = 2;
                     if (player.hasPermission("multicharacter.admin")) {
@@ -412,10 +439,10 @@ public class WorldSpaceMenu implements Listener {
 
         lastSelectedStand = selectedStand;
 
-        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 0.5f, 1f);
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1f, 1f);
 
         ArmorStand localStand;
-        Character character;
+        Character character = null;
 
         String pointerLeft = language.getMessage("character-selection.pointers.left");
         String pointerRight = language.getMessage("character-selection.pointers.right");
@@ -434,18 +461,12 @@ public class WorldSpaceMenu implements Listener {
             switch (i) {
                 case 0:
                     localStand = charStand1;
-                    character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
-                    localStand.setCustomName(character.getName());
                     break;
                 case 1:
                     localStand = charStand2;
-                    character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
-                    localStand.setCustomName(character.getName());
                     break;
                 case 2:
                     localStand = charStand3;
-                    character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
-                    localStand.setCustomName(character.getName());
                     break;
                 //Staff Mode - Don't show if no perms
                 case 3:
@@ -461,6 +482,13 @@ public class WorldSpaceMenu implements Listener {
                     throw new IllegalStateException("Unexpected value: " + i);
             }
 
+            if (localStand.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)) {
+                character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+                localStand.setCustomName(character.getName());
+            } else if (i != 3) {
+                localStand.setCustomName(language.getMessage("character-selection.new-character.name"));
+            }
+
             EntityArmorStand entityArmorStand = ((CraftArmorStand) localStand).getHandle();
 
             PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
@@ -472,18 +500,12 @@ public class WorldSpaceMenu implements Listener {
         switch (selectedStand) {
             case 0:
                 localStand = charStand1;
-                character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
-                localStand.setCustomName(pointerLeft + character.getName() + pointerRight);
                 break;
             case 1:
                 localStand = charStand2;
-                character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
-                localStand.setCustomName(pointerLeft + character.getName() + pointerRight);
                 break;
             case 2:
                 localStand = charStand3;
-                character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
-                localStand.setCustomName(pointerLeft + character.getName() + pointerRight);
                 break;
             //Staff Mode
             case 3:
@@ -494,6 +516,15 @@ public class WorldSpaceMenu implements Listener {
             default:
                 throw new IllegalStateException("Unexpected value: " + selectedStand);
         }
+
+        if (localStand.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)) {
+            character = getCharacterData(UUID.fromString(localStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+            localStand.setCustomName(pointerLeft + character.getName() + pointerRight);
+        } else if (selectedStand != 3) {
+            character = null;
+            localStand.setCustomName(pointerLeft + language.getMessage("character-selection.new-character.name") + pointerRight);
+        }
+
 
         EntityArmorStand entityArmorStand = ((CraftArmorStand) localStand).getHandle();
         PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
@@ -508,20 +539,23 @@ public class WorldSpaceMenu implements Listener {
             case 0:
             case 1:
             case 2:
-                HashMap<String, String> placeholdersLore = new HashMap<>();
-                placeholdersLore.put("{birthday}", character.getBirthday());
-                placeholdersLore.put("{nationality}", character.getNationality());
-                placeholdersLore.put("{sex}", character.getSex());
-                placeholdersLore.put("{balance}", String.valueOf(character.getVaultBalance()));
-                placeholdersLore.put("{group}", character.getVaultGroup());
+                if (character != null) {
+                    HashMap<String, String> placeholdersLore = new HashMap<>();
+                    placeholdersLore.put("{birthday}", character.getBirthday());
+                    placeholdersLore.put("{nationality}", character.getNationality());
+                    placeholdersLore.put("{sex}", character.getSex());
+                    placeholdersLore.put("{balance}", String.valueOf(character.getVaultBalance()));
+                    placeholdersLore.put("{group}", character.getVaultGroup());
 
-                info = language.getMultiLineMessageCustom("character-selection.character.lore", placeholdersLore);
+                    info = language.getMultiLineMessageCustom("character-selection.character.lore", placeholdersLore);
+                } else {
+                    info = language.getMultiLineMessage("character-selection.new-character.lore");
+                }
 
                 for (String line : info) {
                     charInfoStands.get(count).setCustomName(line);
                     count++;
                 }
-
                 break;
 
             // Staff Mode
@@ -542,45 +576,50 @@ public class WorldSpaceMenu implements Listener {
         }
 
         // Update NPC skin
+
+        PropertyMap pm = profile.getProperties();
+
+        Property property = pm.get("textures").iterator().next();
+        pm.remove("textures", property);
+
         if (character != null) {
-            PropertyMap pm = profile.getProperties();
-
-            Property property = pm.get("textures").iterator().next();
-            pm.remove("textures", property);
             pm.put("textures", new Property("textures", character.getSkinTexture(), character.getSkinSignature()));
-
-            PacketPlayOutPlayerInfo infoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, fakeEntityPlayer);
-            PacketPlayOutPlayerInfo infoAdd = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fakeEntityPlayer);
-            PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fakeEntityPlayer.getId());
-            PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(fakeEntityPlayer);
-            PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(fakeEntityPlayer.getId(), ((CraftPlayer) player).getHandle().getDataWatcher(), true);
-
-            connection.sendPacket(destroy);
-            connection.sendPacket(infoAdd);
-            connection.sendPacket(spawn);
-            connection.sendPacket(meta);
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    connection.sendPacket(infoRemove);
-                }
-            }.runTaskLaterAsynchronously(plugin, 3L);
-
-            // Make NPC face the right way
-            Location NPCLocation = player.getLocation().clone();
-            NPCLocation.add(2, 0, -3);
-
-            Location lookATTarget = lookAtTarget(player.getLocation(), NPCLocation);
-
-            fakeEntityPlayer.setLocation(NPCLocation.getX(), NPCLocation.getY(), NPCLocation.getZ(), NPCLocation.getYaw(), NPCLocation.getPitch());
-
-            PacketPlayOutEntity.PacketPlayOutEntityLook packetPlayOutEntityLook = new PacketPlayOutEntity.PacketPlayOutEntityLook(fakeEntityPlayer.getId(), Common.toPackedByte(lookATTarget.getYaw()), Common.toPackedByte(lookATTarget.getPitch()), true);
-
-            PacketPlayOutEntityHeadRotation packetPlayOutEntityHeadRotation = new PacketPlayOutEntityHeadRotation(fakeEntityPlayer, Common.toPackedByte(lookATTarget.getYaw()));
-
-            connection.sendPacket(packetPlayOutEntityLook);
-            connection.sendPacket(packetPlayOutEntityHeadRotation);
+        } else {
+            pm.put("textures", new Property("textures", textureValue, textureSignature));
         }
+
+        PacketPlayOutPlayerInfo infoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, fakeEntityPlayer);
+        PacketPlayOutPlayerInfo infoAdd = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fakeEntityPlayer);
+        PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fakeEntityPlayer.getId());
+        PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(fakeEntityPlayer);
+        PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(fakeEntityPlayer.getId(), ((CraftPlayer) player).getHandle().getDataWatcher(), true);
+
+        connection.sendPacket(destroy);
+        connection.sendPacket(infoAdd);
+        connection.sendPacket(spawn);
+        connection.sendPacket(meta);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                connection.sendPacket(infoRemove);
+            }
+        }.runTaskLaterAsynchronously(plugin, 3L);
+
+        // Make NPC face the right way
+        Location NPCLocation = player.getLocation().clone();
+        NPCLocation.add(2, 0, -3);
+
+        Location lookATTarget = lookAtTarget(player.getLocation(), NPCLocation);
+
+        fakeEntityPlayer.setLocation(NPCLocation.getX(), NPCLocation.getY(), NPCLocation.getZ(), NPCLocation.getYaw(), NPCLocation.getPitch());
+
+        PacketPlayOutEntity.PacketPlayOutEntityLook packetPlayOutEntityLook = new PacketPlayOutEntity.PacketPlayOutEntityLook(fakeEntityPlayer.getId(), Common.toPackedByte(lookATTarget.getYaw()), Common.toPackedByte(lookATTarget.getPitch()), true);
+
+        PacketPlayOutEntityHeadRotation packetPlayOutEntityHeadRotation = new PacketPlayOutEntityHeadRotation(fakeEntityPlayer, Common.toPackedByte(lookATTarget.getYaw()));
+
+        connection.sendPacket(packetPlayOutEntityLook);
+        connection.sendPacket(packetPlayOutEntityHeadRotation);
+
     }
 }

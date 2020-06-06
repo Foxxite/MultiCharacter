@@ -40,12 +40,12 @@ public class WorldSpaceMenu implements Listener {
     private final WorldServer world;
     private final GameProfile profile;
     private final PlayerInteractManager interactManager;
-    private final Location lastArmorStandPos;
     private final PlayerConnection connection;
     private final SQLHandler sqlHandler;
     private final Language language;
     private final FileConfiguration config;
     private final NamespacedKey namespacedKey;
+    private Location lastArmorStandPos;
     private ArrayList<ArmorStand> charInfoStands = new ArrayList<>();
     private int lastSelectedStand = -1;
     private int selectedStand = 0;
@@ -186,7 +186,7 @@ public class WorldSpaceMenu implements Listener {
 
         ArmorStand localArmorStand;
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
 
             //localArmorStand = new EntityArmorStand(EntityTypes.ARMOR_STAND, world);
             localArmorStand = (ArmorStand) Common.createLivingEntity(EntityType.ARMOR_STAND, player.getLocation());
@@ -220,11 +220,6 @@ public class WorldSpaceMenu implements Listener {
                         localArmorStand.setCustomName(ChatColor.BLACK + "");
                     }
                     lastArmorStandPos.subtract(0, 0.4, 0);
-                    break;
-                case 4:
-                    charInfoStands.add(localArmorStand);
-                    localArmorStand.setCustomName("Char Info");
-                    lastArmorStandPos.add(2.25, 1.8, -0.75);
                     break;
             }
 
@@ -292,9 +287,14 @@ public class WorldSpaceMenu implements Listener {
     }
 
     private void spawnInfoStands() {
+
+        lastArmorStandPos = player.getLocation().clone();
+
+        lastArmorStandPos.add(0, 1.8, -3.5);
+
         ArmorStand localArmorStand;
 
-        for (int j = 0; j < 8; j++) {
+        for (int j = 0; j < language.getMultiLineMessage("character-selection.character.lore").size(); j++) {
 
             localArmorStand = (ArmorStand) Common.createLivingEntity(EntityType.ARMOR_STAND, player.getLocation());
             localArmorStand.setCustomNameVisible(true);

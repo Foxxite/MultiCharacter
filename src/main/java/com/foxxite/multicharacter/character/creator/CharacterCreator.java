@@ -214,7 +214,7 @@ public class CharacterCreator extends TimerTask implements Listener {
                                 player.kickPlayer("An error occurred while getting the Skin data from Mineskin. \n\n" +
                                         "Please report the following error to staff: \n\n"
                                         + skinData +
-                                        "\n\n Please try again later.");
+                                        "\n\nPlease try again later.");
                             });
                             return;
                         }
@@ -300,7 +300,7 @@ public class CharacterCreator extends TimerTask implements Listener {
             }
 
         } catch (Exception ex) {
-            plugin.getPluginLogger().severe(ex.getMessage());
+            plugin.getPluginLogger().severe(ex.getMessage() + " " + ex.getCause());
             ex.printStackTrace();
 
             //Dump request for debugging.

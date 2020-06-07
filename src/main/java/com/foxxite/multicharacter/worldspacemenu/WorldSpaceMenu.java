@@ -25,6 +25,7 @@ import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftArmorStand;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -122,11 +123,16 @@ public class WorldSpaceMenu implements Listener {
 
         lastArmorStandPos = player.getLocation().clone();
 
+        // Setup stuff for NPCs
         server = MinecraftServer.getServer();
         cPlayer = (CraftPlayer) player;
         world = ((CraftWorld) player.getWorld()).getHandle();
         profile = new GameProfile(UUID.randomUUID(), "");
         interactManager = new PlayerInteractManager(world);
+
+        if (config.getBoolean("menu-location.clear-stands", true)) {
+            clearNearbyStands();
+        }
 
         spawnNPC();
 
@@ -141,6 +147,14 @@ public class WorldSpaceMenu implements Listener {
             }
         }.runTaskLater(plugin, 10L);
 
+    }
+
+    private void clearNearbyStands() {
+        for (Entity entity : player.getNearbyEntities(10, 10, 10)) {
+            if (entity instanceof ArmorStand) {
+                entity.remove();
+            }
+        }
     }
 
     private void skinEasterEgg() {
@@ -223,7 +237,7 @@ public class WorldSpaceMenu implements Listener {
         pm.put("textures", new Property("textures", textureValue, textureSignature));
 
         Location NPCLocation = player.getLocation().clone();
-        NPCLocation.add(2, 0, -3);
+        NPCLocation.add(2.5, 0, -3);
 
         Location lookATTarget = lookAtTarget(player.getLocation(), NPCLocation);
 
@@ -264,7 +278,7 @@ public class WorldSpaceMenu implements Listener {
             switch (i) {
                 case 0:
                     charStand1 = localArmorStand;
-                    lastArmorStandPos.add(-2.25, 1, -3);
+                    lastArmorStandPos.add(-2.5, 1, -3);
                     break;
                 case 1:
                     charStand2 = localArmorStand;
@@ -513,6 +527,13 @@ public class WorldSpaceMenu implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
+    private void onPlayerQuit(PlayerQuitEvent event) {
+        if (event.getPlayer() == player) {
+            closeMenu(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onPlayerMove(PlayerMoveEvent event) {
         if (event.getPlayer() == player) {
             event.setCancelled(true);
@@ -752,8 +773,7 @@ public class WorldSpaceMenu implements Listener {
         }.runTaskLaterAsynchronously(plugin, 3L);
 
         // Make NPC face the right way
-        Location NPCLocation = player.getLocation().clone();
-        NPCLocation.add(2, 0, -3);
+        Location NPCLocation = fakeEntityPlayer.getBukkitLivingEntity().getLocation();
 
         Location lookATTarget = lookAtTarget(player.getLocation(), NPCLocation);
 

@@ -78,7 +78,8 @@ character-selection:
       - "&fMake sure you have a SKIN"
       - "&fURL (Imgur) ready!"
       - "&0"
-      - "&aRight Click to start creation"
+      - "&aRight Click to"
+      - "&astart creation"
   no-dimension: "{prefix} &cCould not find a dimension to update your skin, your skin might not be visible to you."
   pointers:
     left: "&a→ &r"

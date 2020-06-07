@@ -35,6 +35,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -113,8 +114,14 @@ public class WorldSpaceMenu implements Listener {
         this.player.updateInventory();
 
         // Fill inventory with buttons
+
+        ItemStack buttonItem = new ItemStack(Material.STONE_BUTTON);
+        ItemMeta buttonMeta = buttonItem.getItemMeta();
+        buttonMeta.setDisplayName(language.getMessage("character-selection.navigation"));
+        buttonItem.setItemMeta(buttonMeta);
+
         for (int i = 0; i < 9; i++) {
-            player.getInventory().setItem(i, new ItemStack(Material.STONE_BUTTON));
+            player.getInventory().setItem(i, buttonItem);
         }
 
         namespacedKey = new NamespacedKey(plugin, "character-uuid");

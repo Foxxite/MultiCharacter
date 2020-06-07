@@ -84,6 +84,7 @@ character-selection:
   pointers:
     left: "&a→ &r"
     right: "&a ←"
+  navigation: "&eUse Sneak & Jump to navigate the menu."
 
 character-creator:
   title: "&aCharacter Creator"

@@ -19,13 +19,16 @@ show-save: true
 use-character-uuid: false
 
 # Location where the player will be tped to show the character menu.
-menu-location:
-  x: 0.5
-  y: 255
-  z: 0.5
-  world: world
+menu:
+  location:
+    x: 0.5
+    y: 255
+    z: 0.5
+    world: world
   # Clear nearby armor stands that might have gotten stuck
   clear-stands: true
+  # If chatting in the menu should be disabled
+  disable-chat: true
 
 # Clear chat when character is selected.
 clear-chat: false

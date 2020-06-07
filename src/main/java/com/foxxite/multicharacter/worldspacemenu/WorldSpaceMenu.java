@@ -94,13 +94,13 @@ public class WorldSpaceMenu implements Listener {
         config = plugin.getConfiguration();
 
         // Reset Player Rotation
-        double x = config.getDouble("menu-location.x");
-        double y = config.getDouble("menu-location.y");
-        double z = config.getDouble("menu-location.z");
+        double x = config.getDouble("menu.location.x");
+        double y = config.getDouble("menu.location.y");
+        double z = config.getDouble("menu.location.z");
         final float yaw = 180;
         final float pitch = 0;
 
-        String confWorld = config.getString("menu-location.world");
+        String confWorld = config.getString("menu.location.world");
         Location menuLocation = new Location(Bukkit.getWorld(confWorld), x, y, z, yaw, pitch);
 
         player.teleport(menuLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -137,7 +137,7 @@ public class WorldSpaceMenu implements Listener {
         profile = new GameProfile(UUID.randomUUID(), "");
         interactManager = new PlayerInteractManager(world);
 
-        if (config.getBoolean("menu-location.clear-stands", true)) {
+        if (config.getBoolean("menu.clear-stands", true)) {
             clearNearbyStands();
         }
 
@@ -531,6 +531,13 @@ public class WorldSpaceMenu implements Listener {
         player.updateInventory();
 
         plugin.getAnimateToLocation().put(player.getUniqueId(), staffLocation);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void onPlayerQuit(AsyncPlayerChatEvent event) {
+        if (event.getPlayer() == player && config.getBoolean("menu.disable-chat")) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

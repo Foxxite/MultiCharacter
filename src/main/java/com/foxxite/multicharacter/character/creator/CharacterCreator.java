@@ -5,6 +5,7 @@ import com.foxxite.multicharacter.config.Language;
 import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.restapi.mineskin.MineskinResponse;
+import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import com.google.gson.Gson;
 import okhttp3.*;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -53,7 +54,7 @@ public class CharacterCreator extends TimerTask implements Listener {
         for (UUID playerUUID : localPlayersInCreation) {
             Player player = Common.getPlayerByUuid(playerUUID);
 
-            if (!playerState.containsKey(playerUUID)) {
+            if (!playerState.containsKey(playerUUID) && player != null) {
                 playerState.put(playerUUID, CreatorSate.NAME);
                 playerCharacter.put(playerUUID, new EmptyCharacter(plugin, playerUUID));
                 player.sendMessage(language.getMessagePAPI("character-creator.guide", player));
@@ -97,7 +98,9 @@ public class CharacterCreator extends TimerTask implements Listener {
                             plugin.getPlayersInCreation().remove(player.getUniqueId());
                             playerCharacter.remove(playerUUID);
 
-                            CharacterSelector characterSelector = new CharacterSelector(plugin, player);
+                            plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
+
+                            //CharacterSelector characterSelector = new CharacterSelector(plugin, player);
                         }
                     }.runTask(plugin);
 
@@ -211,7 +214,7 @@ public class CharacterCreator extends TimerTask implements Listener {
                                 player.kickPlayer("An error occurred while getting the Skin data from Mineskin. \n\n" +
                                         "Please report the following error to staff: \n\n"
                                         + skinData +
-                                        "\n\n Please try again later.");
+                                        "\n\nPlease try again later.");
                             });
                             return;
                         }
@@ -297,7 +300,7 @@ public class CharacterCreator extends TimerTask implements Listener {
             }
 
         } catch (Exception ex) {
-            plugin.getPluginLogger().severe(ex.getMessage());
+            plugin.getPluginLogger().severe(ex.getMessage() + " " + ex.getCause());
             ex.printStackTrace();
 
             //Dump request for debugging.

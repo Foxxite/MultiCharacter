@@ -2,15 +2,15 @@ package com.foxxite.multicharacter.events.listeners;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
-import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.UpdateChecker;
-import org.bukkit.Bukkit;
+import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -59,11 +59,15 @@ public class PlayerLoginEventListener implements Listener {
             player.spigot().respawn();
         }
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.hidePlayer(player);
-        }
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
+            }
+        }.runTaskLater(plugin, 1L);
 
-        CharacterSelector characterSelector = new CharacterSelector(plugin, player);
+
+        //CharacterSelector characterSelector = new CharacterSelector(plugin, player);
 
     }
 

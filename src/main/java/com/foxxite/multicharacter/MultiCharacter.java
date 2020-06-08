@@ -12,6 +12,7 @@ import com.foxxite.multicharacter.misc.UpdateChecker;
 import com.foxxite.multicharacter.sql.SQLHandler;
 import com.foxxite.multicharacter.tasks.AnimateToPosition;
 import com.foxxite.multicharacter.tasks.SaveCharacterTask;
+import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -45,7 +46,10 @@ public class MultiCharacter extends JavaPlugin {
     @Getter
     private final HashMap<UUID, Location> animateToLocation = new HashMap<>();
     @Getter
+    private final HashMap<UUID, WorldSpaceMenu> playersInWorldMenu = new HashMap<>();
+    @Getter
     private final int spigotResourceID = 78441;
+    private UUIDHandler uuidHandler = new UUIDHandler();
     @Getter
     private UpdateChecker updateChecker;
     @Getter
@@ -62,16 +66,13 @@ public class MultiCharacter extends JavaPlugin {
     private Permission vaultPermission;
     @Getter
     private Economy vaultEconomy;
-
     private Timer timer = new Timer();
-
     private PlayerLoginEventListener playerLoginEventListener;
     private PlayerMoveEventListener playerMoveEventListener;
     private ItemPickupEventListener itemPickupEventListener;
     private PlayerQuitEventListener playerQuitEventListener;
     private WorldSaveEventListener worldSaveEventListener;
     private CharacterCreator characterCreator;
-
     private CommandHandler commandHandler;
 
     @Override
@@ -173,9 +174,17 @@ public class MultiCharacter extends JavaPlugin {
     public void onDisable() {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            try {
+                uuidHandler.RESET_UUID(player);
+            } catch (Exception e) {
+                pluginLogger.warning(e.getMessage() + " " + e.getCause());
+                e.printStackTrace();
+            }
+
             player.kickPlayer("Fatal plugin unloaded, kicking to prevent data corruption.");
-            UUIDHandler.RESET_UUID(player);
         }
+
+        uuidHandler = null;
 
         playerLoginEventListener = null;
         playerMoveEventListener = null;

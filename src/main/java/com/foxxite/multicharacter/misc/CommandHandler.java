@@ -4,7 +4,7 @@ import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.character.Character;
 import com.foxxite.multicharacter.config.Config;
 import com.foxxite.multicharacter.config.Language;
-import com.foxxite.multicharacter.inventories.CharacterSelector;
+import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -62,7 +62,7 @@ public class CommandHandler implements TabExecutor {
                                     plugin.getActiveCharacters().remove(player.getUniqueId());
                                 }
 
-                                CharacterSelector characterSelector = new CharacterSelector(plugin, player);
+                                plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
                             } else {
                                 player.sendMessage(language.getMessage("no-perms"));
                             }
@@ -103,6 +103,13 @@ public class CommandHandler implements TabExecutor {
                                     player.sendMessage(language.getMessage("character-data.missing-param"));
                                 }
                             }
+                            break;
+                        case "3DMenu":
+                            plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
+                            break;
+                        case "close3DMenu":
+                            plugin.getPlayersInWorldMenu().get(player.getUniqueId()).closeMenu(true);
+                            plugin.getPlayersInWorldMenu().remove(player.getUniqueId());
                             break;
                         default:
                             player.sendMessage(language.getMessage("unknown-command"));

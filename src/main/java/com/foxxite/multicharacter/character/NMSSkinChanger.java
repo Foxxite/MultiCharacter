@@ -6,7 +6,10 @@ import com.foxxite.multicharacter.misc.UUIDHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.minecraft.server.v1_15_R1.*;
+import net.minecraft.server.v1_15_R1.DimensionManager;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
+import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_15_R1.PacketPlayOutRespawn;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -26,29 +29,28 @@ public class NMSSkinChanger {
     private final Language language;
     private Character character = null;
 
-    public NMSSkinChanger(final MultiCharacter plugin, final Player player, Character character, final String skinTexture, final String skinSignature) {
+    public NMSSkinChanger(MultiCharacter plugin, Player player, Character character, String skinTexture, String skinSignature) {
         this.plugin = plugin;
-        this.config = plugin.getConfiguration();
-        this.language = plugin.getLanguage();
+        config = plugin.getConfiguration();
+        language = plugin.getLanguage();
         this.character = character;
 
         mainLogic(player, character.getCharacterID(), skinTexture, skinSignature);
     }
 
-    public NMSSkinChanger(final MultiCharacter plugin, final Player player, UUID characterUUID, final String skinTexture, final String skinSignature) {
+    public NMSSkinChanger(MultiCharacter plugin, Player player, UUID characterUUID, String skinTexture, String skinSignature) {
         this.plugin = plugin;
-        this.config = plugin.getConfiguration();
-        this.language = plugin.getLanguage();
+        config = plugin.getConfiguration();
+        language = plugin.getLanguage();
 
         mainLogic(player, characterUUID, skinTexture, skinSignature);
     }
 
-    private void mainLogic(final Player player, UUID uuid, final String skinTexture, final String skinSignature)
-    {
-        final boolean wasOP = player.isOp();
+    private void mainLogic(Player player, UUID uuid, String skinTexture, String skinSignature) {
+        boolean wasOP = player.isOp();
 
-        final EntityPlayer ep = ((CraftPlayer) player).getHandle();
-        final GameProfile gp = ep.getProfile();
+        EntityPlayer ep = ((CraftPlayer) player).getHandle();
+        GameProfile gp = ep.getProfile();
 
         UUID newUUID = player.getUniqueId();
 
@@ -57,38 +59,39 @@ public class NMSSkinChanger {
             player.setOp(false);
         }
 
-        final PropertyMap pm = gp.getProperties();
+        PropertyMap pm = gp.getProperties();
 
-        final Collection<Property> properties = pm.get("textures");
+        Collection<Property> properties = pm.get("textures");
 
-        final Property property = pm.get("textures").iterator().next();
+        // Offline player check
+        if (properties != null) {
+            Property property = properties.iterator().next();
+            pm.remove("textures", property);
+        }
 
-        final String textureValue = skinTexture;
+        String textureValue = skinTexture;
 
-        final String textureSignature = skinSignature;
+        String textureSignature = skinSignature;
 
-        pm.remove("textures", property);
         pm.put("textures", new Property("textures", textureValue, textureSignature));
 
         plugin.getPluginLogger().info("Old UUID: " + gp.getId());
         plugin.getPluginLogger().info("Old UUID Spigot: " + player.getUniqueId());
 
-        if(character != null)
-        {
-            if(config.getBoolean("use-character-uuid"))
-            {
+        if (character != null) {
+            if (config.getBoolean("use-character-uuid")) {
                 UUID characterUUID = character.getCharacterID();
-                UUIDHandler.CHANGE_UUID(player,characterUUID);
+                UUIDHandler.CHANGE_UUID(player, characterUUID);
                 newUUID = characterUUID;
             }
         }
 
-        for (final Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
             p.hidePlayer(player);
             p.showPlayer(player);
         }
 
-        this.reloadSkinForSelf(player);
+        reloadSkinForSelf(player);
 
         //Set OP after skin change, or OP access will be lost
         UUID finalNewUUID = newUUID;
@@ -106,26 +109,27 @@ public class NMSSkinChanger {
         }.runTaskLater(plugin, 20L);
     }
 
-    public void reloadSkinForSelf(final Player player) {
+    public void reloadSkinForSelf(Player player) {
         Location l = player.getLocation();
-        final EntityPlayer ep = ((CraftPlayer) player).getHandle();
+        EntityPlayer ep = ((CraftPlayer) player).getHandle();
 
-        net.minecraft.server.v1_15_R1.World w = ((CraftWorld)l.getWorld()).getHandle();
+        net.minecraft.server.v1_15_R1.World w = ((CraftWorld) l.getWorld()).getHandle();
         World.Environment environment = player.getWorld().getEnvironment();
 
         int dimension = 0;
-        if (environment.equals(World.Environment.NETHER))
+        if (environment.equals(World.Environment.NETHER)) {
             dimension = -1;
-        else if (environment.equals(World.Environment.THE_END))
+        } else if (environment.equals(World.Environment.THE_END)) {
             dimension = 1;
+        }
         //send packet to player
         DimensionManager dm = DimensionManager.a(dimension);
 
-        PacketPlayOutRespawn respawn = new PacketPlayOutRespawn(dm,w.worldData.getSeed(),w.worldData.getType(),ep.playerInteractManager.getGameMode());
-        final PacketPlayOutPlayerInfo removeInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ep);
-        final PacketPlayOutPlayerInfo addInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ep);
+        PacketPlayOutRespawn respawn = new PacketPlayOutRespawn(dm, w.worldData.getSeed(), w.worldData.getType(), ep.playerInteractManager.getGameMode());
+        PacketPlayOutPlayerInfo removeInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ep);
+        PacketPlayOutPlayerInfo addInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ep);
 
-        final Location loc = player.getLocation().clone();
+        Location loc = player.getLocation().clone();
 
         ep.playerConnection.sendPacket(respawn);
         ep.playerConnection.sendPacket(removeInfo);

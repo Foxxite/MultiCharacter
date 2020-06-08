@@ -85,6 +85,14 @@ character-selection:
     left: "&a→ &r"
     right: "&a ←"
   navigation: "&eUse Sneak & Jump to navigate the menu."
+  # If you translate this message, the word DELETE has to be kept, translating it has no effect.
+  delete:
+    - "&c=========================================="
+    - ""
+    - "&cType &4&lDELETE &cinto the chat to confirm"
+    - "&cthe deletion of your character: &4{name}"
+    - ""
+    - "&c=========================================="
 
 character-creator:
   title: "&aCharacter Creator"

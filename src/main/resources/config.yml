@@ -25,10 +25,16 @@ menu:
     y: 255
     z: 0.5
     world: world
-  # Clear nearby armor stands that might have gotten stuck
+  # Clear nearby armor stands that might have gotten stuck.
   clear-stands: true
-  # If chatting in the menu should be disabled
+  # If chatting in the menu should be disabled.
   disable-chat: true
+  # Empty Character Slot skin data, to change use https://mineskin.org/ to generate the correct values.
+  empty-skin:
+    texture: "ewogICJ0aW1lc3RhbXAiIDogMTU5MTQ2MzQ2MTEzMSwKICAicHJvZmlsZUlkIiA6ICI3MzgyZGRmYmU0ODU0NTVjODI1ZjkwMGY4OGZkMzJmOCIsCiAgInByb2ZpbGVOYW1lIiA6ICJ4cWwiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzUyN2QwZDE5NGE4NDNlZmE2NTkyNDI2NmE5ODAzM2RiYjM0MDYzNjAzMGExN2EyM2JiNTljNzNjNjkyNGVmOCIKICAgIH0KICB9Cn0="
+    signature: "EcK2+2xLJLCAfu8qvTqtpfQieFh/r43xkDm2a/c2ZIVxvutgxUIZcFp+cjBEttPESDIoc9FeFAgwGvdPi8cgearoqQE9FPzQo/aZdSvwJ1U6hPzdUgt0puZDMFxEWpdUl5rFuL/NMmdrAOOFzANlVlxWZKjnc32xCfL/NdHt2RUku9jRb+v1WISO1rmUng8WsUfte7JqCphVrl6YSySI3669NS0bbqMsSQMCYbzopV4wanYPnN3S3mtOt76GioysME//+TJlER9xuSTuV2+vfxL8L8UbcHiRavOLU6Wd1hdTFaJX2c6NHatffOXZtxIyxkVycyTFDsjV/ssx3jQFUqgPk+z2zvio5UlnWSQtAV2t8+E87uTJEestoslEVniGLfHGF22o4kH1f66dXUG94qMZk7xZkHQqDfK/IC1CNh4w/JV8yKsqRGEmg7f8dNXsMSEcqvsJKXg971loTfO32EDDvHXzjSKIktFnNv6WVH44VcoNQDB8tzetviBxXihQKXdW6GC9bmFoXjqGPrizIYtOL4QhsYqDNSY0wHMsi5JpxNBZXH58fQ7W7RPQg4RupuUw2oxmuRjYQGSX7kpHFY39ZCgTgGWmtg3Ddo94mSNsNvdQXo00eN/YyhRLswO0DlF0NayeJebh2kG7BLwez+O/9JzufjPOziuukZhocSY="
+  # Change the Empty Character Slot skin to a rainbow Steve in June.
+  support-pride-month: true
 
 # Clear chat when character is selected.
 clear-chat: false

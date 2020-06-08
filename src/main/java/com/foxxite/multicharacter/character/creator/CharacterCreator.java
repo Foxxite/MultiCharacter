@@ -54,7 +54,7 @@ public class CharacterCreator extends TimerTask implements Listener {
         for (UUID playerUUID : localPlayersInCreation) {
             Player player = Common.getPlayerByUuid(playerUUID);
 
-            if (!playerState.containsKey(playerUUID)) {
+            if (!playerState.containsKey(playerUUID) && player != null) {
                 playerState.put(playerUUID, CreatorSate.NAME);
                 playerCharacter.put(playerUUID, new EmptyCharacter(plugin, playerUUID));
                 player.sendMessage(language.getMessagePAPI("character-creator.guide", player));

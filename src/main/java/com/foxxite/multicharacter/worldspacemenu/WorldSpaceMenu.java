@@ -37,6 +37,8 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -74,11 +76,10 @@ public class WorldSpaceMenu implements Listener {
     private ArmorStand charStand2;
     private ArmorStand charStand3;
     private ArmorStand staffModeStand;
+    private boolean inDeleteMode = false;
+    private Character characterToDelete;
 
     public WorldSpaceMenu(MultiCharacter plugin, Player player) {
-
-        skinEasterEgg();
-
         this.plugin = plugin;
         this.player = player;
 
@@ -92,6 +93,8 @@ public class WorldSpaceMenu implements Listener {
         sqlHandler = plugin.getSqlHandler();
         language = plugin.getLanguage();
         config = plugin.getConfiguration();
+
+        skinEasterEgg();
 
         // Reset Player Rotation
         double x = config.getDouble("menu.location.x");
@@ -168,14 +171,14 @@ public class WorldSpaceMenu implements Listener {
 
         LocalDate currentDate = LocalDate.now();
 
-        if (currentDate.getMonth() == Month.JUNE) {
+        if (currentDate.getMonth() == Month.JUNE && config.getBoolean("menu.support-pride-month", true) && false) {
             // LGBT Steve
             textureValue = "ewogICJ0aW1lc3RhbXAiIDogMTU5MTQ2MzY3NzExNSwKICAicHJvZmlsZUlkIiA6ICI3MmNiMDYyMWU1MTA0MDdjOWRlMDA1OTRmNjAxNTIyZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJNb3M5OTAiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzA2OWZjMDczOWEwNTFmMzZiZmM5YmM5ZDk1ZGI2NDZiMGE5NWZjZGEzZDViN2UyNmNkY2FhODg1NjAxOGYxOSIKICAgIH0KICB9Cn0=";
             textureSignature = "ouKYkQjA83oV7A5tPi9G6uCN5X5cC9cxgtAXnZ+OJnPovg7S0FY4OPhJoQEziIX7s5QigMCk1ccTujBODMof83PKWofaS0SjmTQpHN2fVzd30qj/sWOvMYhub43VqGK+o9hZlXAZ4rg8KOIlJLdFkRRyzng4LTd4QdsmNsSUQl+CTYsJ+8riA0iZ88kMzD5bGKOSQZWvgbr3ScKwYhKkD77cvODmyw+KmGT+ssJjSxOke8AnooLLupJ55lczFHmpxGElWTdxvRmHfh9P4NN04hYHTTucVxztbgM4xq3BDBIxOn/0PaVOZnNNectqVTwe89xLCoKAwkJ4QACOpBycD4mCAGVIXEkr7ZXytj5PaeodLdkU1hQ3Loyui4WZx7vbnl8nQG7o4ZB8iq44R2CkyaLNUL/jn7mvY2Dxz6yrJ5oRR1FKM3ucNTWKWpe8xaFe+zUBWh3HLt80pVxH6wt96wPAcD0TiWjz0CHyUbI8P6bJr4fKIZMrH7SubjVy4g/h0gjnr4OnRshWzpI1/Sw6LaqwUmJIZdPXEVij1rI0Odd7VB+i29jLEpFbUki7jnBOxG1lgSv8bloeKizug4JYuUhMifZ4q7Wr+hlWttBxlOMewMzHwOPSg3LJxsMJfJ1jcTczpkVAbJXIoxnUVqXqlsNyc20Bfad20A5Oe0qZ7nI=";
         } else {
-            // Green Steve Data
-            textureValue = "ewogICJ0aW1lc3RhbXAiIDogMTU5MTQ2MzQ2MTEzMSwKICAicHJvZmlsZUlkIiA6ICI3MzgyZGRmYmU0ODU0NTVjODI1ZjkwMGY4OGZkMzJmOCIsCiAgInByb2ZpbGVOYW1lIiA6ICJ4cWwiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzUyN2QwZDE5NGE4NDNlZmE2NTkyNDI2NmE5ODAzM2RiYjM0MDYzNjAzMGExN2EyM2JiNTljNzNjNjkyNGVmOCIKICAgIH0KICB9Cn0=";
-            textureSignature = "EcK2+2xLJLCAfu8qvTqtpfQieFh/r43xkDm2a/c2ZIVxvutgxUIZcFp+cjBEttPESDIoc9FeFAgwGvdPi8cgearoqQE9FPzQo/aZdSvwJ1U6hPzdUgt0puZDMFxEWpdUl5rFuL/NMmdrAOOFzANlVlxWZKjnc32xCfL/NdHt2RUku9jRb+v1WISO1rmUng8WsUfte7JqCphVrl6YSySI3669NS0bbqMsSQMCYbzopV4wanYPnN3S3mtOt76GioysME//+TJlER9xuSTuV2+vfxL8L8UbcHiRavOLU6Wd1hdTFaJX2c6NHatffOXZtxIyxkVycyTFDsjV/ssx3jQFUqgPk+z2zvio5UlnWSQtAV2t8+E87uTJEestoslEVniGLfHGF22o4kH1f66dXUG94qMZk7xZkHQqDfK/IC1CNh4w/JV8yKsqRGEmg7f8dNXsMSEcqvsJKXg971loTfO32EDDvHXzjSKIktFnNv6WVH44VcoNQDB8tzetviBxXihQKXdW6GC9bmFoXjqGPrizIYtOL4QhsYqDNSY0wHMsi5JpxNBZXH58fQ7W7RPQg4RupuUw2oxmuRjYQGSX7kpHFY39ZCgTgGWmtg3Ddo94mSNsNvdQXo00eN/YyhRLswO0DlF0NayeJebh2kG7BLwez+O/9JzufjPOziuukZhocSY=";
+            // Empty skin data from config
+            textureValue = config.getString("menu.empty-skin.texture");
+            textureSignature = config.getString("menu.empty-skin.signature");
         }
     }
 
@@ -259,11 +262,16 @@ public class WorldSpaceMenu implements Listener {
 
         PacketPlayOutEntityHeadRotation packetPlayOutEntityHeadRotation = new PacketPlayOutEntityHeadRotation(fakeEntityPlayer, Common.toPackedByte(lookATTarget.getYaw()));
 
-        //Send packets
-        connection.sendPacket(packetPlayOutPlayerInfo);
-        connection.sendPacket(packetPlayOutNamedEntitySpawn);
-        connection.sendPacket(packetPlayOutEntityLook);
-        connection.sendPacket(packetPlayOutEntityHeadRotation);
+        //Send packets - Delayed to account for login lagg.
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                connection.sendPacket(packetPlayOutPlayerInfo);
+                connection.sendPacket(packetPlayOutNamedEntitySpawn);
+                connection.sendPacket(packetPlayOutEntityLook);
+                connection.sendPacket(packetPlayOutEntityHeadRotation);
+            }
+        }.runTaskLater(plugin, 20L);
 
     }
 
@@ -323,52 +331,8 @@ public class WorldSpaceMenu implements Listener {
         // Spawn stands for the info hologram
         spawnInfoStands();
 
-        HashMap<String, String> tableLayout = new HashMap<>();
-        tableLayout.put("UUID", "string");
-        tableLayout.put("OwnerUUID", "string");
-
-        String selectQuery = "SELECT UUID, OwnerUUID FROM Characters WHERE Deleted = 0 AND OwnerUUID = '" + player.getUniqueId().toString() + "'";
-
-        HashMap<Integer, HashMap<String, Object>> queryResult = sqlHandler.executeQuery(selectQuery, tableLayout);
-
-        //Overwrite new character with excising characters
-        if (queryResult != null && queryResult.size() > 0) {
-
-            for (int i = 0; i < queryResult.size(); i++) {
-
-                HashMap<String, Object> row = queryResult.get(i);
-
-                Character character = getCharacterData(UUID.fromString((String) queryResult.get(i).get("UUID")));
-
-                ArmorStand localStand;
-
-
-                switch (i) {
-                    case 0:
-                        localStand = charStand1;
-                        charStand1.setCustomName(character.getName());
-                        charStand1.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
-                        break;
-                    case 1:
-                        localStand = charStand2;
-                        charStand2.setCustomName(character.getName());
-                        charStand2.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
-                        break;
-                    case 2:
-                        localStand = charStand3;
-                        charStand3.setCustomName(character.getName());
-                        charStand3.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + i);
-                }
-
-                EntityArmorStand entityArmorStand = ((CraftArmorStand) localStand).getHandle();
-
-                PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
-                connection.sendPacket(metadata);
-            }
-        }
+        // Update the armor stands with char data
+        updateCharStands();
 
     }
 
@@ -404,6 +368,80 @@ public class WorldSpaceMenu implements Listener {
         }
     }
 
+    private void updateCharStands() {
+
+        Bukkit.broadcastMessage("Refreshing stands");
+
+        ArmorStand localArmorStand = null;
+        for (int i = 0; i < 3; i++) {
+            switch (i) {
+                case 0:
+                    localArmorStand = charStand1;
+                    break;
+                case 1:
+                    localArmorStand = charStand2;
+                    break;
+                case 2:
+                    localArmorStand = charStand3;
+                    break;
+            }
+            localArmorStand.setCustomName(language.getMessage("character-selection.new-character.name"));
+
+            EntityArmorStand entityArmorStand = ((CraftArmorStand) localArmorStand).getHandle();
+
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
+            connection.sendPacket(metadata);
+        }
+
+        HashMap<String, String> tableLayout = new HashMap<>();
+        tableLayout.put("UUID", "string");
+        tableLayout.put("OwnerUUID", "string");
+
+        String selectQuery = "SELECT UUID, OwnerUUID FROM Characters WHERE Deleted = 0 AND OwnerUUID = '" + player.getUniqueId().toString() + "'";
+
+        HashMap<Integer, HashMap<String, Object>> queryResult = sqlHandler.executeQuery(selectQuery, tableLayout);
+
+        //Overwrite new character with excising characters
+        if (queryResult != null && queryResult.size() > 0) {
+
+            for (int j = 0; j < queryResult.size(); j++) {
+
+                HashMap<String, Object> row = queryResult.get(j);
+
+                Character character = getCharacterData(UUID.fromString((String) row.get("UUID")));
+
+                ArmorStand localStand;
+
+                Bukkit.broadcastMessage("Refreshing stand: " + j);
+
+                switch (j) {
+                    case 0:
+                        localStand = charStand1;
+                        charStand1.setCustomName(character.getName());
+                        charStand1.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
+                        break;
+                    case 1:
+                        localStand = charStand2;
+                        charStand2.setCustomName(character.getName());
+                        charStand2.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
+                        break;
+                    case 2:
+                        localStand = charStand3;
+                        charStand3.setCustomName(character.getName());
+                        charStand3.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, character.getCharacterID().toString());
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + j);
+                }
+
+                EntityArmorStand entityArmorStand = ((CraftArmorStand) localStand).getHandle();
+
+                PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entityArmorStand.getId(), entityArmorStand.getDataWatcher(), true);
+                connection.sendPacket(metadata);
+            }
+        }
+    }
+
     /*
         Source = What to look at
         Target = What should look at source
@@ -435,6 +473,14 @@ public class WorldSpaceMenu implements Listener {
         return new Character(plugin, uuid);
     }
 
+    private void teleportToLogoutLocation(Location staffLocation) {
+        player.closeInventory();
+        player.getInventory().setContents(currPlayerInventory);
+        player.updateInventory();
+
+        plugin.getAnimateToLocation().put(player.getUniqueId(), staffLocation);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getPlayer() == player) {
@@ -442,33 +488,55 @@ public class WorldSpaceMenu implements Listener {
 
             Action action = event.getAction();
 
+            ArmorStand selectedArmorStand;
+
+            switch (selectedStand) {
+                case 0:
+                    selectedArmorStand = charStand1;
+                    break;
+                case 1:
+                    selectedArmorStand = charStand2;
+                    break;
+                case 2:
+                    selectedArmorStand = charStand3;
+                    break;
+                case 3:
+                    selectedArmorStand = staffModeStand;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + selectedStand);
+            }
+
             if (action == Action.LEFT_CLICK_AIR) {
-                // Do stuff later
+                // Character Deletion
+                if (selectedArmorStand.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)) {
+
+                    player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 1f, 1f);
+
+                    characterToDelete = getCharacterData(UUID.fromString(selectedArmorStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
+                    inDeleteMode = true;
+
+                    HashMap<String, String> placeholders = new HashMap<>();
+                    placeholders.put("{name}", characterToDelete.getName());
+
+                    for (int i = 0; i < 4; i++) {
+                        for (String line : language.getMultiLineMessageCustom("character-selection.delete", placeholders)) {
+                            player.sendMessage(line);
+                        }
+                    }
+                }
             } else if (action == Action.RIGHT_CLICK_AIR) {
 
-                ArmorStand selectedArmorStand;
+                inDeleteMode = false;
+                characterToDelete = null;
 
-                switch (selectedStand) {
-                    case 0:
-                        selectedArmorStand = charStand1;
-                        break;
-                    case 1:
-                        selectedArmorStand = charStand2;
-                        break;
-                    case 2:
-                        selectedArmorStand = charStand3;
-                        break;
-                    case 3:
-                        selectedArmorStand = staffModeStand;
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + selectedStand);
-                }
-
+                // Load Character
                 if (selectedArmorStand.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)) {
                     Character character = getCharacterData(UUID.fromString(selectedArmorStand.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING)));
 
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
+
+                    player.getInventory().clear();
 
                     if (character.getInventoryContent() != null) {
                         player.getInventory().setContents(character.getInventoryContent());
@@ -487,8 +555,9 @@ public class WorldSpaceMenu implements Listener {
                     plugin.getActiveCharacters().put(player.getUniqueId(), character);
 
                     SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(plugin, player, character);
-
-                } else if (selectedStand == 3) {
+                }
+                // Staff Mode
+                else if (selectedStand == 3) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1f, 1f);
 
                     teleportToLogoutLocation(playerLoginLocation);
@@ -514,7 +583,10 @@ public class WorldSpaceMenu implements Listener {
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         p.showPlayer(player);
                     }
-                } else {
+                }
+                // Create New Character
+                else {
+                    player.getInventory().clear();
                     plugin.getPlayersInCreation().add(player.getUniqueId());
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
                 }
@@ -525,18 +597,34 @@ public class WorldSpaceMenu implements Listener {
 
     }
 
-    private void teleportToLogoutLocation(Location staffLocation) {
-        player.closeInventory();
-        player.getInventory().setContents(currPlayerInventory);
-        player.updateInventory();
-
-        plugin.getAnimateToLocation().put(player.getUniqueId(), staffLocation);
-    }
-
     @EventHandler(priority = EventPriority.HIGHEST)
-    private void onPlayerQuit(AsyncPlayerChatEvent event) {
+    private void onPlayerChat(AsyncPlayerChatEvent event) {
         if (event.getPlayer() == player && config.getBoolean("menu.disable-chat")) {
             event.setCancelled(true);
+
+            // Delete character if in right mode
+            if (inDeleteMode) {
+                if (event.getMessage().equalsIgnoreCase("DELETE")) {
+
+                    // Make sure we do this on the main thread
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            sqlHandler.executeUpdateQuery("UPDATE Characters SET Deleted = 1 WHERE UUID = '" + characterToDelete.getCharacterID() + "';");
+                            player.playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1f);
+
+                            // Delete effect
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1, true));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 60, 1, true));
+
+                            updateCharStands();
+                            inDeleteMode = false;
+                            characterToDelete = null;
+                        }
+                    }.runTask(plugin);
+                }
+            }
+
         }
     }
 

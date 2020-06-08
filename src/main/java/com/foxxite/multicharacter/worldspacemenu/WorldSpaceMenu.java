@@ -369,9 +369,6 @@ public class WorldSpaceMenu implements Listener {
     }
 
     private void updateCharStands() {
-
-        Bukkit.broadcastMessage("Refreshing stands");
-
         ArmorStand localArmorStand = null;
         for (int i = 0; i < 3; i++) {
             switch (i) {
@@ -413,8 +410,6 @@ public class WorldSpaceMenu implements Listener {
                 Character character = getCharacterData(UUID.fromString((String) row.get("UUID")));
 
                 ArmorStand localStand;
-
-                Bukkit.broadcastMessage("Refreshing stand: " + j);
 
                 switch (j) {
                     case 0:

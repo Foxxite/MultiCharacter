@@ -385,7 +385,9 @@ public class WorldSpaceMenu implements Listener {
                     localArmorStand = charStand3;
                     break;
             }
+            // Reset stored data
             localArmorStand.setCustomName(language.getMessage("character-selection.new-character.name"));
+            localArmorStand.getPersistentDataContainer().remove(namespacedKey);
 
             EntityArmorStand entityArmorStand = ((CraftArmorStand) localArmorStand).getHandle();
 
@@ -622,6 +624,13 @@ public class WorldSpaceMenu implements Listener {
                             characterToDelete = null;
                         }
                     }.runTask(plugin);
+
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            updateMenu();
+                        }
+                    }.runTaskLater(plugin, 10L);
                 }
             }
 

@@ -175,8 +175,6 @@ public class CommandHandler implements TabExecutor {
         returns.add("reload");
         returns.add("id");
         returns.add("lookup");
-        returns.add("3DMenu");
-        returns.add("close3DMenu");
 
         returns.sort(String::compareToIgnoreCase);
         return returns;

@@ -1,8 +1,7 @@
 #
 # DON'T TOUCH THIS
 #
-# 4
-file-version: -1
+file-version: 4
 
 # Please keep this enabled, it helps me.
 bstats: true

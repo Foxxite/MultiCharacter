@@ -470,8 +470,7 @@ public class WorldSpaceMenu implements Listener {
         return new Character(plugin, uuid);
     }
 
-    private void teleportToLogoutLocation(Location staffLocation) {
-        player.closeInventory();
+    private void animateToStaffLocation(Location staffLocation) {
         player.getInventory().setContents(currPlayerInventory);
         player.updateInventory();
 
@@ -557,7 +556,7 @@ public class WorldSpaceMenu implements Listener {
                 else if (selectedStand == 3) {
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1f, 1f);
 
-                    teleportToLogoutLocation(playerLoginLocation);
+                    animateToStaffLocation(playerLoginLocation);
                     player.setDisplayName(player.getName());
 
                     String json = getMojangSkinData(player.getUniqueId().toString());

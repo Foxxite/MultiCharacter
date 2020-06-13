@@ -37,71 +37,72 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
     private final NamespacedKey namespacedKey;
     private boolean canClose = false;
 
-    public SpawnLocationSelector(final MultiCharacter plugin, final Player player, final Character character) {
+    public SpawnLocationSelector(MultiCharacter plugin, Player player, Character character) {
 
         this.plugin = plugin;
         this.player = player;
         this.character = character;
 
-        this.config = plugin.getConfiguration();
-        this.language = plugin.getLanguage();
+        config = plugin.getConfiguration();
+        language = plugin.getLanguage();
 
-        if (player.isDead())
+        if (player.isDead()) {
             player.spigot().respawn();
-
-        this.namespacedKey = new NamespacedKey(plugin, "spawnLocation");
-
-        this.guiInventory = Bukkit.createInventory(this, 54, "Select Spawn Location");
-
-        final ConfigurationSection locations = this.config.getConfigurationSection("spawn-locations");
-        final Set<String> locationKeys = locations.getKeys(false);
-
-        for (final String locationKey : locationKeys) {
-            this.guiInventory.addItem(this.getSpawnLocationItem(locationKey));
         }
-        this.guiInventory.addItem(this.getLastLocationItem(character));
+
+        namespacedKey = new NamespacedKey(plugin, "spawnLocation");
+
+        guiInventory = Bukkit.createInventory(this, 54, "Select Spawn Location");
+
+        ConfigurationSection locations = config.getConfigurationSection("spawn-locations");
+        Set<String> locationKeys = locations.getKeys(false);
+
+        for (String locationKey : locationKeys) {
+            guiInventory.addItem(getSpawnLocationItem(locationKey));
+        }
+        guiInventory.addItem(getLastLocationItem(character));
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
-        player.openInventory(this.guiInventory);
+        player.openInventory(guiInventory);
 
     }
 
-    private ItemStack getLastLocationItem(final Character character) {
-        final ItemStack lastLocationItem = new ItemStack(Material.WHITE_BED, 1);
-        final ItemMeta lastLocationItemMeta = lastLocationItem.getItemMeta();
+    private ItemStack getLastLocationItem(Character character) {
+        ItemStack lastLocationItem = new ItemStack(Material.WHITE_BED, 1);
+        ItemMeta lastLocationItemMeta = lastLocationItem.getItemMeta();
 
         lastLocationItemMeta.setDisplayName(Common.colorize("&6Logout Location"));
 
-        final PersistentDataContainer container = lastLocationItemMeta.getPersistentDataContainer();
-        container.set(this.namespacedKey, PersistentDataType.STRING, Common.getLocationAsString(character.getLogoutLocation()));
+        PersistentDataContainer container = lastLocationItemMeta.getPersistentDataContainer();
+        container.set(namespacedKey, PersistentDataType.STRING, Common.getLocationAsString(character.getLogoutLocation()));
 
         lastLocationItem.setItemMeta(lastLocationItemMeta);
 
         return lastLocationItem;
     }
 
-    private ItemStack getSpawnLocationItem(final String locationKey) {
+    private ItemStack getSpawnLocationItem(String locationKey) {
 
-        final String itemDataKey = "spawn-locations." + locationKey + ".";
+        String itemDataKey = "spawn-locations." + locationKey + ".";
 
-        final Material material = Material.getMaterial(this.config.getString(itemDataKey + "icon"));
-        final String name = this.config.getString(itemDataKey + "name");
-        final Location location = new Location(
-                Bukkit.getWorld(this.config.getString(itemDataKey + "world")),
-                this.config.getDouble(itemDataKey + "x"),
-                this.config.getDouble(itemDataKey + "y"),
-                this.config.getDouble(itemDataKey + "z"),
-                this.config.getInt(itemDataKey + "yaw"),
-                this.config.getInt(itemDataKey + "pitch")
+        Material material = Material.getMaterial(config.getString(itemDataKey + "icon"));
+        String name = config.getString(itemDataKey + "name");
+        Location location = new Location(
+                Bukkit.getWorld(config.getString(itemDataKey + "world")),
+                config.getDouble(itemDataKey + "x"),
+                config.getDouble(itemDataKey + "y"),
+                config.getDouble(itemDataKey + "z"),
+                config.getInt(itemDataKey + "yaw"),
+                config.getInt(itemDataKey + "pitch")
         );
 
-        final ItemStack locationItem = new ItemStack(material, 1);
-        final ItemMeta locationItemMeta = locationItem.getItemMeta();
+        ItemStack locationItem = new ItemStack(material, 1);
+        ItemMeta locationItemMeta = locationItem.getItemMeta();
         locationItemMeta.setDisplayName(Common.colorize(name));
 
-        final PersistentDataContainer container = locationItemMeta.getPersistentDataContainer();
-        container.set(this.namespacedKey, PersistentDataType.STRING, Common.getLocationAsString(location));
+        PersistentDataContainer container = locationItemMeta.getPersistentDataContainer();
+        container.set(namespacedKey, PersistentDataType.STRING, Common.getLocationAsString(location));
 
         locationItem.setItemMeta(locationItemMeta);
 
@@ -110,45 +111,44 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onInventoryClose(final InventoryCloseEvent event) {
-        final Inventory inventory = event.getInventory();
-        final Player player = (Player) event.getPlayer();
+    void onInventoryClose(InventoryCloseEvent event) {
+        Inventory inventory = event.getInventory();
+        Player player = (Player) event.getPlayer();
 
-        if (inventory == this.guiInventory && !this.canClose) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
-                player.openInventory(this.guiInventory);
+        if (inventory == guiInventory && !canClose) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                player.openInventory(guiInventory);
             }, 1L);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onInventoryClick(final InventoryClickEvent event) {
+    void onInventoryClick(InventoryClickEvent event) {
 
-        if (event.getClickedInventory() == this.guiInventory) {
+        if (event.getClickedInventory() == guiInventory) {
 
-            final Player player = (Player) event.getWhoClicked();
-            final ItemStack clickedItem = event.getCurrentItem();
+            Player player = (Player) event.getWhoClicked();
+            ItemStack clickedItem = event.getCurrentItem();
 
             event.setCancelled(true);
 
-            if (clickedItem == null) return;
+            if (clickedItem == null) {
+                return;
+            }
 
-            final ItemMeta meta = clickedItem.getItemMeta();
+            ItemMeta meta = clickedItem.getItemMeta();
 
-            final PersistentDataContainer container = meta.getPersistentDataContainer();
-            final String locationString = container.get(this.namespacedKey, PersistentDataType.STRING);
+            PersistentDataContainer container = meta.getPersistentDataContainer();
+            String locationString = container.get(namespacedKey, PersistentDataType.STRING);
 
-            final Location spawnLocation = Common.getLocationFromString(locationString);
+            Location spawnLocation = Common.getLocationFromString(locationString);
 
-            this.canClose = true;
+            canClose = true;
             player.closeInventory();
 
-            if (!player.getLocation().getWorld().equals(spawnLocation.getWorld()))
-                player.teleport(spawnLocation);
+            plugin.getAnimateToLocation().put(this.player.getUniqueId(), spawnLocation);
 
-            this.plugin.getAnimateToLocation().put(this.player.getUniqueId(), spawnLocation);
-
-            for (final Player p : Bukkit.getOnlinePlayers()) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
                 p.showPlayer(player);
             }
         }
@@ -159,6 +159,6 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
     @NotNull
     @Override
     public Inventory getInventory() {
-        return this.guiInventory;
+        return guiInventory;
     }
 }

@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.time.Instant;
@@ -106,6 +107,17 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     Vector direction = realDestination.toVector().subtract(startLocation.toVector());
                     direction.normalize();
                     direction.multiply(clamp((float) distance, 0, 5000));
+
+                    // Fix finite issues
+                    if (!NumberConversions.isFinite(direction.getX())) {
+                        direction.setX(1.7976931348623157E308D);
+                    }
+                    if (!NumberConversions.isFinite(direction.getY())) {
+                        direction.setY(1.7976931348623157E308D);
+                    }
+                    if (!NumberConversions.isFinite(direction.getZ())) {
+                        direction.setZ(1.7976931348623157E308D);
+                    }
 
                     player.teleport(startLocation);
                     player.setVelocity(direction);

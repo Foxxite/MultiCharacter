@@ -39,6 +39,7 @@ public class CharacterCreator extends TimerTask implements Listener {
     private final HashMap<UUID, CreatorSate> playerState = new HashMap<>();
     private final HashMap<UUID, EmptyCharacter> playerCharacter = new HashMap<>();
     private final Language language;
+    private int mineSkinTries = 0;
 
     public CharacterCreator(MultiCharacter plugin) {
         this.plugin = plugin;
@@ -206,23 +207,36 @@ public class CharacterCreator extends TimerTask implements Listener {
 
                         player.sendMessage(language.getMessage("character-creator.skin-generate"));
                         updateCreatorState(playerUUID, CreatorSate.CREATING);
-                        String skinData = getMineskinData(message, playerUUID);
 
-                        if (!skinData.startsWith("{")) {
-                            playerState.remove(playerUUID);
-                            Bukkit.getScheduler().runTask(plugin, () -> {
-                                player.kickPlayer("An error occurred while getting the Skin data from Mineskin. \n\n" +
-                                        "Please report the following error to staff: \n\n"
-                                        + skinData +
-                                        "\n\nPlease try again later.");
-                            });
-                            return;
+                        while (mineSkinTries < 3) {
+                            String skinData = getMineskinData(message, playerUUID);
+
+                            if (!skinData.startsWith("{")) {
+
+                                if (mineSkinTries == 2) {
+                                    playerState.remove(playerUUID);
+                                    Bukkit.getScheduler().runTask(plugin, () -> {
+                                        player.kickPlayer("An error occurred while getting the Skin data from Mineskin. \n\n" +
+                                                "Please report the following error to staff: \n\n"
+                                                + skinData +
+                                                "\n\nPlease try again later.");
+                                    });
+                                    return;
+                                } else {
+                                    player.sendMessage(language.getMessage("prefix") + Common.colorize(" &cAn error occurred while getting the Skin data from Mineskin: &r" + skinData + "&c Retrying &r" + (mineSkinTries + 1) + "/3"));
+                                }
+
+                                mineSkinTries++;
+
+                            } else {
+                                deserializeMineskin(skinData, playerUUID);
+
+                                playerCharacter.get(playerUUID).saveToDatabase();
+                                updateCreatorState(playerUUID, CreatorSate.COMPLETE);
+
+                                break;
+                            }
                         }
-
-                        deserializeMineskin(skinData, playerUUID);
-
-                        playerCharacter.get(playerUUID).saveToDatabase();
-                        updateCreatorState(playerUUID, CreatorSate.COMPLETE);
                     } else {
                         player.sendMessage(language.getMessage("character-creator.skin-format-incorrect"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);

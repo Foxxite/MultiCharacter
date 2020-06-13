@@ -84,8 +84,9 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     Location realDestination = destination.clone();
                     realDestination.setY(255);
 
+                    // Cancel animation if dimensions don't match
                     if (!startLocation.getWorld().equals(realDestination.getWorld())) {
-                        return;
+                        player.teleport(destination);
                     }
 
                     double distance = startLocation.distance(realDestination);

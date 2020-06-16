@@ -46,6 +46,10 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
         config = plugin.getConfiguration();
         language = plugin.getLanguage();
 
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Loading spawn location menu for: " + player.getName());
+        }
+
         if (player.isDead()) {
             player.spigot().respawn();
         }
@@ -69,6 +73,11 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
     }
 
     private ItemStack getLastLocationItem(Character character) {
+
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Creating the last location item...");
+        }
+
         ItemStack lastLocationItem = new ItemStack(Material.WHITE_BED, 1);
         ItemMeta lastLocationItemMeta = lastLocationItem.getItemMeta();
 
@@ -89,6 +98,10 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
     }
 
     private ItemStack getSpawnLocationItem(String locationKey) {
+
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Loading spawn locations from config...");
+        }
 
         String itemDataKey = "spawn-locations." + locationKey + ".";
 

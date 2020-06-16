@@ -95,6 +95,10 @@ public class WorldSpaceMenu implements Listener {
         language = plugin.getLanguage();
         config = plugin.getConfiguration();
 
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Preparing World Space Menu for: " + player.getName());
+        }
+
         skinEasterEgg();
 
         // Reset Player Rotation
@@ -168,6 +172,10 @@ public class WorldSpaceMenu implements Listener {
 
     private void skinEasterEgg() {
 
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Loading pride month easter egg and NPC skin data...");
+        }
+
         LocalDate currentDate = LocalDate.now();
 
         if (currentDate.getMonth() == Month.JUNE && config.getBoolean("menu.support-pride-month", true) && false) {
@@ -182,6 +190,10 @@ public class WorldSpaceMenu implements Listener {
     }
 
     public void closeMenu(boolean showPlayer) {
+
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Closing the World Space Menu for: " + player.getName());
+        }
 
         for (int i = 0; i < 6; i++) {
             int entityId = 0;
@@ -242,6 +254,10 @@ public class WorldSpaceMenu implements Listener {
 
     private void spawnNPC() {
 
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Spawning NPC...");
+        }
+
         PropertyMap pm = profile.getProperties();
 
         pm.put("textures", new Property("textures", textureValue, textureSignature));
@@ -276,6 +292,10 @@ public class WorldSpaceMenu implements Listener {
     }
 
     private void spawnArmorStands() {
+
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Spawning character armor stands...");
+        }
 
         ArmorStand localArmorStand;
 
@@ -338,6 +358,10 @@ public class WorldSpaceMenu implements Listener {
 
     private void spawnInfoStands() {
 
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Spawning info stands....");
+        }
+
         lastArmorStandPos = player.getLocation().clone();
 
         lastArmorStandPos.add(0, 1.8, -3.5);
@@ -369,6 +393,11 @@ public class WorldSpaceMenu implements Listener {
     }
 
     private void updateCharStands() {
+
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Updating character stands...");
+        }
+
         ArmorStand localArmorStand = null;
         for (int i = 0; i < 3; i++) {
             switch (i) {
@@ -704,6 +733,10 @@ public class WorldSpaceMenu implements Listener {
     }
 
     public void updateMenu() {
+
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Updating the menu...");
+        }
 
         // Don't update if we don't have to
         if (selectedStand == lastSelectedStand) {

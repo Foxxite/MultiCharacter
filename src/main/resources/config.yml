@@ -1,7 +1,10 @@
 #
 # DON'T TOUCH THIS
 #
-file-version: 4
+file-version: 5
+
+# Enabling this will put debug data into the chat. Only enable on one player.
+debug: false
 
 # Please keep this enabled, it helps me.
 bstats: true

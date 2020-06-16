@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.foxxite</groupId>
   <artifactId>MultiCharacter</artifactId>
-  <version>1.4.2</version>
+  <version>1.4.3</version>
   <build>
     <resources>
       <resource>

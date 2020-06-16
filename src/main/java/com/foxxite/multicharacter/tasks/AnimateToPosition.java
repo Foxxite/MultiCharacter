@@ -56,8 +56,17 @@ public class AnimateToPosition extends TimerTask implements Listener {
                         return;
                     }
 
+                    if (config.getBoolean("debug")) {
+                        Bukkit.broadcastMessage("Animation run for: " + player.getName());
+                    }
+
                     //Add player to list of animated players
                     if (!flyingPlayer.containsKey(uuid)) {
+
+                        if (config.getBoolean("debug")) {
+                            Bukkit.broadcastMessage("Playing animation sound for player...");
+                        }
+
                         flyingPlayer.put(uuid, Instant.now().getEpochSecond());
                         player.playSound(player.getLocation(), Sound.ITEM_ELYTRA_FLYING, SoundCategory.MASTER, 1f, 1f);
 
@@ -71,6 +80,11 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                     //Put player in spectator mode, enable fly mode
                     if (player.getGameMode() != GameMode.SPECTATOR) {
+
+                        if (config.getBoolean("debug")) {
+                            Bukkit.broadcastMessage("Putting player into correct mode...");
+                        }
+
                         player.setGameMode(GameMode.SPECTATOR);
                         player.setAllowFlight(true);
                         player.setFlying(true);
@@ -87,6 +101,11 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                     // Cancel animation if dimensions don't match
                     if (!startLocation.getWorld().equals(realDestination.getWorld())) {
+
+                        if (config.getBoolean("debug")) {
+                            Bukkit.broadcastMessage("Teleporting player to correct dimension....");
+                        }
+
                         player.teleport(destination);
                     }
 
@@ -94,11 +113,18 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                     //Teleport player closer if logout location is too far from menu location
                     if (distance > 500) {
+
+                        if (config.getBoolean("debug")) {
+                            Bukkit.broadcastMessage("Teleporting player closer to destination...");
+                        }
+
                         Location shortStartLocation = realDestination.clone();
                         shortStartLocation.setX(shortStartLocation.getX() - 350);
                         shortStartLocation.setZ(shortStartLocation.getZ() - 350);
                         shortStartLocation.setYaw(0);
                         shortStartLocation.setPitch(90);
+
+                        shortStartLocation.getChunk().load();
 
                         player.teleport(shortStartLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
 
@@ -121,6 +147,10 @@ public class AnimateToPosition extends TimerTask implements Listener {
                         direction.setZ(1.7976931348623157E308D);
                     }
 
+                    if (config.getBoolean("debug")) {
+                        Bukkit.broadcastMessage("Applying velocity to player with vector: " + direction.getX() + ", " + direction.getY() + ", " + direction.getZ() + ", " + distance);
+                    }
+
                     player.teleport(startLocation);
                     player.setVelocity(direction);
 
@@ -139,6 +169,11 @@ public class AnimateToPosition extends TimerTask implements Listener {
 
                     //Teleport player to logout location
                     if (distance < 0.2f) {
+
+                        if (config.getBoolean("debug")) {
+                            Bukkit.broadcastMessage("Ending animation for player: " + player.getName());
+                        }
+
                         plugin.getAnimateToLocation().remove(uuid);
                         player.setVelocity(new Vector(0, 0, 0));
                         player.setGameMode(GameMode.SURVIVAL);
@@ -180,6 +215,11 @@ public class AnimateToPosition extends TimerTask implements Listener {
     }
 
     private Location findSafeSpawnLocation(Location destination) {
+
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Calculating safe spawn location...");
+        }
+
         boolean foundVoidOnce = false;
         Location blockLoc = destination;
 

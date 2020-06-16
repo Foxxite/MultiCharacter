@@ -396,6 +396,8 @@ public class CharacterCreator extends TimerTask implements Listener {
 
     private void getOwnSkinData(Player player) {
 
+        UUID playerUUID = player.getUniqueId();
+
         EntityPlayer ep = ((CraftPlayer) player).getHandle();
         GameProfile gp = ep.getProfile();
 
@@ -406,12 +408,11 @@ public class CharacterCreator extends TimerTask implements Listener {
         // Offline player check
         if (properties != null) {
 
-            for (Property property : pm.get("textures")) {
-                Bukkit.broadcastMessage("Name: " + property.getName());
-                Bukkit.broadcastMessage("Value: " + property.getValue());
-                Bukkit.broadcastMessage("Signature: " + property.getSignature());
-                Bukkit.broadcastMessage("---------------");
-            }
+            Property property = pm.get("textures").iterator().next();
+
+            playerCharacter.get(playerUUID).setSkinUrl("https://sessionserver.mojang.com/session/minecraft/profile/" + playerUUID);
+            playerCharacter.get(playerUUID).setSkinValue(property.getValue());
+            playerCharacter.get(playerUUID).setSkinSignature(property.getSignature());
 
         }
     }

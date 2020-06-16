@@ -119,14 +119,16 @@ public class MultiCharacter extends JavaPlugin {
         }
 
         //Setup Vault Classes
-        if (!setupEconomy()) {
+        if (!setupEconomy() && vaultEconomy != null) {
             pluginLogger.severe("No economy plugin found by Vault, disabling plugin.");
             getServer().getPluginManager().disablePlugin(this);
+            return;
         }
 
-        if (!setupPermissions()) {
+        if (!setupPermissions() && vaultPermission != null) {
             pluginLogger.severe("No permissions plugin found by Vault, disabling plugin.");
             getServer().getPluginManager().disablePlugin(this);
+            return;
         }
 
         //Update Checker

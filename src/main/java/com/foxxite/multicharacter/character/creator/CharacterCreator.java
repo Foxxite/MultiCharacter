@@ -201,7 +201,10 @@ public class CharacterCreator extends TimerTask implements Listener {
                     break;
                 case SKIN:
                     player.sendMessage(language.getMessage("character-creator.skin-download"));
-                    if (isValidImage(message)) {
+
+                    HashMap<Boolean, String> imageData = isValidImage(message);
+
+                    if (imageData.containsKey(true)) {
 
                         playerCharacter.get(playerUUID).setSkinUrl(StringEscapeUtils.escapeSql(message));
 
@@ -238,7 +241,11 @@ public class CharacterCreator extends TimerTask implements Listener {
                             }
                         }
                     } else {
-                        player.sendMessage(language.getMessage("character-creator.skin-format-incorrect"));
+
+                        HashMap<String, String> placeholders = new HashMap<>();
+                        placeholders.put("{error}", imageData.get(false));
+
+                        player.sendMessage(language.getMessagePlaceholders("character-creator.skin-format-incorrect", placeholders));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);
                     }
                     break;
@@ -265,14 +272,20 @@ public class CharacterCreator extends TimerTask implements Listener {
         }
     }
 
-    private boolean isValidImage(String imgUrl) {
+    private HashMap<Boolean, String> isValidImage(String imgUrl) {
         Image image = null;
+
+        HashMap<Boolean, String> output = new HashMap<>();
+
         try {
             URL url = new URL(imgUrl);
             image = ImageIO.read(url);
-            return true;
+
+            output.put(true, imgUrl);
+            return output;
         } catch (IOException e) {
-            return false;
+            output.put(false, e.getMessage());
+            return output;
         }
     }
 

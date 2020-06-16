@@ -95,9 +95,7 @@ public class CharacterCreator extends TimerTask implements Listener {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            playerState.remove(playerUUID);
-                            plugin.getPlayersInCreation().remove(player.getUniqueId());
-                            playerCharacter.remove(playerUUID);
+                            removePlayerFromCreator(player);
 
                             plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
 
@@ -217,16 +215,22 @@ public class CharacterCreator extends TimerTask implements Listener {
                             if (!skinData.startsWith("{")) {
 
                                 if (mineSkinTries == 2) {
-                                    playerState.remove(playerUUID);
                                     Bukkit.getScheduler().runTask(plugin, () -> {
-                                        player.kickPlayer("An error occurred while getting the Skin data from Mineskin. \n\n" +
-                                                "Please report the following error to staff: \n\n"
-                                                + skinData +
-                                                "\n\nPlease try again later.");
+                                        removePlayerFromCreator(player);
+
+                                        HashMap<String, String> placeholders = new HashMap<>();
+                                        placeholders.put("{error}", skinData);
+                                        player.kickPlayer(language.getMessagePlaceholders("mineskin-kick", placeholders));
                                     });
                                     return;
                                 } else {
-                                    player.sendMessage(language.getMessage("prefix") + Common.colorize(" &cAn error occurred while getting the Skin data from Mineskin: &r" + skinData + "&c Retrying &r" + (mineSkinTries + 1) + "/3"));
+                                    HashMap<String, String> placeholders = new HashMap<>();
+
+                                    placeholders.put("{error}", skinData);
+                                    placeholders.put("{attempt}", String.valueOf((mineSkinTries + 1)));
+                                    placeholders.put("{maxAttempts}", "3");
+
+                                    player.sendMessage(language.getMessagePlaceholders("mineskin-error", placeholders));
                                 }
 
                                 mineSkinTries++;
@@ -251,6 +255,14 @@ public class CharacterCreator extends TimerTask implements Listener {
                     break;
             }
         }
+    }
+
+    private void removePlayerFromCreator(Player player) {
+        UUID playerUUID = player.getUniqueId();
+
+        playerState.remove(playerUUID);
+        plugin.getPlayersInCreation().remove(player.getUniqueId());
+        playerCharacter.remove(playerUUID);
     }
 
     private void updateCreatorState(UUID playerUUID, CreatorSate newState) {

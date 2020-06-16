@@ -108,3 +108,6 @@ character-creator:
   skin-generate: "&bGenerating skin data, please wait..."
   skin-format-incorrect: "{prefix} &cThis is not a valid direct image url, please enter a valid direct image url. Upload the skin you want tot use to IMGUR for example, wait a few seconds, then right click an choose `copy image url`. &4{error}"
   creating: "&e&lYour character is being created, please wait..."
+  mineskin-error: "{prefix} &cAn error occurred while getting the Skin data from Mineskin: &r{error}. &cRetrying &r{attempt}/{maxAttempts}"
+  # \n means new line
+  mineskin-kick: "&cAn error occurred while getting the Skin data from Mineskin.\n\n&cPlease report the following error to staff:\n\n&7{error}\n\n&7Please try again later."

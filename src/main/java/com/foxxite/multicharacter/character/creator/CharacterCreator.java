@@ -2,7 +2,6 @@ package com.foxxite.multicharacter.character.creator;
 
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.config.Language;
-import com.foxxite.multicharacter.inventories.CharacterSelector;
 import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.restapi.mineskin.MineskinResponse;
 import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
@@ -149,11 +148,16 @@ public class CharacterCreator extends TimerTask implements Listener {
             }
 
             if (message.equalsIgnoreCase("cancel")) {
-                playerCharacter.remove(playerUUID);
-                playerState.remove(playerUUID);
-                plugin.getPlayersInCreation().remove(player.getUniqueId());
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        removePlayerFromCreator(player);
 
-                CharacterSelector characterSelector = new CharacterSelector(plugin, player);
+                        plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
+
+                        //CharacterSelector characterSelector = new CharacterSelector(plugin, player);
+                    }
+                }.runTask(plugin);
                 return;
             }
 

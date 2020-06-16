@@ -39,6 +39,7 @@ public class CommandHandler implements TabExecutor {
                         case "reload":
                             if (player.hasPermission("multicharacter.admin")) {
                                 config.reloadConfig();
+                                plugin.reloadConfig();
                                 language.reloadLanguage();
                                 player.sendMessage(language.getMessage("reload"));
                             } else {

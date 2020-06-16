@@ -206,6 +206,10 @@ public class MultiCharacter extends JavaPlugin {
         pluginLogger.log(new LogRecord(Level.INFO, "Foxxite's Multi Character plugin disabled"));
     }
 
+    public void reloadConfig() {
+        configuration = configRaw.getConfig();
+    }
+
     private boolean checkDependencies() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             pluginLogger.severe("Vault not found, disabling plugin");
@@ -236,7 +240,6 @@ public class MultiCharacter extends JavaPlugin {
             pluginLogger.info("Multi Character is up to date.");
         }
     }
-
 
     private boolean setupEconomy() {
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);

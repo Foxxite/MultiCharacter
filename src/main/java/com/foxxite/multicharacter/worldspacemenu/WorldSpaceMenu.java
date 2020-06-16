@@ -63,7 +63,7 @@ public class WorldSpaceMenu implements Listener {
     private final FileConfiguration config;
     private final NamespacedKey namespacedKey;
     private final Location playerLoginLocation;
-    private final ItemStack[] currPlayerInventory;
+    private ItemStack[] currPlayerInventory;
     private String textureValue;
     private String textureSignature;
     private Location lastArmorStandPos;
@@ -103,7 +103,6 @@ public class WorldSpaceMenu implements Listener {
         double z = config.getDouble("menu.location.z");
         final float yaw = 180;
         final float pitch = 0;
-
         String confWorld = config.getString("menu.location.world");
         Location menuLocation = new Location(Bukkit.getWorld(confWorld), x, y, z, yaw, pitch);
 
@@ -111,22 +110,6 @@ public class WorldSpaceMenu implements Listener {
         player.setAllowFlight(true);
         player.setFlying(true);
         player.setGameMode(GameMode.ADVENTURE);
-
-        // Clear inventory
-        currPlayerInventory = player.getInventory().getContents();
-        player.getInventory().clear();
-        this.player.updateInventory();
-
-        // Fill inventory with buttons
-
-        ItemStack buttonItem = new ItemStack(Material.STONE_BUTTON);
-        ItemMeta buttonMeta = buttonItem.getItemMeta();
-        buttonMeta.setDisplayName(language.getMessage("character-selection.navigation"));
-        buttonItem.setItemMeta(buttonMeta);
-
-        for (int i = 0; i < 9; i++) {
-            player.getInventory().setItem(i, buttonItem);
-        }
 
         namespacedKey = new NamespacedKey(plugin, "character-uuid");
 
@@ -154,6 +137,21 @@ public class WorldSpaceMenu implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
+                // Clear inventory
+                currPlayerInventory = player.getInventory().getContents();
+                player.getInventory().clear();
+                player.updateInventory();
+
+                // Fill inventory with buttons
+                ItemStack buttonItem = new ItemStack(Material.STONE_BUTTON);
+                ItemMeta buttonMeta = buttonItem.getItemMeta();
+                buttonMeta.setDisplayName(language.getMessage("character-selection.navigation"));
+                buttonItem.setItemMeta(buttonMeta);
+
+                for (int i = 0; i < 9; i++) {
+                    player.getInventory().setItem(i, buttonItem);
+                }
+
                 updateMenu();
             }
         }.runTaskLater(plugin, 10L);

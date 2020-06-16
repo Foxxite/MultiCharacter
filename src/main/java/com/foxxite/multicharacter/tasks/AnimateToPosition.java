@@ -3,6 +3,7 @@ package com.foxxite.multicharacter.tasks;
 import com.foxxite.multicharacter.MultiCharacter;
 import com.foxxite.multicharacter.misc.Common;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -181,20 +182,32 @@ public class AnimateToPosition extends TimerTask implements Listener {
     private Location findSafeSpawnLocation(Location destination) {
         boolean foundVoidOnce = false;
         Location blockLoc = destination;
-        while (blockLoc.getBlock().isPassable()) {
-            if (blockLoc.getBlockY() > 0) {
-                blockLoc.subtract(0, 1, 0);
+
+        Block prevBlock = null;
+        Block currBlock = null;
+
+        while (true) {
+
+            currBlock = blockLoc.getBlock();
+
+            if (prevBlock != null && prevBlock.isPassable() && !currBlock.isPassable()) {
+                return prevBlock.getLocation();
             } else {
-                //Prevent infinite loop
-                if (foundVoidOnce) {
-                    return blockLoc;
+                prevBlock = blockLoc.getBlock();
+
+                if (blockLoc.getBlockY() > 0) {
+                    blockLoc.subtract(0, 1, 0);
                 } else {
-                    foundVoidOnce = true;
-                    blockLoc.setY(255);
+                    //Prevent infinite loop
+                    if (foundVoidOnce) {
+                        return blockLoc.add(0, 1, 0);
+                    } else {
+                        foundVoidOnce = true;
+                        blockLoc.setY(255);
+                    }
                 }
             }
         }
-        return blockLoc.add(0, 1, 0);
     }
 
     private float clamp(float val, float min, float max) {

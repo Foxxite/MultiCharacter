@@ -75,7 +75,13 @@ public class SpawnLocationSelector implements InventoryHolder, Listener {
         lastLocationItemMeta.setDisplayName(Common.colorize("&6Logout Location"));
 
         PersistentDataContainer container = lastLocationItemMeta.getPersistentDataContainer();
-        container.set(namespacedKey, PersistentDataType.STRING, Common.getLocationAsString(character.getLogoutLocation()));
+
+        if (character.getLogoutLocation() != null) {
+            container.set(namespacedKey, PersistentDataType.STRING, Common.getLocationAsString(character.getLogoutLocation()));
+        } else {
+            Location emptyLogout = new Location(Bukkit.getWorld("world"), 0, 0, 0, 0, 0);
+            container.set(namespacedKey, PersistentDataType.STRING, Common.getLocationAsString(emptyLogout));
+        }
 
         lastLocationItem.setItemMeta(lastLocationItemMeta);
 

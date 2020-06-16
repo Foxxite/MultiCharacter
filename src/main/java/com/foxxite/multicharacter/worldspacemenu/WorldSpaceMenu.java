@@ -86,6 +86,7 @@ public class WorldSpaceMenu implements Listener {
         // Hide player for everyone
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.hidePlayer(player);
+            player.hidePlayer(p);
         }
 
         playerLoginLocation = player.getLocation().clone();
@@ -227,6 +228,7 @@ public class WorldSpaceMenu implements Listener {
             player.getInventory().setContents(currPlayerInventory);
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.showPlayer(player);
+                player.showPlayer(p);
             }
         }
 

@@ -86,9 +86,13 @@ public class NMSSkinChanger {
             }
         }
 
+        //Reset player visibility
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.hidePlayer(player);
+            player.hidePlayer(p);
+
             p.showPlayer(player);
+            player.showPlayer(p);
         }
 
         reloadSkinForSelf(player);

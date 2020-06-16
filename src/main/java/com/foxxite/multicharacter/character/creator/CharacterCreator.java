@@ -6,11 +6,16 @@ import com.foxxite.multicharacter.misc.Common;
 import com.foxxite.multicharacter.restapi.mineskin.MineskinResponse;
 import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import com.google.gson.Gson;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
 import okhttp3.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,10 +32,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 
 public class CharacterCreator extends TimerTask implements Listener {
 
@@ -61,30 +63,55 @@ public class CharacterCreator extends TimerTask implements Listener {
                 return;
             }
 
+            String message = "";
             switch (playerState.get(playerUUID)) {
                 case NAME:
-                    player.sendTitle(creatorTitle, language.getMessage("character-creator.name"), 0, 20, 0);
+                    message = language.getMessage("character-creator.name");
+
+                    Common.sendActionBarMessage(message, player);
+                    player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case BIRTHDAY:
-                    player.sendTitle(creatorTitle, language.getMessage("character-creator.birthday"), 0, 200, 0);
+                    message = language.getMessage("character-creator.birthday");
+
+                    Common.sendActionBarMessage(message, player);
+                    player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case SEX:
-                    player.sendTitle(creatorTitle, language.getMessage("character-creator.sex"), 0, 200, 0);
+                    message = language.getMessage("character-creator.sex");
+
+                    Common.sendActionBarMessage(message, player);
+                    player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case NATIONALITY:
-                    player.sendTitle(creatorTitle, language.getMessage("character-creator.nationality"), 0, 200, 0);
+                    message = language.getMessage("character-creator.nationality");
+
+                    Common.sendActionBarMessage(message, player);
+                    player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case MODEL:
-                    player.sendTitle(creatorTitle, language.getMessage("character-creator.model"), 0, 200, 0);
+                    message = language.getMessage("character-creator.model");
+
+                    Common.sendActionBarMessage(message, player);
+                    player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case SKIN:
-                    player.sendTitle(creatorTitle, language.getMessage("character-creator.skin"), 0, 200, 0);
+                    message = language.getMessage("character-creator.skin");
+
+                    Common.sendActionBarMessage(message, player);
+                    player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case CREATING:
-                    player.sendTitle(creatorTitle, language.getMessage("character-creator.creating"), 0, 200, 0);
+                    message = language.getMessage("character-creator.creating");
+
+                    Common.sendActionBarMessage(message, player);
+                    player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case COMPLETE:
-                    player.sendTitle("", "", 0, 200, 0);
+                    message = "";
+
+                    Common.sendActionBarMessage(message, player);
+                    player.sendTitle(creatorTitle, message, 0, 20, 0);
 
                     playerCharacter.get(playerUUID).saveToDatabase();
                     updateCreatorState(playerUUID, CreatorSate.DONE);
@@ -204,57 +231,69 @@ public class CharacterCreator extends TimerTask implements Listener {
                 case SKIN:
                     player.sendMessage(language.getMessage("character-creator.skin-download"));
 
-                    HashMap<Boolean, String> imageData = isValidImage(message);
+                    // If own skin
+                    if (message.equalsIgnoreCase("OWN")) {
 
-                    if (imageData.containsKey(true)) {
+                        getOwnSkinData(player);
 
-                        playerCharacter.get(playerUUID).setSkinUrl(StringEscapeUtils.escapeSql(message));
+                        playerCharacter.get(playerUUID).saveToDatabase();
+                        updateCreatorState(playerUUID, CreatorSate.COMPLETE);
 
-                        player.sendMessage(language.getMessage("character-creator.skin-generate"));
-                        updateCreatorState(playerUUID, CreatorSate.CREATING);
+                        break;
 
-                        while (mineSkinTries < 3) {
-                            String skinData = getMineskinData(message, playerUUID);
-
-                            if (!skinData.startsWith("{")) {
-
-                                if (mineSkinTries == 2) {
-                                    Bukkit.getScheduler().runTask(plugin, () -> {
-                                        removePlayerFromCreator(player);
-
-                                        HashMap<String, String> placeholders = new HashMap<>();
-                                        placeholders.put("{error}", skinData);
-                                        player.kickPlayer(language.getMessagePlaceholders("mineskin-kick", placeholders));
-                                    });
-                                    return;
-                                } else {
-                                    HashMap<String, String> placeholders = new HashMap<>();
-
-                                    placeholders.put("{error}", skinData);
-                                    placeholders.put("{attempt}", String.valueOf((mineSkinTries + 1)));
-                                    placeholders.put("{maxAttempts}", "3");
-
-                                    player.sendMessage(language.getMessagePlaceholders("mineskin-error", placeholders));
-                                }
-
-                                mineSkinTries++;
-
-                            } else {
-                                deserializeMineskin(skinData, playerUUID);
-
-                                playerCharacter.get(playerUUID).saveToDatabase();
-                                updateCreatorState(playerUUID, CreatorSate.COMPLETE);
-
-                                break;
-                            }
-                        }
                     } else {
+                        // If MineSkin
+                        HashMap<Boolean, String> imageData = isValidImage(message);
+                        if (imageData.containsKey(true)) {
 
-                        HashMap<String, String> placeholders = new HashMap<>();
-                        placeholders.put("{error}", imageData.get(false));
+                            playerCharacter.get(playerUUID).setSkinUrl(StringEscapeUtils.escapeSql(message));
 
-                        player.sendMessage(language.getMessagePlaceholders("character-creator.skin-format-incorrect", placeholders));
-                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);
+                            player.sendMessage(language.getMessage("character-creator.skin-generate"));
+                            updateCreatorState(playerUUID, CreatorSate.CREATING);
+
+                            while (mineSkinTries < 3) {
+                                String skinData = getMineskinData(message, playerUUID);
+
+                                if (!skinData.startsWith("{")) {
+
+                                    if (mineSkinTries == 2) {
+                                        Bukkit.getScheduler().runTask(plugin, () -> {
+                                            removePlayerFromCreator(player);
+
+                                            HashMap<String, String> placeholders = new HashMap<>();
+                                            placeholders.put("{error}", skinData);
+                                            player.kickPlayer(language.getMessagePlaceholders("mineskin-kick", placeholders));
+                                        });
+                                        return;
+                                    } else {
+                                        HashMap<String, String> placeholders = new HashMap<>();
+
+                                        placeholders.put("{error}", skinData);
+                                        placeholders.put("{attempt}", String.valueOf((mineSkinTries + 1)));
+                                        placeholders.put("{maxAttempts}", "3");
+
+                                        player.sendMessage(language.getMessagePlaceholders("mineskin-error", placeholders));
+                                    }
+
+                                    mineSkinTries++;
+
+                                } else {
+                                    deserializeMineskin(skinData, playerUUID);
+
+                                    playerCharacter.get(playerUUID).saveToDatabase();
+                                    updateCreatorState(playerUUID, CreatorSate.COMPLETE);
+
+                                    break;
+                                }
+                            }
+                        } else {
+
+                            HashMap<String, String> placeholders = new HashMap<>();
+                            placeholders.put("{error}", imageData.get(false));
+
+                            player.sendMessage(language.getMessagePlaceholders("character-creator.skin-format-incorrect", placeholders));
+                            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1f, 1f);
+                        }
                     }
                     break;
             }
@@ -352,6 +391,28 @@ public class CharacterCreator extends TimerTask implements Listener {
             plugin.getPluginLogger().info(request.body().toString());
 
             return ex.getMessage();
+        }
+    }
+
+    private void getOwnSkinData(Player player) {
+
+        EntityPlayer ep = ((CraftPlayer) player).getHandle();
+        GameProfile gp = ep.getProfile();
+
+        PropertyMap pm = gp.getProperties();
+
+        Collection<Property> properties = pm.get("textures");
+
+        // Offline player check
+        if (properties != null) {
+
+            for (Property property : pm.get("textures")) {
+                Bukkit.broadcastMessage("Name: " + property.getName());
+                Bukkit.broadcastMessage("Value: " + property.getValue());
+                Bukkit.broadcastMessage("Signature: " + property.getSignature());
+                Bukkit.broadcastMessage("---------------");
+            }
+
         }
     }
 

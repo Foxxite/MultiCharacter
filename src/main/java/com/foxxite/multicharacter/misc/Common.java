@@ -180,6 +180,10 @@ public class Common {
         }
     }
 
+    public static void sendActionBarMessage(String message, Player player) {
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+    }
+
     public static byte toPackedByte(float f) {
         return (byte) ((int) (f * 256.0F / 360.0F));
     }

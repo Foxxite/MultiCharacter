@@ -103,7 +103,7 @@ character-creator:
   sex: "&bPlease type the &esex &bof your character in chat"
   model: "&bPlease type the &emodel &byour character uses; &eNORMAL &bor &eSLIM"
   model-format-incorrect: "{prefix} &cThis model is incorrect, either choose NORMAL or SLIM."
-  skin: "&bPlease type the direct image url of the skin you want to use in chat, or if you want to use your own skin, type OWN."
+  skin: "&bPlease type the direct &eimage url &bof the skin you want or &eOWN &bfor your own skin in chat."
   skin-download: "&bDownloading skin, please wait..."
   skin-generate: "&bGenerating skin data, please wait..."
   skin-format-incorrect: "{prefix} &cThis is not a valid direct image url, please enter a valid direct image url. Upload the skin you want tot use to IMGUR for example, wait a few seconds, then right click an choose `copy image url`. &4{error}"

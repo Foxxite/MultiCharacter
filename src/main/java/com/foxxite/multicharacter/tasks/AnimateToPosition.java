@@ -99,14 +99,14 @@ public class AnimateToPosition extends TimerTask implements Listener {
                     Location realDestination = destination.clone();
                     realDestination.setY(255);
 
-                    // Cancel animation if dimensions don't match
-                    if (!startLocation.getWorld().equals(realDestination.getWorld())) {
-
+                    // Cancel animation if dimensions don't match or animation not enabled
+                    if (!startLocation.getWorld().equals(realDestination.getWorld()) || !config.getBoolean("spawn-animation")) {
                         if (config.getBoolean("debug")) {
-                            Bukkit.broadcastMessage("Teleporting player to correct dimension....");
+                            Bukkit.broadcastMessage("Canceling animation due to config setting or dimension mismatch....");
                         }
 
-                        player.teleport(destination);
+                        endAnimation(player, destination);
+                        return;
                     }
 
                     double distance = startLocation.distance(realDestination);
@@ -167,34 +167,9 @@ public class AnimateToPosition extends TimerTask implements Listener {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
                     }
 
-                    //Teleport player to logout location
+                    //Teleport player to spawn location
                     if (distance < 0.2f) {
-
-                        if (config.getBoolean("debug")) {
-                            Bukkit.broadcastMessage("Ending animation for player: " + player.getName());
-                        }
-
-                        plugin.getAnimateToLocation().remove(uuid);
-                        player.setVelocity(new Vector(0, 0, 0));
-                        player.setGameMode(GameMode.SURVIVAL);
-                        player.setFlying(false);
-                        player.stopSound(Sound.ITEM_ELYTRA_FLYING);
-
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
-
-                        player.teleport(findSafeSpawnLocation(destination), PlayerTeleportEvent.TeleportCause.PLUGIN);
-
-                        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
-
-                        flyingPlayer.remove(uuid);
-
-                        //Clear player chat
-                        if (config.getBoolean("clear-chat")) {
-                            for (int i = 0; i < 500; i++) {
-                                player.sendMessage("");
-                            }
-                        }
+                        endAnimation(player, destination);
                     }
 
                 });
@@ -202,6 +177,36 @@ public class AnimateToPosition extends TimerTask implements Listener {
             }
         }.runTask(plugin);
 
+    }
+
+    private void endAnimation(Player player, Location destination) {
+        UUID uuid = player.getUniqueId();
+
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Ending animation for player: " + player.getName());
+        }
+
+        plugin.getAnimateToLocation().remove(uuid);
+        player.setVelocity(new Vector(0, 0, 0));
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setFlying(false);
+        player.stopSound(Sound.ITEM_ELYTRA_FLYING);
+
+        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 1, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, 1, true));
+
+        player.teleport(findSafeSpawnLocation(destination), PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f);
+
+        flyingPlayer.remove(uuid);
+
+        //Clear player chat
+        if (config.getBoolean("clear-chat")) {
+            for (int i = 0; i < 500; i++) {
+                player.sendMessage("");
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -172,13 +172,13 @@ public class WorldSpaceMenu implements Listener {
 
     private void skinEasterEgg() {
 
-        if (config.getBoolean("debug")) {
-            Bukkit.broadcastMessage("Loading pride month easter egg and NPC skin data...");
-        }
-
         LocalDate currentDate = LocalDate.now();
 
-        if (currentDate.getMonth() == Month.JUNE && config.getBoolean("menu.support-pride-month", true) && false) {
+        if (config.getBoolean("debug")) {
+            Bukkit.broadcastMessage("Loading pride month easter egg and NPC skin data, month: " + currentDate.getMonth());
+        }
+
+        if (currentDate.getMonth() == Month.JUNE && config.getBoolean("menu.support-pride-month", true)) {
             // LGBT Steve
             textureValue = "ewogICJ0aW1lc3RhbXAiIDogMTU5MTQ2MzY3NzExNSwKICAicHJvZmlsZUlkIiA6ICI3MmNiMDYyMWU1MTA0MDdjOWRlMDA1OTRmNjAxNTIyZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJNb3M5OTAiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzA2OWZjMDczOWEwNTFmMzZiZmM5YmM5ZDk1ZGI2NDZiMGE5NWZjZGEzZDViN2UyNmNkY2FhODg1NjAxOGYxOSIKICAgIH0KICB9Cn0=";
             textureSignature = "ouKYkQjA83oV7A5tPi9G6uCN5X5cC9cxgtAXnZ+OJnPovg7S0FY4OPhJoQEziIX7s5QigMCk1ccTujBODMof83PKWofaS0SjmTQpHN2fVzd30qj/sWOvMYhub43VqGK+o9hZlXAZ4rg8KOIlJLdFkRRyzng4LTd4QdsmNsSUQl+CTYsJ+8riA0iZ88kMzD5bGKOSQZWvgbr3ScKwYhKkD77cvODmyw+KmGT+ssJjSxOke8AnooLLupJ55lczFHmpxGElWTdxvRmHfh9P4NN04hYHTTucVxztbgM4xq3BDBIxOn/0PaVOZnNNectqVTwe89xLCoKAwkJ4QACOpBycD4mCAGVIXEkr7ZXytj5PaeodLdkU1hQ3Loyui4WZx7vbnl8nQG7o4ZB8iq44R2CkyaLNUL/jn7mvY2Dxz6yrJ5oRR1FKM3ucNTWKWpe8xaFe+zUBWh3HLt80pVxH6wt96wPAcD0TiWjz0CHyUbI8P6bJr4fKIZMrH7SubjVy4g/h0gjnr4OnRshWzpI1/Sw6LaqwUmJIZdPXEVij1rI0Odd7VB+i29jLEpFbUki7jnBOxG1lgSv8bloeKizug4JYuUhMifZ4q7Wr+hlWttBxlOMewMzHwOPSg3LJxsMJfJ1jcTczpkVAbJXIoxnUVqXqlsNyc20Bfad20A5Oe0qZ7nI=";

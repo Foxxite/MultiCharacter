@@ -2,7 +2,7 @@ package com.foxxite.multicharacter.misc;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_15_R1.Entity;
+import net.minecraft.server.v1_16_R1.Entity;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

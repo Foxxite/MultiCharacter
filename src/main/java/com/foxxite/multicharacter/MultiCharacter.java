@@ -38,7 +38,7 @@ public class MultiCharacter extends JavaPlugin {
     public static final String USER_ID = "%%__USER__%%";
     public static final String NONCE = "%%__NONCE__%%";
     public static String PLATFORM = "%%__SONGODA__%%";
-
+    public static MultiCharacter instance;
     @Getter
     private final ArrayList<UUID> playersInCreation = new ArrayList<>();
     @Getter
@@ -75,8 +75,14 @@ public class MultiCharacter extends JavaPlugin {
     private CharacterCreator characterCreator;
     private CommandHandler commandHandler;
 
+    public static MultiCharacter getInstance() {
+        return instance;
+    }
+
     @Override
     public void onEnable() {
+
+        instance = this;
 
         // Make sure platform is correct
         if (PLATFORM.equalsIgnoreCase("%%__SONGODA__%%")) {

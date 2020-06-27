@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.foxxite</groupId>
   <artifactId>MultiCharacter</artifactId>
-  <version>1.4.3</version>
+  <version>1.4.6</version>
   <build>
     <resources>
       <resource>
@@ -104,7 +104,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.15.2-R0.1-SNAPSHOT</version>
+      <version>1.16.1-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -138,6 +138,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot</artifactId>
+      <version>1.16.1-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.github.MilkBowl</groupId>
       <artifactId>VaultAPI</artifactId>
       <version>1.7</version>
@@ -148,13 +154,6 @@
           <groupId>org.bukkit</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>net.minecraft</groupId>
-      <artifactId>server</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>F:/IntelliJ/TestServer/cache/patched_1.15.2.jar</systemPath>
     </dependency>
   </dependencies>
   <properties>

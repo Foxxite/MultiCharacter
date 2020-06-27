@@ -13,7 +13,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import net.milkbowl.vault.permission.Permission;
-import net.minecraft.server.v1_15_R1.*;
+import net.minecraft.server.v1_16_R1.*;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -21,9 +21,9 @@ import org.bukkit.Material;
 import org.bukkit.SoundCategory;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftArmorStand;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -911,7 +911,7 @@ public class WorldSpaceMenu implements Listener {
         }.runTaskLaterAsynchronously(plugin, 3L);
 
         // Make NPC face the right way
-        Location NPCLocation = fakeEntityPlayer.getBukkitLivingEntity().getLocation();
+        Location NPCLocation = fakeEntityPlayer.getBukkitEntity().getLocation();
 
         Location lookATTarget = lookAtTarget(player.getLocation(), NPCLocation);
 

@@ -1,8 +1,8 @@
 package com.foxxite.multicharacter.misc;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.server.v1_15_R1.EntityPlayer;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import net.minecraft.server.v1_16_R1.EntityPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -11,8 +11,7 @@ import java.util.UUID;
 
 public class UUIDHandler {
 
-    public static void CHANGE_UUID(Player player, UUID newUUID)
-    {
+    public static void CHANGE_UUID(Player player, UUID newUUID) {
         try {
             Method getHandle = player.getClass().getMethod("getHandle");
             Object entityPlayer = getHandle.invoke(player);
@@ -21,19 +20,16 @@ public class UUIDHandler {
             Class entity = entityLiving.getSuperclass();
 
             Field uniqueId = entity.getDeclaredField("uniqueID");
-            final boolean originalAccessibleValue = uniqueId.isAccessible();
+            boolean originalAccessibleValue = uniqueId.isAccessible();
             uniqueId.setAccessible(true);
             uniqueId.set(entityPlayer, newUUID);
             uniqueId.setAccessible(originalAccessibleValue);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public static void CHANGE_NAME(Player player, String newName)
-    {
+    public static void CHANGE_NAME(Player player, String newName) {
         try {
             Method getHandle = player.getClass().getMethod("getHandle");
             Object entityPlayer = getHandle.invoke(player);
@@ -42,21 +38,18 @@ public class UUIDHandler {
             Class entity = entityLiving.getSuperclass();
 
             Field uniqueId = entity.getDeclaredField("name");
-            final boolean originalAccessibleValue = uniqueId.isAccessible();
+            boolean originalAccessibleValue = uniqueId.isAccessible();
             uniqueId.setAccessible(true);
             uniqueId.set(entityPlayer, newName);
             uniqueId.setAccessible(originalAccessibleValue);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public static void RESET_UUID(Player player)
-    {
-        final EntityPlayer ep = ((CraftPlayer) player).getHandle();
-        final GameProfile gp = ep.getProfile();
+    public static void RESET_UUID(Player player) {
+        EntityPlayer ep = ((CraftPlayer) player).getHandle();
+        GameProfile gp = ep.getProfile();
 
         UUIDHandler.CHANGE_UUID(player, gp.getId());
     }

@@ -6,7 +6,7 @@
 
     <groupId>com.foxxite</groupId>
     <artifactId>MultiCharacter</artifactId>
-    <version>1.4.4</version>
+    <version>1.4.6</version>
 
     <repositories>
         <repository>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.15.2-R0.1-SNAPSHOT</version>
+            <version>1.16.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -78,12 +78,18 @@
         </dependency>
 
         <!-- NMS -->
+        <!--        <dependency>-->
+        <!--            <groupId>net.minecraft</groupId>-->
+        <!--            <artifactId>server</artifactId>-->
+        <!--            <version>1.0.0</version>-->
+        <!--            <scope>system</scope>-->
+        <!--            <systemPath>F:/IntelliJ/TestServer/cache/server_1.16.1.jar</systemPath>-->
+        <!--        </dependency>-->
         <dependency>
-            <groupId>net.minecraft</groupId>
-            <artifactId>server</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>F:/IntelliJ/TestServer/cache/patched_1.15.2.jar</systemPath>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.16.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Vault -->

@@ -6,16 +6,13 @@ import com.foxxite.multicharacter.misc.UUIDHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.minecraft.server.v1_15_R1.DimensionManager;
-import net.minecraft.server.v1_15_R1.EntityPlayer;
-import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_15_R1.PacketPlayOutRespawn;
+import net.minecraft.server.v1_16_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -117,7 +114,7 @@ public class NMSSkinChanger {
         Location l = player.getLocation();
         EntityPlayer ep = ((CraftPlayer) player).getHandle();
 
-        net.minecraft.server.v1_15_R1.World w = ((CraftWorld) l.getWorld()).getHandle();
+        net.minecraft.server.v1_16_R1.World w = ((CraftWorld) l.getWorld()).getHandle();
         World.Environment environment = player.getWorld().getEnvironment();
 
         int dimension = 0;
@@ -126,17 +123,22 @@ public class NMSSkinChanger {
         } else if (environment.equals(World.Environment.THE_END)) {
             dimension = 1;
         }
-        //send packet to player
+
+        //send packets to player
         DimensionManager dm = DimensionManager.a(dimension);
 
         PacketPlayOutRespawn respawn = new PacketPlayOutRespawn(dm, w.worldData.getSeed(), w.worldData.getType(), ep.playerInteractManager.getGameMode());
-        PacketPlayOutPlayerInfo removeInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ep);
-        PacketPlayOutPlayerInfo addInfo = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ep);
+        PacketPlayOutPlayerInfo infoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ep);
+        PacketPlayOutPlayerInfo infoAdd = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ep);
+        PacketPlayOutPosition position = new PacketPlayOutPosition(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch(), new HashSet<>(), 0);
+        PacketPlayOutHeldItemSlot itemSlot = new PacketPlayOutHeldItemSlot(player.getInventory().getHeldItemSlot());
 
         Location loc = player.getLocation().clone();
 
         ep.playerConnection.sendPacket(respawn);
-        ep.playerConnection.sendPacket(removeInfo);
+        ep.playerConnection.sendPacket(destroy);
+
+        ep.playerConnection.sendPacket(spawn);
         ep.playerConnection.sendPacket(addInfo);
         ep.updateAbilities();
     }

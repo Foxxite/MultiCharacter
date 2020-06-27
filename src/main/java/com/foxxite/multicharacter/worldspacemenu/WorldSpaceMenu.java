@@ -575,11 +575,11 @@ public class WorldSpaceMenu implements Listener {
 
                     player.setDisplayName(character.getName());
 
-                    NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(plugin, player, character.getCharacterID(), character.getSkinTexture(), character.getSkinSignature());
-
                     plugin.getActiveCharacters().put(player.getUniqueId(), character);
 
-                    SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(plugin, player, character);
+                    NMSSkinChanger nmsSkinChanger = new NMSSkinChanger(plugin, player, character.getCharacterID(), character.getSkinTexture(), character.getSkinSignature());
+
+                    showSpawnMenu(plugin, player, character);
                 }
                 // Staff Mode
                 else if (selectedStand == 3) {
@@ -620,6 +620,15 @@ public class WorldSpaceMenu implements Listener {
             }
         }
 
+    }
+
+    private void showSpawnMenu(MultiCharacter _plugin, Player _player, Character _character) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(_plugin, _player, _character);
+            }
+        }.runTaskLater(plugin, 10L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

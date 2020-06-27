@@ -6,7 +6,10 @@ import com.foxxite.multicharacter.misc.UUIDHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_16_R1.DimensionManager;
+import net.minecraft.server.v1_16_R1.EntityPlayer;
+import net.minecraft.server.v1_16_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_16_R1.PacketPlayOutRespawn;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -16,6 +19,7 @@ import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -117,30 +121,48 @@ public class NMSSkinChanger {
         net.minecraft.server.v1_16_R1.World w = ((CraftWorld) l.getWorld()).getHandle();
         World.Environment environment = player.getWorld().getEnvironment();
 
-        int dimension = 0;
-        if (environment.equals(World.Environment.NETHER)) {
-            dimension = -1;
-        } else if (environment.equals(World.Environment.THE_END)) {
-            dimension = 1;
+        try {
+
+            for (Field field : DimensionManager.class.getDeclaredFields()) {
+                System.out.println(field.getName());
+            }
+
+            Field OVERWORLD_IMPL = DimensionManager.class.getDeclaredField("OVERWORLD_IMPL");
+            Field NETHER_IMPL = DimensionManager.class.getDeclaredField("THE_NETHER_IMPL");
+            Field THE_END_IMPL = DimensionManager.class.getDeclaredField("THE_END_IMPL");
+
+            OVERWORLD_IMPL.setAccessible(true);
+            NETHER_IMPL.setAccessible(true);
+            THE_END_IMPL.setAccessible(true);
+
+            //send packets to player
+            DimensionManager dimension = (DimensionManager) OVERWORLD_IMPL.get(new Object());
+            if (environment.equals(org.bukkit.World.Environment.NETHER)) {
+                dimension = (DimensionManager) NETHER_IMPL.get(new Object());
+            } else if (environment.equals(World.Environment.THE_END)) {
+                dimension = (DimensionManager) THE_END_IMPL.get(new Object());
+            }
+
+            System.out.println(dimension);
+
+            PacketPlayOutRespawn respawn = new PacketPlayOutRespawn(dimension, w.worldData, w.getWorld().getSeed(), ep.playerInteractManager.getGameMode(), ep.playerInteractManager.getGameMode(), true, true, true);
+            PacketPlayOutPlayerInfo infoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ep);
+            PacketPlayOutPlayerInfo infoAdd = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ep);
+
+            Location loc = player.getLocation().clone();
+
+            ep.playerConnection.sendPacket(infoRemove);
+            ep.playerConnection.sendPacket(infoAdd);
+
+            ep.playerConnection.sendPacket(respawn);
+
+            ep.updateAbilities();
+
+        } catch (Exception e) {
+            plugin.getPluginLogger().severe(e.getMessage() + " " + e.getCause());
+            e.printStackTrace();
+            return;
         }
-
-        //send packets to player
-        DimensionManager dm = DimensionManager.a(dimension);
-
-        PacketPlayOutRespawn respawn = new PacketPlayOutRespawn(dm, w.worldData.getSeed(), w.worldData.getType(), ep.playerInteractManager.getGameMode());
-        PacketPlayOutPlayerInfo infoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ep);
-        PacketPlayOutPlayerInfo infoAdd = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ep);
-        PacketPlayOutPosition position = new PacketPlayOutPosition(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch(), new HashSet<>(), 0);
-        PacketPlayOutHeldItemSlot itemSlot = new PacketPlayOutHeldItemSlot(player.getInventory().getHeldItemSlot());
-
-        Location loc = player.getLocation().clone();
-
-        ep.playerConnection.sendPacket(respawn);
-        ep.playerConnection.sendPacket(destroy);
-
-        ep.playerConnection.sendPacket(spawn);
-        ep.playerConnection.sendPacket(addInfo);
-        ep.updateAbilities();
     }
 
 }

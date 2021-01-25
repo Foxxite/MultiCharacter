@@ -1,11 +1,11 @@
-#MultiCharacter
+# MultiCharacter
 
 Multi Character adds Multiple Playable Characters like GTA Online,
 
 Each character has their own identity (name, skin and inventory). Your players can create up to 3 characters. Your staff will be able to switch between a preferred character or Staff Mode (using their own skin, and IGN).
 
 
-##Dependencies:
+## Dependencies:
 
 - An online mode server / Correctly configured BungeeCord server.
 - Vault (required)

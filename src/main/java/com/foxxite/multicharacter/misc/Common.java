@@ -2,7 +2,7 @@ package com.foxxite.multicharacter.misc;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_16_R1.Entity;
+import net.minecraft.server.v1_16_R3.Entity;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -136,7 +136,7 @@ public class Common {
     public static ItemStack[] stringToInventory(String yamlInventory) {
         YamlConfiguration inventoryConfig = new YamlConfiguration();
 
-        if (yamlInventory.isEmpty() || yamlInventory.equalsIgnoreCase("")) {
+        if (yamlInventory.isEmpty()) {
             return null;
         }
 
@@ -158,10 +158,8 @@ public class Common {
     }
 
     public static String getLocationAsString(Location location) {
-        String output =
-                location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " +
-                        location.getWorld().getName();
-        return output;
+        return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " +
+                location.getWorld().getName();
     }
 
     public static Location getLocationFromString(String location) {

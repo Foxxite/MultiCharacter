@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 
 public class UpdateChecker {
     private int resourceId;
@@ -20,7 +21,7 @@ public class UpdateChecker {
             this.resourceURL = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + resourceId);
         } catch (final Exception exception) {
             System.out.println(exception.getCause() + " " + exception.getMessage());
-            System.out.println(exception.getStackTrace());
+            System.out.println(Arrays.toString(exception.getStackTrace()));
             return;
         }
 

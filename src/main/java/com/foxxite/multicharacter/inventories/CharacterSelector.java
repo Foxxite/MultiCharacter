@@ -34,6 +34,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -104,7 +105,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
             player.setGameMode(GameMode.SPECTATOR);
 
             player.openInventory(getInventory());
-        }, 5l);
+        }, 5L);
     }
 
     private void populateGUI() {
@@ -273,6 +274,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
         }
     }
 
+    @NotNull
     @Override
     public Inventory getInventory() {
         return selectorGui;
@@ -427,8 +429,7 @@ public class CharacterSelector implements InventoryHolder, Listener {
                 }
 
                 // Get response body
-                String responseStr = response.body().string();
-                return responseStr;
+                return response.body().string();
             }
 
         } catch (Exception ex) {

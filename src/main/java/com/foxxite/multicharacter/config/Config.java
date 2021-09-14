@@ -29,10 +29,7 @@ public class Config {
     }
 
     public boolean reloadConfig() {
-        if (this.createOrLoadConfig()) {
-            return true;
-        }
-        return false;
+        return this.createOrLoadConfig();
     }
 
     public FileConfiguration getConfig() {

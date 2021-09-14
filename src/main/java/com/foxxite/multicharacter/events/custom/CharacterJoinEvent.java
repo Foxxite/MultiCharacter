@@ -2,6 +2,7 @@ package com.foxxite.multicharacter.events.custom;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class CharacterJoinEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();
@@ -10,6 +11,7 @@ public class CharacterJoinEvent extends Event {
         return HANDLERS;
     }
 
+    @NotNull
     public HandlerList getHandlers() {
         return HANDLERS;
     }

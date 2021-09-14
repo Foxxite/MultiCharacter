@@ -17,6 +17,7 @@ import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -116,12 +117,7 @@ public class MultiCharacter extends JavaPlugin {
         if (configuration.getBoolean("bstats")) {
             Metrics metrics = new Metrics(this, 7480);
 
-            metrics.addCustomChart(new Metrics.SimplePie("uuid_changer", new Callable<String>() {
-                @Override
-                public String call() throws Exception {
-                    return configuration.getBoolean("use-character-uuid") ? "yes" : "no";
-                }
-            }));
+            metrics.addCustomChart(new SimplePie("uuid_changer", () -> configuration.getBoolean("use-character-uuid") ? "yes" : "no"));
         }
 
         //Setup Vault Classes
@@ -183,7 +179,7 @@ public class MultiCharacter extends JavaPlugin {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             try {
-                uuidHandler.RESET_UUID(player);
+                UUIDHandler.RESET_UUID(player);
             } catch (Exception e) {
                 pluginLogger.warning(e.getMessage() + " " + e.getCause());
                 e.printStackTrace();
@@ -253,7 +249,7 @@ public class MultiCharacter extends JavaPlugin {
             return false;
         }
         vaultEconomy = rsp.getProvider();
-        return vaultEconomy != null;
+        return true;
     }
 
     private boolean setupPermissions() {
@@ -262,6 +258,6 @@ public class MultiCharacter extends JavaPlugin {
             return false;
         }
         vaultPermission = rsp.getProvider();
-        return vaultPermission != null;
+        return true;
     }
 }

@@ -6,12 +6,12 @@ import com.foxxite.multicharacter.misc.UUIDHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -65,11 +65,7 @@ public class NMSSkinChanger {
             pm.remove("textures", property);
         }
 
-        String textureValue = skinTexture;
-
-        String textureSignature = skinSignature;
-
-        pm.put("textures", new Property("textures", textureValue, textureSignature));
+        pm.put("textures", new Property("textures", skinTexture, skinSignature));
 
         plugin.getPluginLogger().info("Old UUID: " + gp.getId());
         plugin.getPluginLogger().info("Old UUID Spigot: " + player.getUniqueId());
@@ -110,10 +106,10 @@ public class NMSSkinChanger {
     }
 
     public void reloadSkinForSelf(Player player) {
-        Location l = player.getLocation();
-        EntityPlayer ep = ((CraftPlayer) player).getHandle();
+        Location playerLocation = player.getLocation();
+        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
 
-        net.minecraft.server.v1_16_R1.World w = ((CraftWorld) l.getWorld()).getHandle();
+        World w = ((CraftWorld) playerLocation.getWorld()).getHandle();
         org.bukkit.World.Environment environment = w.getWorld().getEnvironment();
 
         ResourceKey<DimensionManager> dimension = DimensionManager.OVERWORLD;
@@ -123,18 +119,18 @@ public class NMSSkinChanger {
             dimension = DimensionManager.THE_END;
         }
 
-        PacketPlayOutRespawn respawn = new PacketPlayOutRespawn(dimension, w.getDimensionKey(), w.getWorld().getSeed(), ep.playerInteractManager.getGameMode(), ep.playerInteractManager.getGameMode(), true, true, true);
-        PacketPlayOutPlayerInfo infoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ep);
-        PacketPlayOutPlayerInfo infoAdd = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ep);
+        PacketPlayOutRespawn respawn = new PacketPlayOutRespawn(w.getDimensionManager(), w.getDimensionKey(), w.getWorld().getSeed(), entityPlayer.playerInteractManager.getGameMode(), entityPlayer.playerInteractManager.getGameMode(), true, true, true);
+        PacketPlayOutPlayerInfo infoRemove = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, entityPlayer);
+        PacketPlayOutPlayerInfo infoAdd = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, entityPlayer);
 
         Location loc = player.getLocation().clone();
 
-        ep.playerConnection.sendPacket(infoRemove);
-        ep.playerConnection.sendPacket(infoAdd);
+        entityPlayer.playerConnection.sendPacket(infoRemove);
+        entityPlayer.playerConnection.sendPacket(infoAdd);
 
-        ep.playerConnection.sendPacket(respawn);
+        entityPlayer.playerConnection.sendPacket(respawn);
 
-        ep.updateAbilities();
+        entityPlayer.updateAbilities();
     }
 
 }

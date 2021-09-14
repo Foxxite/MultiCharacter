@@ -9,13 +9,13 @@ import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.minecraft.server.v1_16_R1.EntityPlayer;
+import net.minecraft.server.v1_16_R3.EntityPlayer;
 import okhttp3.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -68,48 +68,56 @@ public class CharacterCreator extends TimerTask implements Listener {
                 case NAME:
                     message = language.getMessage("character-creator.name");
 
+                    assert player != null;
                     Common.sendActionBarMessage(message, player);
                     player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case BIRTHDAY:
                     message = language.getMessage("character-creator.birthday");
 
+                    assert player != null;
                     Common.sendActionBarMessage(message, player);
                     player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case SEX:
                     message = language.getMessage("character-creator.sex");
 
+                    assert player != null;
                     Common.sendActionBarMessage(message, player);
                     player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case NATIONALITY:
                     message = language.getMessage("character-creator.nationality");
 
+                    assert player != null;
                     Common.sendActionBarMessage(message, player);
                     player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case MODEL:
                     message = language.getMessage("character-creator.model");
 
+                    assert player != null;
                     Common.sendActionBarMessage(message, player);
                     player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case SKIN:
                     message = language.getMessage("character-creator.skin");
 
+                    assert player != null;
                     Common.sendActionBarMessage(message, player);
                     player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case CREATING:
                     message = language.getMessage("character-creator.creating");
 
+                    assert player != null;
                     Common.sendActionBarMessage(message, player);
                     player.sendTitle(creatorTitle, message, 0, 20, 0);
                     break;
                 case COMPLETE:
                     message = "";
 
+                    assert player != null;
                     Common.sendActionBarMessage(message, player);
                     player.sendTitle(creatorTitle, message, 0, 20, 0);
 
@@ -121,6 +129,7 @@ public class CharacterCreator extends TimerTask implements Listener {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
+                            assert player != null;
                             removePlayerFromCreator(player);
 
                             plugin.getPlayersInWorldMenu().put(player.getUniqueId(), new WorldSpaceMenu(plugin, player));
@@ -150,12 +159,13 @@ public class CharacterCreator extends TimerTask implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    void onPlayerChat(PlayerChatEvent event) {
-        Player player = event.getPlayer();
+    @Deprecated
+    void onPlayerChat(PlayerChatEvent e) {
+        Player player = e.getPlayer();
         UUID playerUUID = player.getUniqueId();
 
         if (playerState.containsKey(playerUUID)) {
-            event.setCancelled(true);
+            e.setCancelled(true);
         }
     }
 
@@ -370,15 +380,15 @@ public class CharacterCreator extends TimerTask implements Listener {
                 //Dump request for debugging.
                 plugin.getPluginLogger().info("Request:");
                 plugin.getPluginLogger().info(request.toString());
-                plugin.getPluginLogger().info(request.body().toString());
+                plugin.getPluginLogger().info(Objects.requireNonNull(request.body()).toString());
 
                 if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
                 }
 
                 // Get response body
-                String responseStr = response.body().string();
-                return responseStr;
+                //String responseStr = response.body().string();
+                return Objects.requireNonNull(response.body()).string();
             }
 
         } catch (Exception ex) {
@@ -387,18 +397,19 @@ public class CharacterCreator extends TimerTask implements Listener {
 
             //Dump request for debugging.
             plugin.getPluginLogger().info("Request:");
+            assert request != null;
             plugin.getPluginLogger().info(request.toString());
-            plugin.getPluginLogger().info(request.body().toString());
+            plugin.getPluginLogger().info(Objects.requireNonNull(request.body()).toString());
 
             return ex.getMessage();
         }
     }
 
-    private void getOwnSkinData(Player player) {
+    private void getOwnSkinData(Player p) {
 
-        UUID playerUUID = player.getUniqueId();
+        UUID playerUUID = p.getUniqueId();
 
-        EntityPlayer ep = ((CraftPlayer) player).getHandle();
+        EntityPlayer ep = ((CraftPlayer) p).getHandle();
         GameProfile gp = ep.getProfile();
 
         PropertyMap pm = gp.getProperties();

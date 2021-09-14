@@ -13,7 +13,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import net.milkbowl.vault.permission.Permission;
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_16_R3.*;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -21,9 +21,9 @@ import org.bukkit.Material;
 import org.bukkit.SoundCategory;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftArmorStand;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -48,6 +48,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class WorldSpaceMenu implements Listener {
 
@@ -78,6 +79,7 @@ public class WorldSpaceMenu implements Listener {
     private ArmorStand staffModeStand;
     private boolean inDeleteMode = false;
     private Character characterToDelete;
+    private Location menuLocation;
 
     public WorldSpaceMenu(MultiCharacter plugin, Player player) {
         this.plugin = plugin;
@@ -108,7 +110,11 @@ public class WorldSpaceMenu implements Listener {
         final float yaw = 180;
         final float pitch = 0;
         String confWorld = config.getString("menu.location.world");
-        Location menuLocation = new Location(Bukkit.getWorld(confWorld), x, y, z, yaw, pitch);
+        if (Bukkit.getWorld(confWorld) != null) {
+            menuLocation = new Location(Bukkit.getWorld(confWorld), x, y, z, yaw, pitch);
+        } else {
+            Bukkit.getLogger().log(Level.SEVERE, "Menu Location world [" + confWorld + "] is invalid, please set a valid world!");
+        }
 
         player.teleport(menuLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.setAllowFlight(true);

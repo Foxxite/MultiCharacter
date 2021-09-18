@@ -163,7 +163,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <skip>false</skip>
+                            <skip>true</skip>
                             <executable>${project.basedir}\scripts\copy.bat</executable>
                             <arguments>
                                 <argument>

@@ -574,7 +574,11 @@ public class WorldSpaceMenu implements Listener {
                         player.updateInventory();
                     }
 
-                    player.setHealth(character.getHealth());
+                    if (character.getHealth() >=18) {
+                        player.setHealth(player.getMaxHealth());
+                    } else {
+                        player.setHealth(character.getHealth());
+                    }
                     player.setFoodLevel(character.getHunger());
                     player.setExp((float) character.getExp());
                     player.setLevel(character.getExpLevel());

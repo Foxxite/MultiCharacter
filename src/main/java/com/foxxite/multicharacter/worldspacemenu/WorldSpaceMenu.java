@@ -636,7 +636,8 @@ public class WorldSpaceMenu implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(_plugin, _player, _character);
+                //SpawnLocationSelector spawnLocationSelector = new SpawnLocationSelector(_plugin, _player, _character);
+                new SpawnLocationSelector(_plugin, _player, _character);
             }
         }.runTaskLater(plugin, 10L);
     }

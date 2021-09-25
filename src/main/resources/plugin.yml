@@ -5,11 +5,11 @@ author: Foxxite
 description: System for multiple characters with their own skins.
 website: https://foxxite.com
 
-version: "1.4.6"
+version: "1.4.7"
 api-version: "1.16"
 
-depend: [Vault]
-softdepend: [PlaceholderAPI]
+depend: [ Vault ]
+softdepend: [ PlaceholderAPI ]
 
 commands:
   multicharacter:

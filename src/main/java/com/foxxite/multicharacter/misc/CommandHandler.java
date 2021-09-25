@@ -8,6 +8,7 @@ import com.foxxite.multicharacter.worldspacemenu.WorldSpaceMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
@@ -37,7 +38,7 @@ public class CommandHandler implements TabExecutor {
                 if (args.length > 0) {
                     switch (args[0]) {
                         case "reload":
-                            if (player.hasPermission("multicharacter.admin")) {
+                            if (player.hasPermission("multicharacter.admin") || sender instanceof ConsoleCommandSender) {
                                 config.reloadConfig();
                                 plugin.reloadConfig();
                                 language.reloadLanguage();
@@ -229,10 +230,7 @@ public class CommandHandler implements TabExecutor {
 
     private boolean saveData(Player player) {
         if (plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
-            if (!plugin.getActiveCharacters().get(player.getUniqueId()).saveData()) {
-                return false;
-            }
-            return true;
+            return plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
         }
         return false;
     }

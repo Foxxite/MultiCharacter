@@ -27,7 +27,7 @@ public class PlayerQuitEventListener implements Listener {
         plugin.getPluginLogger().info("Player quit event fired for: " + player.getName());
 
         if (plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
-            plugin.getPluginLogger().info("Data should be saved for: " + player.getName());
+            plugin.getPluginLogger().info("PlayerData saved for: " + player.getName());
 
             Character character = plugin.getActiveCharacters().get(player.getUniqueId());
             character.saveData(player);

@@ -24,15 +24,13 @@ public class ItemPickupEventListener implements Listener {
         if (entity instanceof Player) {
 
             Player player = (Player) entity;
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                player.updateInventory();
-            }, 1L);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, player::updateInventory, 1L);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                 if (plugin.getActiveCharacters().containsKey(player.getUniqueId())) {
                     plugin.getActiveCharacters().get(player.getUniqueId()).saveData();
                 }
-            }, 1l);
+            }, 1L);
 
         }
     }

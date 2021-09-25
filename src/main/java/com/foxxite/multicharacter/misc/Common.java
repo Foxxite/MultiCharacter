@@ -1,13 +1,13 @@
 package com.foxxite.multicharacter.misc;
 
+import com.foxxite.multicharacter.MultiCharacter;
+import lombok.Getter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_16_R1.Entity;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import net.minecraft.server.v1_16_R3.Entity;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -18,7 +18,7 @@ import org.bukkit.inventory.meta.Repairable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.UUID;
+import java.util.*;
 
 public class Common {
 
@@ -136,7 +136,7 @@ public class Common {
     public static ItemStack[] stringToInventory(String yamlInventory) {
         YamlConfiguration inventoryConfig = new YamlConfiguration();
 
-        if (yamlInventory.isEmpty() || yamlInventory.equalsIgnoreCase("")) {
+        if (yamlInventory.isEmpty()) {
             return null;
         }
 
@@ -158,20 +158,29 @@ public class Common {
     }
 
     public static String getLocationAsString(Location location) {
-        String output =
-                location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " +
-                        location.getWorld().getName();
-        return output;
+
+        World worldLocation = Bukkit.getServer().getWorlds().get(0);
+        double Lx = Bukkit.getServer().getWorlds().get(0).getSpawnLocation().getBlockX();
+        double Ly = Bukkit.getServer().getWorlds().get(0).getSpawnLocation().getBlockY();
+        double Lz = Bukkit.getServer().getWorlds().get(0).getSpawnLocation().getBlockZ();
+
+        try {
+            return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " + location.getWorld().getName();
+        } catch (NullPointerException e) {
+            Bukkit.getLogger().warning("spawn-locations.world is invalid! Sending player to default overworld spawn location!");
+            return Lx + ", " + Ly + ", " + Lz + ", " + worldLocation.getName();
+        }
     }
 
     public static Location getLocationFromString(String location) {
         String[] locationString = location.split(",");
+        World worldLocation = Bukkit.getServer().getWorld(locationString[3].trim());
+        double Lx = Double.parseDouble(locationString[0]);
+        double Ly = Double.parseDouble(locationString[1]);
+        double Lz = Double.parseDouble(locationString[2]);
 
-        Location output = new Location(Bukkit.getServer().getWorld(locationString[3].trim()),
-                Double.parseDouble(locationString[0]), Double.parseDouble(locationString[1]),
-                Double.parseDouble(locationString[2]));
 
-        return output;
+        return new Location(worldLocation, Lx, Ly, Lz);
     }
 
     public static void broadcastActionBar(String message) {

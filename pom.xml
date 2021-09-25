@@ -6,7 +6,7 @@
 
     <groupId>com.foxxite</groupId>
     <artifactId>MultiCharacter</artifactId>
-    <version>1.4.6</version>
+    <version>1.4.7</version>
 
     <repositories>
         <repository>
@@ -40,7 +40,7 @@
     </repositories>
 
     <dependencies>
-        
+
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
